@@ -15,7 +15,7 @@ export default function Logo() {
         className="font-display lg:text-7xl text-6xl font-semibold"
         initial={initial}
         animate={animate}
-        transition={transition}
+        transition={{ ...transition, delay: 1 }}
       >
         Date Night
       </motion.h1>
@@ -23,7 +23,7 @@ export default function Logo() {
         className="font-body lg:text-3xl text-2xl font-semibold"
         initial={initial2}
         animate={animate2}
-        transition={{ ...transition2, delay: 1 }}
+        transition={{ ...transition2, delay: 2 }}
       >
         from Kyle
       </motion.p>

@@ -1,4 +1,4 @@
-import DateModal from "./DateModal";
+import DateModal from './DateModal';
 
 interface DateCardProps {
   date: {
@@ -9,9 +9,9 @@ interface DateCardProps {
     mystery: {
       title: string;
       description: string;
-    }
-    tags: { title: string; color: string }[]
-  }
+    };
+    tags: { title: string; color: string }[];
+  };
 }
 
 export default function DateCard({ date }: DateCardProps) {
