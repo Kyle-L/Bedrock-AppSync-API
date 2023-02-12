@@ -17,7 +17,7 @@ export default function Logo() {
         animate={animate}
         transition={{ ...transition, delay: 1 }}
       >
-        Date Night
+        Date Nights
       </motion.h1>
       <motion.p
         className="font-body lg:text-3xl text-2xl font-semibold"
@@ -25,7 +25,7 @@ export default function Logo() {
         animate={animate2}
         transition={{ ...transition2, delay: 2 }}
       >
-        from Kyle
+        by Kyle
       </motion.p>
     </div>
   );

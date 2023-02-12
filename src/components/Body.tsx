@@ -1,12 +1,56 @@
 import { motion } from 'framer-motion';
 import DateCard from './DateCard';
 
+interface Date {
+  real: {
+    title: string;
+    description: string;
+  };
+  mystery: {
+    title: string;
+    description: string;
+  };
+  tags: { title: string; color: string }[];
+}
+
 export default function Body() {
   const initial = { height: 0, opacity: 0 };
   const animate = { height: 'auto', opacity: 1 };
   const transition = { delay: 4, type: 'spring', stiffness: 25, damping: 10 };
 
-  const dates = [
+  const dates: Date[] = [
+    {
+      real: {
+        title: 'Thift Store Date',
+        description:
+          'Alright, so I had a fun idea for a date. I think it would be fun to go to a thrift store and pick out some clothes for each other.<br /><br />I can pick out fun stuff for you, and you can pickout fun stuff for me. (We should also get coffee as part of this).'
+      },
+      mystery: {
+        title: 'Impromptu Date',
+        description:
+          'This impromptu date only a few minutes to plan and can be done at any time of the day.'
+      },
+      tags: [
+        { title: 'fashion-related', color: 'bg-purple-200' },
+        { title: 'price: < $10', color: 'bg-green-200' }
+      ]
+    },
+    {
+      real: {
+        title: 'Wax Play',
+        description:
+          'Since we have both talked about it, I think it would be a fun idea to have a "wax play" date.<br /><br />We can go together to any local sex shop, find some skin safe wax, and go to one of our apartments have a fun kinky evening experimenting with wax play.'
+      },
+      mystery: {
+        title: 'Impromptu Date',
+        description:
+          'This impromptu date only a few minutes to plan and can be done at any time of the day.'
+      },
+      tags: [
+        { title: 'sex-related', color: 'bg-red-200' },
+        { title: 'price: < $10', color: 'bg-green-200' }
+      ]
+    },
     {
       real: {
         title: 'Sex Shop Date',
@@ -178,8 +222,9 @@ export default function Body() {
         <p className="text-xl">A selection of mystery date ideas!</p>
       </div>
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
+        {/* Compare by title, then random */}
         {dates
-          .sort((date1, date2) => date1.mystery.title.localeCompare(date2.mystery.title))
+          .sort((date1, date2) => { return date1.mystery.title === date2.mystery.title ? Math.random() - 0.5 : date1.mystery.title <= date2.mystery.title ? 1 : -1 })
           .map((date, i) => (
             <motion.div
               key={i}
