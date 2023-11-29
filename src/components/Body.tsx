@@ -224,7 +224,13 @@ export default function Body() {
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
         {/* Compare by title, then random */}
         {dates
-          .sort((date1, date2) => { return date1.mystery.title === date2.mystery.title ? Math.random() - 0.5 : date1.mystery.title <= date2.mystery.title ? 1 : -1 })
+          .sort((date1, date2) => {
+            return date1.mystery.title === date2.mystery.title
+              ? Math.random() - 0.5
+              : date1.mystery.title <= date2.mystery.title
+              ? 1
+              : -1;
+          })
           .map((date, i) => (
             <motion.div
               key={i}

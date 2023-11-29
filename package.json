@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
-    "format": "prettier --write ."
+    "format": "prettier --check --ignore-path .gitignore .",
+    "format:fix": "prettier --write --ignore-path .gitignore .",
+    "fix": "npm run lint:fix && npm run format:fix"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.10",
