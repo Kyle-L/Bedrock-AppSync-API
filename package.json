@@ -1,37 +1,14 @@
 {
-  "name": "date-night",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "name": "gen-ai",
+  "version": "0.1.0",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix",
-    "format": "prettier --write ."
-  },
-  "dependencies": {
-    "@headlessui/react": "^1.7.10",
-    "framer-motion": "^9.0.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "@types/react": "^18.0.27",
-    "@types/react-dom": "^18.0.10",
-    "@typescript-eslint/eslint-plugin": "^5.51.0",
-    "@typescript-eslint/parser": "^5.51.0",
-    "@vitejs/plugin-react-swc": "^3.0.0",
-    "autoprefixer": "^10.4.13",
-    "eslint": "^8.34.0",
-    "eslint-config-prettier": "^8.6.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-react": "^7.32.2",
-    "postcss": "^8.4.21",
-    "prettier": "^2.8.4",
-    "tailwindcss": "^3.2.6",
-    "typescript": "^4.9.3",
-    "vite": "^4.1.0"
+    "fix": "npm run format && npm run lint",
+    "format": "npm run format:frontend && npm run format:infrastructure",
+    "format:frontend": "cd frontend && npm run format",
+    "format:infrastructure": "cd infrastructure && npm run format",
+    "lint": "npm run lint:frontend && npm run lint:infrastructure",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:infrastructure": "cd infrastructure && npm run lint",
+    "setup": "cd infrastructure && npm install && cd ../frontend && npm install"
   }
 }

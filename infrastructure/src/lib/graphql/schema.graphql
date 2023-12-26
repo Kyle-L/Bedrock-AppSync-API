@@ -1,0 +1,94 @@
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+enum Status {
+  NEW
+  PENDING
+  PROCESSING
+  COMPLETE
+}
+
+############## TYPES #####################
+
+type Persona @aws_cognito_user_pools @aws_iam {
+  personaId: String!
+
+  name: String!
+  avatar: String!
+
+  prompt: String!
+
+  subtitle: String
+  description: String
+  color: String
+}
+
+type MessageChunk @aws_cognito_user_pools @aws_iam {
+  userId: String
+  threadId: String
+  data: String
+  status: Status
+}
+
+type Message @aws_cognito_user_pools @aws_iam {
+  sender: String
+  text: String
+}
+
+input MessageInput {
+  sender: String
+  text: String
+}
+
+type Thread @aws_cognito_user_pools @aws_iam {
+  userId: String
+  threadId: String
+  data: [Message!]
+  status: Status
+
+  persona: Persona!
+}
+
+############## QUERIES #####################
+
+type Query {
+  getPersona(personaId: String!): Persona @aws_cognito_user_pools @aws_iam
+  getAllPersonas: [Persona!] @aws_cognito_user_pools @aws_iam
+
+  getThread(threadId: String!): Thread @aws_cognito_user_pools @aws_iam
+  getAllThreads: [Thread!] @aws_cognito_user_pools @aws_iam
+}
+
+############## MUTATIONS #####################
+
+type Mutation {
+  addThread(personaId: String!): Thread @aws_cognito_user_pools @aws_iam
+  deleteThread(threadId: String!): Thread @aws_cognito_user_pools @aws_iam
+  addMessageAsync(threadId: String!, prompt: String!): Thread @aws_cognito_user_pools
+
+  # The following mutation is protected by IAM authorization
+  sendMessageChunk(
+    userId: String!
+    threadId: String!
+    status: Status!
+    data: String!
+  ): MessageChunk @aws_iam
+
+  addMessageSystem(
+    userId: String!
+    threadId: String!
+    status: Status!
+    message: MessageInput!
+  ): Thread @aws_iam
+}
+
+############## SUBSCRIPTIONS #####################
+
+type Subscription {
+  recieveMessageChunkAsync(threadId: String!): MessageChunk
+    @aws_subscribe(mutations: ["sendMessageChunk"])
+    @aws_cognito_user_pools
+}
