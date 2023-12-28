@@ -9,7 +9,7 @@
 
 
 # Overview
-This repository contains the AWS CDK Infrastructure-as-code for an Chatbot that is powered an AWS AppSync web socket API to provide real-time chat functionality backed by AWS Bedrock. It is designed with serverless in mind and uses a variety of AWS services to provide a scalable and Gen AI application.
+This repository contains the AWS CDK Infrastructure-as-code for an AWS AppSync web socket API to provide real-time functionality backed by AWS Bedrock. It is designed with serverless in mind and uses a variety of AWS services to provide a scalable Gen AI API.
 
 A simple [Vite](https://vitejs.dev/) and [TypeScript](https://www.typescriptlang.org/) based frontend is provided to demonstrate the functionality of the API.
 
