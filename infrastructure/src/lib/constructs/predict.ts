@@ -81,8 +81,6 @@ export class PredictConstruct extends Construct {
     });
 
     // Trigger the AI Lambda when a message is sent to the SQS queue.
-    this.predictAsyncLambda.addEventSource(
-      new cdk.aws_lambda_event_sources.SqsEventSource(this.queue)
-    );
+    this.predictAsyncLambda.addEventSource(new cdk.aws_lambda_event_sources.SqsEventSource(this.queue));
   }
 }

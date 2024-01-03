@@ -13,8 +13,7 @@ export class VoiceConstruct extends Construct {
     // S3 bucket for storing audio files
     const s3Bucket = new cdk.aws_s3.Bucket(this, 'S3Bucket', {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
-      autoDeleteObjects: true,
-      publicReadAccess: true
+      autoDeleteObjects: true
     });
 
     // Voice Lambda

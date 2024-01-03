@@ -73,19 +73,9 @@ type Mutation {
   addVoice(personaId: String, message: String!): String @aws_cognito_user_pools @aws_iam
 
   # The following mutation is protected by IAM authorization
-  sendMessageChunk(
-    userId: String!
-    threadId: String!
-    status: Status!
-    data: String!
-  ): MessageChunk @aws_iam
+  sendMessageChunk(userId: String!, threadId: String!, status: Status!, data: String!): MessageChunk @aws_iam
 
-  addMessageSystem(
-    userId: String!
-    threadId: String!
-    status: Status!
-    message: MessageInput!
-  ): Thread @aws_iam
+  addMessageSystem(userId: String!, threadId: String!, status: Status!, message: MessageInput!): Thread @aws_iam
 }
 
 ############## SUBSCRIPTIONS #####################

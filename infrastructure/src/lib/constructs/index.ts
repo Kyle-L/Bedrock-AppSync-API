@@ -4,10 +4,4 @@ import { ApiConstruct } from './api';
 import { AuthConstruct } from './auth';
 import { VoiceConstruct } from './voice';
 
-export {
-  ConversationHistoryConstruct,
-  PredictConstruct,
-  ApiConstruct,
-  AuthConstruct,
-  VoiceConstruct
-};
+export { ConversationHistoryConstruct, PredictConstruct, ApiConstruct, AuthConstruct, VoiceConstruct };

@@ -27,11 +27,7 @@ export const handler: Handler = async (event: Event) => {
   const id = (event.identity as AppSyncIdentityCognito).sub;
 
   // Condition 2: The thread is not currently processing. If it is, throw an error.
-  if (
-    event.prev?.result?.status &&
-    event.prev.result.status !== 'NEW' &&
-    event.prev.result.status !== 'COMPLETE'
-  ) {
+  if (event.prev?.result?.status && event.prev.result.status !== 'NEW' && event.prev.result.status !== 'COMPLETE') {
     throw new Error('Thread is currently processing');
   }
 

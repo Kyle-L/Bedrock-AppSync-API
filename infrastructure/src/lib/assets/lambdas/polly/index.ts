@@ -18,11 +18,14 @@ export const handler: Handler = async (event: Event) => {
   console.log('Received Event:', event);
 
   try {
+    // Gets the persona's voice from the event
+    const voice = event?.prev?.result?.persona?.voice || 'Joanna';
+
     // Generate speech using Polly
     const pollyParams: StartSpeechSynthesisTaskCommandInput = {
       OutputFormat: 'mp3',
       Text: `${event.arguments.message}`,
-      VoiceId: VoiceId.Joanna,
+      VoiceId: voice as VoiceId,
       OutputS3BucketName: S3_BUCKET,
       OutputS3KeyPrefix: 'audio',
       Engine: 'neural'

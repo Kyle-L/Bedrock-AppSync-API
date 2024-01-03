@@ -15,12 +15,7 @@ async function createTimeoutTask(timeout: number) {
   });
 }
 
-async function processChunk(
-  userId: string,
-  threadId: string,
-  chunk: string,
-  status = 'PROCESSING'
-) {
+async function processChunk(userId: string, threadId: string, chunk: string, status = 'PROCESSING') {
   console.log(`Received Chunk: ${chunk}`);
   await sendRequest(sendMessageChunkMutation, {
     userId,
@@ -50,11 +45,7 @@ async function updateMessageSystemStatus(
  * @param threadId {string} The thread ID.
  * @param eventResult {Promise<void>}
  */
-async function completeProcessing(
-  userId: string,
-  threadId: string,
-  eventResult: { sender: string; text: string }
-) {
+async function completeProcessing(userId: string, threadId: string, eventResult: { sender: string; text: string }) {
   const result = await Promise.all([
     // Update the thread's status to COMPLETE and add the AI's response to the thread's message history.
     updateMessageSystemStatus(userId, threadId, 'COMPLETE', eventResult),
