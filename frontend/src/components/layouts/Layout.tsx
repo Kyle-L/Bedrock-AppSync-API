@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../providers/AuthProvider';
-import { useEffect } from 'react';
 
 export default function AuthLayout() {
   const { user, loaded, signOut } = useAuth();
@@ -9,10 +8,6 @@ export default function AuthLayout() {
   const location = useLocation();
 
   const authenticated = user && loaded;
-
-  useEffect(() => {
-    console.log(authenticated);
-  }, [loaded]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

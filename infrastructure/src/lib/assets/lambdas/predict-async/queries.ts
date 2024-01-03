@@ -2,7 +2,7 @@ import { AppSyncRequestIAM } from 'lib/assets/utils/appsync';
 
 const config = {
   url: process.env.GRAPHQL_URL || '',
-  region: process.env.REGION || 'us-east-2'
+  region: process.env.REGION || 'us-east-1'
 };
 
 /**

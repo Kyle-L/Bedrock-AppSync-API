@@ -44,7 +44,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: us-east-2
+          aws-region: us-east-1
 
       - name: Deploy
         run: npm run deploy
@@ -85,7 +85,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: us-east-2
+          aws-region: us-east-1
 
       - name: Deploy to S3
         run: |
