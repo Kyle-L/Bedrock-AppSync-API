@@ -6,7 +6,8 @@ import {
   ApiConstruct,
   AuthConstruct,
   ConversationHistoryConstruct,
-  PredictConstruct
+  PredictConstruct,
+  VoiceConstruct
 } from '../constructs';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 
@@ -47,22 +48,37 @@ export class BackendStack extends cdk.Stack {
       removalPolicy: props?.removalPolicy
     });
 
+    // Prediction lambdas
     const predict = new PredictConstruct(this, 'Predict', {
       appSyncApi: api.appsync,
       conversationHistoryTable: conversationHistory.table
     });
 
+    // WIP - Voice Lambda
+    const voice = new VoiceConstruct(this, 'Voice');
+
     /*================================= Data Sources =================================*/
+
+    // Lambda Data Sources
 
     const predictAsyncDataSource = api.appsync.addLambdaDataSource(
       'PredictAsyncDataSource',
       predict.queueLambda
     );
 
+    const getVoiceDataSource = api.appsync.addLambdaDataSource(
+      'GetVoiceDataSource',
+      voice.voiceLambda
+    );
+
+    // DynamoDB Data Sources
+
     const conversationHistoryDataSource = api.appsync.addDynamoDbDataSource(
       'ConversationHistoryDataSource',
       conversationHistory.table
     );
+
+    // None Data Sources
 
     const noneDataSource = api.appsync.addNoneDataSource('NoneDataSource');
 
@@ -137,6 +153,12 @@ export class BackendStack extends cdk.Stack {
       name: 'predictAsync',
       api: api.appsync,
       dataSource: predictAsyncDataSource
+    });
+
+    const getVoiceFunc = new appsync.AppsyncFunction(this, 'getVoice', {
+      name: 'addVoice',
+      api: api.appsync,
+      dataSource: getVoiceDataSource
     });
 
     /*================================= Resolvers =================================*/
@@ -232,6 +254,15 @@ export class BackendStack extends cdk.Stack {
       fieldName: 'recieveMessageChunkAsync',
       runtime: appsync.FunctionRuntime.JS_1_0_0,
       code: receiveAsync
+    });
+
+    new appsync.Resolver(this, 'getVoiceResolver', {
+      api: api.appsync,
+      typeName: 'Mutation',
+      fieldName: 'addVoice',
+      pipelineConfig: [getPersonaFunc, getVoiceFunc],
+      runtime: appsync.FunctionRuntime.JS_1_0_0,
+      code: passthrough
     });
   }
 }

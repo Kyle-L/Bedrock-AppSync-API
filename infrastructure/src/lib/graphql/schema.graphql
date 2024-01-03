@@ -67,7 +67,10 @@ type Query {
 type Mutation {
   addThread(personaId: String!): Thread @aws_cognito_user_pools @aws_iam
   deleteThread(threadId: String!): Thread @aws_cognito_user_pools @aws_iam
+
   addMessageAsync(threadId: String!, prompt: String!): Thread @aws_cognito_user_pools
+
+  addVoice(personaId: String, message: String!): String @aws_cognito_user_pools @aws_iam
 
   # The following mutation is protected by IAM authorization
   sendMessageChunk(
