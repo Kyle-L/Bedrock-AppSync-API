@@ -20,11 +20,7 @@ export class FrontendStack extends cdk.Stack {
     // An ACM certificate for the custom domain.
     let certificate: acm.ICertificate | undefined;
     if (props?.acmCertificateArn) {
-      certificate = acm.Certificate.fromCertificateArn(
-        this,
-        'Certificate',
-        props.acmCertificateArn
-      );
+      certificate = acm.Certificate.fromCertificateArn(this, 'Certificate', props.acmCertificateArn);
     }
 
     // An S3 bucket to host the web application.

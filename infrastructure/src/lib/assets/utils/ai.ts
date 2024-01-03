@@ -17,10 +17,7 @@ const chat = new BedrockChat({
  * @param prompt {string} - The prompt to use for the prediction
  * @param callback {function} - The callback to call when a new chunk of the prediction is generated
  */
-export const processAsynchronously = async (
-  prompt: string,
-  callback: (result: string) => Promise<void>
-) => {
+export const processAsynchronously = async (prompt: string, callback: (result: string) => Promise<void>) => {
   const stream = await chat.pipe(new StringOutputParser()).stream([prompt]);
 
   for await (const chunk of stream) {

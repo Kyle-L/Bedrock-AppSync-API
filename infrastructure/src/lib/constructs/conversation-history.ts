@@ -32,8 +32,7 @@ export class ConversationHistoryConstruct extends Construct {
       {
         pk: 'PERSONA',
         sk: 'PERSONA#2',
-        avatar:
-          'https://media.mutualart.com/Images//2017_05/16/22/220355040/961c1c23-9257-48d0-a699-23beec4237d2.Jpeg',
+        avatar: 'https://media.mutualart.com/Images//2017_05/16/22/220355040/961c1c23-9257-48d0-a699-23beec4237d2.Jpeg',
         color: 'yellow',
         name: 'Santiago',
         subtitle: 'The Old Man',
@@ -63,7 +62,7 @@ export class ConversationHistoryConstruct extends Construct {
 
     // Add the default items to the table
     for (const item of defaultItems) {
-      new tasks.DynamoPutItem(this, `Insert ${item.name}`, {
+      new tasks.DynamoPutItem(this, `Insert${item.name}`, {
         table: this.table,
         item: {
           pk: tasks.DynamoAttributeValue.fromString(item.pk),

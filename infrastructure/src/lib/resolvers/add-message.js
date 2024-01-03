@@ -11,8 +11,7 @@ export function request(ctx) {
       sk: `THREAD#${ctx.args.threadId}`
     }),
     update: {
-      expression:
-        'SET #data = list_append(if_not_exists(#data, :empty_list), :data), #status = :status',
+      expression: 'SET #data = list_append(if_not_exists(#data, :empty_list), :data), #status = :status',
       expressionNames: {
         '#data': 'data',
         '#status': 'status'
