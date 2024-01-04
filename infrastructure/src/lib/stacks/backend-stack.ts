@@ -70,7 +70,7 @@ export class BackendStack extends cdk.Stack {
     // Code
     const passthroughCode = appsync.Code.fromAsset(path.join(__dirname, '../resolvers/pass-through.js'));
     const noneCode = appsync.Code.fromAsset(path.join(__dirname, '../resolvers/none.js'));
-    const receiveAsyncCode = appsync.Code.fromAsset(path.join(__dirname, '../resolvers/receive-async.js'));
+    const recieveAsyncCode = appsync.Code.fromAsset(path.join(__dirname, '../resolvers/recieve-async.js'));
 
     /*================================= Functions =================================*/
 
@@ -159,9 +159,9 @@ export class BackendStack extends cdk.Stack {
       },
       {
         typeName: 'Subscription',
-        fieldName: 'receiveMessageChunkAsync',
+        fieldName: 'recieveMessageChunkAsync',
         runtime: appsync.FunctionRuntime.JS_1_0_0,
-        code: receiveAsyncCode,
+        code: recieveAsyncCode,
         dataSource: noneDataSource
       }
     ];
