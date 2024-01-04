@@ -4,12 +4,12 @@ import { StringOutputParser } from 'langchain/schema/output_parser';
 const BEDROCK_REGION = 'us-east-1';
 
 const chat = new BedrockChat({
-  model: 'anthropic.claude-instant-v1',
+  model: 'anthropic.claude-v2:1',
   region: BEDROCK_REGION,
   maxTokens: 200,
   temperature: 0.7
 }).bind({
-  stop: ['Human:', 'Assistant:']
+  stop: ['\n\nHuman:', '\n\nAssistant:']
 });
 
 /**
