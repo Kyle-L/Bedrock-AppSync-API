@@ -11,6 +11,7 @@ const dynamodb = new DynamoDBClient();
 interface EventArguments {
   [key: string]: string;
 }
+
 interface Event
   extends AppSyncResolverEvent<{
     arguments: EventArguments;
@@ -53,9 +54,11 @@ export const handler: Handler = async (event: Event) => {
         ':status': { S: 'PENDING' }
       }
     };
+
     console.log('DynamoDB Parameters:', dynamoParams);
-    const dynamoCommand = await dynamodb.send(new UpdateItemCommand(dynamoParams));
-    console.log('DynamoDB Result:', dynamoCommand);
+
+    // Perform DynamoDB update asynchronously
+    const dynamoPromise = dynamodb.send(new UpdateItemCommand(dynamoParams));
 
     const sqsParams: SendMessageCommandInput = {
       QueueUrl: QUEUE_URL,
@@ -63,11 +66,14 @@ export const handler: Handler = async (event: Event) => {
     };
     console.log('SQS Parameters:', sqsParams);
 
-    const sqsCommand = new SendMessageCommand(sqsParams);
-    const result = await sqsClient.send(sqsCommand);
+    // Perform SQS send asynchronously
+    const sqsPromise = sqsClient.send(new SendMessageCommand(sqsParams));
 
-    console.log('SQS Result:', result);
-    return { userId: id, threadId: event.arguments.threadId };
+    // Wait for both DynamoDB and SQS operations to complete
+    await Promise.all([dynamoPromise, sqsPromise]);
+
+    console.log('DynamoDB and SQS operations completed successfully');
+    return { sender: 'User', text: event.arguments.prompt };
   } catch (error) {
     console.error('Error:', error);
     throw new Error('An error occurred');

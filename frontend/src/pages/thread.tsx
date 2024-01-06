@@ -1,5 +1,4 @@
 import { generateClient } from 'aws-amplify/api';
-import { AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Message, Thread } from '../API';
@@ -17,7 +16,8 @@ import { getAvatar } from '../utils/avatar';
 const client = generateClient();
 
 export default function AIInput() {
-  const [conversationHistory, setConversationHistory] = useState<Message[]>([]);
+  const [conversationHistory, setConversationHistory] = useState<Omit<Message, '__typename'>[]>([]);
+  const [lastMessage, setLastMessage] = useState<Omit<Message, '__typename'> | null>();
   const [loading, setLoading] = useState(false);
   const [prompt, setPrompt] = useState('');
   const [thread, setThread] = useState<Thread | null>(null);
@@ -51,29 +51,17 @@ export default function AIInput() {
           const response = data?.recieveMessageChunkAsync;
 
           if (response) {
+            console.log('lastMessage?.text: ', lastMessage);
+            if (response.data) {
+              setLastMessage(prevLastMessage => ({
+                sender: 'Bot',
+                text: `${prevLastMessage?.text ?? ''}${response.data}`,
+              }));
+            }
+
             if (response.status === 'COMPLETE') {
               setLoading(false);
             }
-
-            setConversationHistory((prevHistory) => {
-              const lastMessageIndex = prevHistory.length - 1;
-
-              if (lastMessageIndex >= 0 && prevHistory[lastMessageIndex].sender === 'Assistant') {
-                return [
-                  ...prevHistory.slice(0, lastMessageIndex),
-                  {
-                    ...prevHistory[lastMessageIndex],
-                    text: prevHistory[lastMessageIndex].text + (response.data ?? '')
-                  },
-                  ...prevHistory.slice(lastMessageIndex + 1)
-                ];
-              } else {
-                return [
-                  ...prevHistory,
-                  { sender: 'Assistant', text: response.data ?? '', __typename: 'Message' }
-                ];
-              }
-            });
           }
         },
         error: (error) => {
@@ -102,12 +90,19 @@ export default function AIInput() {
     setLoading(true);
 
     // Adds the prompt to the conversation history.
-    setConversationHistory(
-      conversationHistory.concat({ sender: 'Human', text: prompt, __typename: 'Message' })
-    );
+    setConversationHistory(prevConversationHistory => {
+      let updatedConversationHistory = [...prevConversationHistory];
+      if (lastMessage) {
+        updatedConversationHistory = [...updatedConversationHistory, lastMessage];
+      }
+      return [...updatedConversationHistory, { sender: 'User', text: prompt }];
+    });
 
     // Clears the prompt.
     setPrompt('');
+
+    // Clear the last message.
+    setLastMessage(null);
 
     client.graphql({
       query: mutations.addMessageAsync,
@@ -115,6 +110,8 @@ export default function AIInput() {
         prompt,
         threadId
       }
+    }).catch((err: any) => {
+      addAlert(err?.message ?? 'Something went wrong', 'warning');
     });
   };
 
@@ -137,16 +134,14 @@ export default function AIInput() {
         }}
         className="w-full max-w-2xl"
       >
-        <AnimatePresence>
-          {conversationHistory.map((chat, index) => (
-            <ChatBubble
-              avatar={getAvatar(chat, thread!, userAttributes?.name)!}
-              key={index}
-              text={chat.text!}
-              isAnimated={index === conversationHistory.length - 1}
-            />
-          ))}
-        </AnimatePresence>
+        {[...conversationHistory, lastMessage!].filter(Boolean).map((chat, index) => (
+          <ChatBubble
+            avatar={getAvatar({ message: chat, thread: thread!, name: userAttributes?.name })}
+            key={index}
+            text={chat.text}
+            isAnimated={index === conversationHistory.length}
+          />
+        ))}
 
         {!loading ? (
           <textarea
@@ -162,7 +157,7 @@ export default function AIInput() {
         )}
         <button
           disabled={loading}
-          className="bg-red-500 text-white font-bold rounded-xl p-2 my-2 w-full hover:bg-red-800 disabled:opacity-50 transition-colors duration-300"
+          className="btn w-full"
         >
           Send
         </button>

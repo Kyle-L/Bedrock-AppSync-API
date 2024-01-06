@@ -2,7 +2,7 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-import * as APITypes from '../API';
+import * as APITypes from "../API";
 type GeneratedQuery<InputType, OutputType> = string & {
   __generatedQueryInput: InputType;
   __generatedQueryOutput: OutputType;
@@ -17,10 +17,14 @@ export const getPersona = /* GraphQL */ `query GetPersona($personaId: String!) {
     subtitle
     description
     color
+    model
     __typename
   }
 }
-` as GeneratedQuery<APITypes.GetPersonaQueryVariables, APITypes.GetPersonaQuery>;
+` as GeneratedQuery<
+  APITypes.GetPersonaQueryVariables,
+  APITypes.GetPersonaQuery
+>;
 export const getAllPersonas = /* GraphQL */ `query GetAllPersonas {
   getAllPersonas {
     personaId
@@ -30,10 +34,14 @@ export const getAllPersonas = /* GraphQL */ `query GetAllPersonas {
     subtitle
     description
     color
+    model
     __typename
   }
 }
-` as GeneratedQuery<APITypes.GetAllPersonasQueryVariables, APITypes.GetAllPersonasQuery>;
+` as GeneratedQuery<
+  APITypes.GetAllPersonasQueryVariables,
+  APITypes.GetAllPersonasQuery
+>;
 export const getThread = /* GraphQL */ `query GetThread($threadId: String!) {
   getThread(threadId: $threadId) {
     userId
@@ -52,6 +60,7 @@ export const getThread = /* GraphQL */ `query GetThread($threadId: String!) {
       subtitle
       description
       color
+      model
       __typename
     }
     __typename
@@ -76,9 +85,13 @@ export const getAllThreads = /* GraphQL */ `query GetAllThreads {
       subtitle
       description
       color
+      model
       __typename
     }
     __typename
   }
 }
-` as GeneratedQuery<APITypes.GetAllThreadsQueryVariables, APITypes.GetAllThreadsQuery>;
+` as GeneratedQuery<
+  APITypes.GetAllThreadsQueryVariables,
+  APITypes.GetAllThreadsQuery
+>;

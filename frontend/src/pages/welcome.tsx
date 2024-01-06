@@ -28,7 +28,7 @@ export default function Welcome() {
         </p>
       </div>
       <Link
-        className="w-full bg-red-500 text-white font-bold rounded-xl p-2 my-2 hover:bg-red-800 transition-colors duration-300"
+        className="w-full btn"
         to="/personas"
       >
         Get Started
