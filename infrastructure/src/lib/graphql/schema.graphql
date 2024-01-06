@@ -24,23 +24,25 @@ type Persona @aws_cognito_user_pools @aws_iam {
   subtitle: String
   description: String
   color: String
+
+  model: String
 }
 
 type MessageChunk @aws_cognito_user_pools @aws_iam {
-  userId: String
-  threadId: String
-  data: String
-  status: Status
+  userId: String!
+  threadId: String!
+  data: String!
+  status: Status!
 }
 
 type Message @aws_cognito_user_pools @aws_iam {
-  sender: String
-  text: String
+  sender: String!
+  text: String!
 }
 
 input MessageInput {
-  sender: String
-  text: String
+  sender: String!
+  text: String!
 }
 
 type Thread @aws_cognito_user_pools @aws_iam {
@@ -68,7 +70,7 @@ type Mutation {
   addThread(personaId: String!): Thread @aws_cognito_user_pools @aws_iam
   deleteThread(threadId: String!): Thread @aws_cognito_user_pools @aws_iam
 
-  addMessageAsync(threadId: String!, prompt: String!): Thread @aws_cognito_user_pools
+  addMessageAsync(threadId: String!, prompt: String!): Message @aws_cognito_user_pools
 
   addVoice(personaId: String, message: String!): String @aws_cognito_user_pools @aws_iam
 

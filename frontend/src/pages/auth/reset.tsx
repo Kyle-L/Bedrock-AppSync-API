@@ -56,7 +56,7 @@ export default function ResetPassword() {
           />
         ))}
         <button
-          className="bg-red-500 text-white font-bold rounded-xl p-2 my-2 ml-auto hover:bg-red-800 transition-colors duration-300"
+          className="btn"
           onClick={resetPassword}
         >
           Login

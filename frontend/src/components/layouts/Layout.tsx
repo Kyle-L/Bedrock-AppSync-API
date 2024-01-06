@@ -21,7 +21,7 @@ export default function AuthLayout() {
             className="fixed top-0 left-0 w-full h-16 bg-slate-100 flex items-center justify-between px-4 sm:px-6 lg:px-8"
           >
             <button
-              className="bg-red-500 text-white font-bold rounded-xl p-2 my-2 ml-auto hover:bg-red-800 transition-colors duration-300"
+              className="btn"
               onClick={() => {
                 signOut();
                 navigate('/auth/login');

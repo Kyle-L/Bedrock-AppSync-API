@@ -85,7 +85,7 @@ export default function Personas() {
       <div className="w-full mt-4 mb-8">
         <h1 className="text-2xl font-extrabold w-full">Start a Conversation</h1>
         <ul className="w-full">
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
             {[...personas]
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((persona, index) => {

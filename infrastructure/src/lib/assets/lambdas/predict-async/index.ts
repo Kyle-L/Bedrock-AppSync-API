@@ -25,13 +25,21 @@ async function processChunk(userId: string, threadId: string, chunk: string, sta
   });
 }
 
+/**
+ * Sends a request to update the thread's status and add the AI's response to the thread's message history.
+ * @param userId {string} The user ID.
+ * @param threadId {string} The thread ID.
+ * @param status {string} The thread's status.
+ * @param message {string} The AI's response.
+ * @returns {Promise<unknown>} The result of the request from the GraphQL API.
+ */
 async function updateMessageSystemStatus(
   userId: string,
   threadId: string,
-  status: string,
+  status: 'PEMNDING' | 'NEW' | 'PROCESSING' | 'COMPLETE',
   message: { sender: string; text: string }
 ) {
-  return sendRequest(addMessageSystemMutation, {
+  await sendRequest(addMessageSystemMutation, {
     userId,
     threadId,
     status,
@@ -65,37 +73,54 @@ async function completeProcessing(userId: string, threadId: string, eventResult:
  * @param eventTimeout {number} The timeout for the event.
  * @returns {Promise<{ statusCode: number; message: string }>} The result of the event.
  */
-async function processEvent(
-  userId: string,
-  threadId: string,
-  history: string,
-  userPrompt: string,
-  eventTimeout: number
-) {
-  const fullPrompt = `${history}\n\nHuman: ${userPrompt}\n\nAssistant: `;
+async function processEvent({
+  userId,
+  threadId,
+  history,
+  userPrompt,
+  eventTimeout,
+  model
+}: {
+  userId: string;
+  threadId: string;
+  history: string;
+  userPrompt: string;
+  eventTimeout: number;
+  model: 'ai21' | 'claude';
+}) {
+  const fullPrompt = `${history}\n\nUser: ${userPrompt}\n\nBot: `;
   let eventResult = '';
 
   const timeoutTask = createTimeoutTask(eventTimeout);
 
   const processingTask = new Promise(async (resolve) => {
     await updateMessageSystemStatus(userId, threadId, 'PROCESSING', {
-      sender: 'Human',
+      sender: 'User',
       text: userPrompt
     });
 
     console.log(`Processing prompt: ${fullPrompt}`);
 
-    await processAsynchronously(fullPrompt, async (chunk) => {
-      eventResult += chunk;
-      await processChunk(userId, threadId, chunk);
-    });
+    try {
+      await processAsynchronously({
+        prompt: fullPrompt,
+        callback: async (chunk) => {
+          await processChunk(userId, threadId, chunk);
+          eventResult += chunk;
+        },
+        model: model as 'ai21' | 'claude'
+      });
+    } catch (err) {
+      console.error(err);
+      eventResult = 'An error occurred while processing the prompt.';
+    }
 
     resolve({ statusCode: 200, message: 'Success!' });
   });
 
   const res = await Promise.race([processingTask, timeoutTask]);
 
-  await completeProcessing(userId, threadId, { sender: 'Assistant', text: eventResult });
+  await completeProcessing(userId, threadId, { sender: 'Bot', text: eventResult });
 
   return res;
 }
@@ -119,6 +144,7 @@ export async function handler(event: SQSEvent) {
     const userId = eventData.identity.sub;
     const threadId = eventData.arguments.threadId;
     const systemPrompt = eventData.prev.result.persona.prompt;
+    const personaModel = eventData.prev.result.persona.model;
     const history = (eventData.prev.result.data || [])
       .map((message: { sender: string; text: string }) => {
         return `${message.sender}: ${message.text}`;
@@ -128,7 +154,14 @@ export async function handler(event: SQSEvent) {
     const userPrompt = eventData.arguments.prompt;
 
     console.log(`Received Event: ${JSON.stringify(eventData)}`);
-    return processEvent(userId, threadId, threadHistory, userPrompt, adjustedTimeout);
+    return processEvent({
+      userId,
+      threadId,
+      history: threadHistory,
+      userPrompt,
+      eventTimeout: adjustedTimeout,
+      model: personaModel
+    });
   });
 
   return Promise.all(processingTasks);

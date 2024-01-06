@@ -63,6 +63,7 @@ export class PredictConstruct extends Construct {
         minify: true,
         sourceMap: true
       },
+      memorySize: 512,
       timeout: cdk.Duration.seconds(30),
       initialPolicy: [
         // Allow the lambda to call Bedrock

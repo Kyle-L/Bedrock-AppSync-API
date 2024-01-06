@@ -2,7 +2,7 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-import * as APITypes from '../API';
+import * as APITypes from "../API";
 type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationInput: InputType;
   __generatedMutationOutput: OutputType;
@@ -26,12 +26,16 @@ export const addThread = /* GraphQL */ `mutation AddThread($personaId: String!) 
       subtitle
       description
       color
+      model
       __typename
     }
     __typename
   }
 }
-` as GeneratedMutation<APITypes.AddThreadMutationVariables, APITypes.AddThreadMutation>;
+` as GeneratedMutation<
+  APITypes.AddThreadMutationVariables,
+  APITypes.AddThreadMutation
+>;
 export const deleteThread = /* GraphQL */ `mutation DeleteThread($threadId: String!) {
   deleteThread(threadId: $threadId) {
     userId
@@ -50,37 +54,34 @@ export const deleteThread = /* GraphQL */ `mutation DeleteThread($threadId: Stri
       subtitle
       description
       color
+      model
       __typename
     }
     __typename
   }
 }
-` as GeneratedMutation<APITypes.DeleteThreadMutationVariables, APITypes.DeleteThreadMutation>;
-export const addMessageAsync =
-  /* GraphQL */ `mutation AddMessageAsync($threadId: String!, $prompt: String!) {
+` as GeneratedMutation<
+  APITypes.DeleteThreadMutationVariables,
+  APITypes.DeleteThreadMutation
+>;
+export const addMessageAsync = /* GraphQL */ `mutation AddMessageAsync($threadId: String!, $prompt: String!) {
   addMessageAsync(threadId: $threadId, prompt: $prompt) {
-    userId
-    threadId
-    data {
-      sender
-      text
-      __typename
-    }
-    status
-    persona {
-      personaId
-      name
-      avatar
-      prompt
-      subtitle
-      description
-      color
-      __typename
-    }
+    sender
+    text
     __typename
   }
 }
-` as GeneratedMutation<APITypes.AddMessageAsyncMutationVariables, APITypes.AddMessageAsyncMutation>;
+` as GeneratedMutation<
+  APITypes.AddMessageAsyncMutationVariables,
+  APITypes.AddMessageAsyncMutation
+>;
+export const addVoice = /* GraphQL */ `mutation AddVoice($personaId: String, $message: String!) {
+  addVoice(personaId: $personaId, message: $message)
+}
+` as GeneratedMutation<
+  APITypes.AddVoiceMutationVariables,
+  APITypes.AddVoiceMutation
+>;
 export const sendMessageChunk = /* GraphQL */ `mutation SendMessageChunk(
   $userId: String!
   $threadId: String!
@@ -132,6 +133,7 @@ export const addMessageSystem = /* GraphQL */ `mutation AddMessageSystem(
       subtitle
       description
       color
+      model
       __typename
     }
     __typename
