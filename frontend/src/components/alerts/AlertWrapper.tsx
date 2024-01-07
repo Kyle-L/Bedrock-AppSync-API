@@ -12,7 +12,7 @@ export function AlertWrapper({ children }: { children: React.ReactNode }) {
     <>
       <div className="flex fixed bottom-0 left-0 right-0 z-50 p-4">
         <div className="grid grid-cols-1 gap-4">
-          <AnimatePresence mode='wait'>
+          <AnimatePresence mode="wait">
             {alerts.alerts.map((alert) => (
               <motion.div
                 className={alert.id}

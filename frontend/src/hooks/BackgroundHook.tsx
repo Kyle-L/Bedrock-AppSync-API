@@ -24,22 +24,20 @@ export default function Background() {
   };
 
   return (
-    <AnimatePresence mode='popLayout'>
+    <AnimatePresence mode="popLayout">
       {backgrounds.map((background, index) => (
         <motion.div
           key={index}
           variants={variants}
-          animate='inactive'
-          initial='active'
-          exit='inactive'
+          animate="inactive"
+          initial="active"
+          exit="inactive"
           transition={{ duration: 1 }}
-
           // Once the background is set, we want to use a callback to remove it from the state
           // so that it can be added again later.
           onAnimationEnd={() => {
             setBackgrounds((backgrounds) => backgrounds.filter((_, i) => i !== index));
           }}
-
           className={`fixed inset-0 bg-gradient-to-br ${background} -z-10`}
         />
       ))}

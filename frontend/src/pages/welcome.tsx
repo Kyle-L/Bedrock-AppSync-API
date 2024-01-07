@@ -27,10 +27,7 @@ export default function Welcome() {
           power advanced chatbots that can be customized for your business use-cases.
         </p>
       </div>
-      <Link
-        className="w-full btn"
-        to="/personas"
-      >
+      <Link className="w-full btn" to="/personas">
         Get Started
       </Link>
     </>

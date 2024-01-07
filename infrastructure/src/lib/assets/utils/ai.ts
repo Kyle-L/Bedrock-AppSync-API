@@ -1,14 +1,45 @@
 import { BedrockChat } from 'langchain/chat_models/bedrock';
 import { StringOutputParser } from 'langchain/schema/output_parser';
 
-const BEDROCK_REGION = 'us-east-1';
+type ModelTunings<T extends string> = {
+  [key in T]: {
+    params: {
+      [key: string]: any;
+    };
+    bindings?: {
+      stop?: string[];
+    };
+  };
+};
 
-const MODEL_TUNINGS = {
+const MODEL_TUNINGS: ModelTunings<'claude' | 'ai21' | 'titan'> = {
+  titan: {
+    params: {
+      model: 'amazon.titan-text-express-v1',
+      maxTokens: 200,
+      temperature: 0.7,
+      modelKwargs: {
+        textGenerationConfig: {
+          stopSequences: ['User:'],
+          temperature: 0,
+          topP: 1
+        }
+      }
+    }
+  },
   ai21: {
     params: {
       model: 'ai21.j2-ultra-v1',
       maxTokens: 200,
-      temperature: 0.7
+      temperature: 0.7,
+      modelKwargs: {
+        topP: 1,
+        countPenalty: {
+          scale: 0
+        },
+        frequencyPenalty: { scale: 0 },
+        presencePenalty: { scale: 0 }
+      }
     },
     bindings: {
       stop: ['User:']
@@ -21,7 +52,7 @@ const MODEL_TUNINGS = {
       temperature: 0.7
     },
     bindings: {
-      stop: ['\nUser:', '\n\nBot:']
+      stop: ['\nUser:', '\nAssistant:']
     }
   }
 };
@@ -37,18 +68,27 @@ export const processAsynchronously = async ({
   callback
 }: {
   prompt: string;
-  model?: 'ai21' | 'claude';
+  model?: string;
   callback: (result: string) => Promise<void>;
 }) => {
-  // Default to Claude if no model is specified or if the string is not recognized
-  if (!model || !MODEL_TUNINGS[model]) {
+  if (model && !(model in MODEL_TUNINGS)) {
+    throw new Error(`Model ${model} is not supported`);
+  }
+
+  if (!model) {
     model = 'claude';
   }
 
+  // Default to Claude if no model is specified or if the string is not recognized
+  const modelTyped = model as keyof typeof MODEL_TUNINGS;
+
+  console.log(`Initializing ${modelTyped} model with configuration:`, JSON.stringify(MODEL_TUNINGS[modelTyped].params));
+
   const chat = new BedrockChat({
-    ...MODEL_TUNINGS[model].params
+    ...MODEL_TUNINGS[modelTyped].params,
+    streaming: true
   }).bind({
-    ...MODEL_TUNINGS[model].bindings
+    ...MODEL_TUNINGS[modelTyped].bindings
   });
 
   const stream = await chat.pipe(new StringOutputParser()).stream([prompt]);

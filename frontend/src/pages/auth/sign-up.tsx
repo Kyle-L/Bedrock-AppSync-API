@@ -102,10 +102,7 @@ export default function SignUp() {
             />
           </>
         )}
-        <button
-          className="btn"
-          onClick={confirmSignUp ? confirm : signIn}
-        >
+        <button className="btn" onClick={confirmSignUp ? confirm : signIn}>
           {confirmSignUp ? 'Confirm' : 'Sign Up'}
         </button>
       </form>

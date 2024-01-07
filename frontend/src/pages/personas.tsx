@@ -110,7 +110,14 @@ export default function Personas() {
                           (thread) => thread.persona?.personaId === persona.personaId
                         )?.threadId}`}
                       >
-                        <img className="w-20 h-20 rounded-full mr-4" src={persona.avatar!} />
+                        <img
+                          className="w-20 h-20 rounded-full mr-4"
+                          src={
+                            persona.avatar
+                              ? persona.avatar
+                              : `https://ui-avatars.com/api/?name=${persona.name}&format=svg&background=random`
+                          }
+                        />
                         <div className="flex flex-col items-start drop-shadow-lg">
                           <p>{persona.name}</p>
                           <sub className="font-normal">{persona.subtitle}</sub>
@@ -121,7 +128,14 @@ export default function Personas() {
                         className="w-full h-full flex items-center hover:brightness-100 transition-filter"
                         onClick={() => createThread(persona.personaId!)}
                       >
-                        <img className="w-20 h-20 rounded-full mr-4" src={persona.avatar!} />
+                        <img
+                          className="w-20 h-20 rounded-full mr-4"
+                          src={
+                            persona.avatar
+                              ? persona.avatar
+                              : `https://ui-avatars.com/api/?name=${persona.name}&format=svg&background=random`
+                          }
+                        />
                         <div className="flex flex-col items-start drop-shadow-lg">
                           <p>{persona.name}</p>
                           <sub className="font-normal">{persona.subtitle}</sub>

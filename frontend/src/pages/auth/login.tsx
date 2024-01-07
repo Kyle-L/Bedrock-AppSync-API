@@ -43,10 +43,7 @@ export default function Login() {
             }
           />
         ))}
-        <button
-          className="btn"
-          onClick={signIn}
-        >
+        <button className="btn" onClick={signIn}>
           Login
         </button>
       </form>
