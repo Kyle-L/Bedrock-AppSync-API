@@ -55,10 +55,7 @@ export default function ResetPassword() {
             onChange={(e) => setResetInput({ ...resetInput, [field.key]: e.target.value })}
           />
         ))}
-        <button
-          className="btn"
-          onClick={resetPassword}
-        >
+        <button className="btn" onClick={resetPassword}>
           Login
         </button>
       </form>

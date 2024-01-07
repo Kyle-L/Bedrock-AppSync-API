@@ -69,7 +69,7 @@ export const handler: Handler = async (event: Event) => {
     // Perform SQS send asynchronously
     const sqsPromise = sqsClient.send(new SendMessageCommand(sqsParams));
 
-    // Wait for both DynamoDB and SQS operations to complete
+    // Wait for Assistanth DynamoDB and SQS operations to complete
     await Promise.all([dynamoPromise, sqsPromise]);
 
     console.log('DynamoDB and SQS operations completed successfully');

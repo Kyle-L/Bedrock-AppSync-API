@@ -38,10 +38,7 @@ export default function RequestResetPassword() {
           placeholder={'Email'}
           onChange={(e) => setRequestInput({ ...requestInput, username: e.target.value })}
         />
-        <button
-          className="btn"
-          onClick={requestReset}
-        >
+        <button className="btn" onClick={requestReset}>
           Request Reset
         </button>
       </form>

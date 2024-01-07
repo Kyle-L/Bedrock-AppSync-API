@@ -86,9 +86,9 @@ async function processEvent({
   history: string;
   userPrompt: string;
   eventTimeout: number;
-  model: 'ai21' | 'claude';
+  model: string;
 }) {
-  const fullPrompt = `${history}\n\nUser: ${userPrompt}\n\nBot: `;
+  const fullPrompt = `${history}\n\nUser: ${userPrompt}\n\Assistant: `;
   let eventResult = '';
 
   const timeoutTask = createTimeoutTask(eventTimeout);
@@ -108,7 +108,7 @@ async function processEvent({
           await processChunk(userId, threadId, chunk);
           eventResult += chunk;
         },
-        model: model as 'ai21' | 'claude'
+        model
       });
     } catch (err) {
       console.error(err);
@@ -120,7 +120,7 @@ async function processEvent({
 
   const res = await Promise.race([processingTask, timeoutTask]);
 
-  await completeProcessing(userId, threadId, { sender: 'Bot', text: eventResult });
+  await completeProcessing(userId, threadId, { sender: 'Assistant', text: eventResult });
 
   return res;
 }

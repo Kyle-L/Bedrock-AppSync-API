@@ -11,7 +11,7 @@ import * as subscriptions from '../graphql/subscriptions';
 import useAlert from '../hooks/AlertHook';
 import { useAuth } from '../providers/AuthProvider';
 import { useBackground } from '../providers/BackgroundProvider';
-import { getAvatar } from '../utils/avatar';
+import { getAvatarURL } from '../utils/avatar';
 
 const client = generateClient();
 
@@ -53,9 +53,9 @@ export default function AIInput() {
           if (response) {
             console.log('lastMessage?.text: ', lastMessage);
             if (response.data) {
-              setLastMessage(prevLastMessage => ({
-                sender: 'Bot',
-                text: `${prevLastMessage?.text ?? ''}${response.data}`,
+              setLastMessage((prevLastMessage) => ({
+                sender: 'Assistant',
+                text: `${prevLastMessage?.text ?? ''}${response.data}`
               }));
             }
 
@@ -90,7 +90,7 @@ export default function AIInput() {
     setLoading(true);
 
     // Adds the prompt to the conversation history.
-    setConversationHistory(prevConversationHistory => {
+    setConversationHistory((prevConversationHistory) => {
       let updatedConversationHistory = [...prevConversationHistory];
       if (lastMessage) {
         updatedConversationHistory = [...updatedConversationHistory, lastMessage];
@@ -104,15 +104,17 @@ export default function AIInput() {
     // Clear the last message.
     setLastMessage(null);
 
-    client.graphql({
-      query: mutations.addMessageAsync,
-      variables: {
-        prompt,
-        threadId
-      }
-    }).catch((err: any) => {
-      addAlert(err?.message ?? 'Something went wrong', 'warning');
-    });
+    client
+      .graphql({
+        query: mutations.addMessageAsync,
+        variables: {
+          prompt,
+          threadId
+        }
+      })
+      .catch((err: any) => {
+        addAlert(err?.message ?? 'Something went wrong', 'warning');
+      });
   };
 
   if (!thread) return <div>Loading...</div>;
@@ -124,7 +126,7 @@ export default function AIInput() {
           title={`Meet ${thread.persona.name}`}
           subtitle={thread.persona.subtitle}
           description={thread.persona.description}
-          picture={thread.persona.avatar}
+          picture={getAvatarURL({ avatar: thread.persona.avatar, name: thread.persona.name })}
         />
       </div>
       <form
@@ -136,7 +138,11 @@ export default function AIInput() {
       >
         {[...conversationHistory, lastMessage!].filter(Boolean).map((chat, index) => (
           <ChatBubble
-            avatar={getAvatar({ message: chat, thread: thread!, name: userAttributes?.name })}
+            picture={getAvatarURL({
+              avatar: chat.sender === 'Assistant' ? thread.persona.avatar : undefined,
+              name:
+                (chat.sender === 'Assistant' ? thread.persona.name : userAttributes?.name) ?? 'N/A'
+            })}
             key={index}
             text={chat.text}
             isAnimated={index === conversationHistory.length}
@@ -155,10 +161,7 @@ export default function AIInput() {
             <LoadingDots />
           </div>
         )}
-        <button
-          disabled={loading}
-          className="btn w-full"
-        >
+        <button disabled={loading} className="btn w-full">
           Send
         </button>
       </form>
