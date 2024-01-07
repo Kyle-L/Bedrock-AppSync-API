@@ -2,22 +2,31 @@
 /* eslint-disable */
 //  This file was automatically generated and should not be edited.
 
+export type AddThreadInput = {
+  personaId: string;
+};
+
+export type AddThreadPayload = {
+  __typename: 'AddThreadPayload';
+  thread?: Thread | null;
+};
+
 export type Thread = {
   __typename: 'Thread';
-  userId?: string | null;
-  threadId?: string | null;
-  data?: Array<Message> | null;
-  status?: Status | null;
+  threadId: string;
+  userId: string;
+  messages?: Array<Message> | null;
+  status?: ThreadStatus | null;
   persona: Persona;
 };
 
 export type Message = {
   __typename: 'Message';
   sender: string;
-  text: string;
+  message: string;
 };
 
-export enum Status {
+export enum ThreadStatus {
   NEW = 'NEW',
   PENDING = 'PENDING',
   PROCESSING = 'PROCESSING',
@@ -36,150 +45,172 @@ export type Persona = {
   model?: string | null;
 };
 
-export type MessageChunk = {
-  __typename: 'MessageChunk';
-  userId: string;
-  threadId: string;
-  data: string;
-  status: Status;
-};
-
-export type MessageInput = {
-  sender: string;
-  text: string;
-};
-
-export type AddThreadMutationVariables = {
-  personaId: string;
-};
-
-export type AddThreadMutation = {
-  addThread?: {
-    __typename: 'Thread';
-    userId?: string | null;
-    threadId?: string | null;
-    data?: Array<{
-      __typename: 'Message';
-      sender: string;
-      text: string;
-    }> | null;
-    status?: Status | null;
-    persona: {
-      __typename: 'Persona';
-      personaId: string;
-      name: string;
-      avatar: string;
-      prompt: string;
-      subtitle?: string | null;
-      description?: string | null;
-      color?: string | null;
-      model?: string | null;
-    };
-  } | null;
-};
-
-export type DeleteThreadMutationVariables = {
-  threadId: string;
-};
-
-export type DeleteThreadMutation = {
-  deleteThread?: {
-    __typename: 'Thread';
-    userId?: string | null;
-    threadId?: string | null;
-    data?: Array<{
-      __typename: 'Message';
-      sender: string;
-      text: string;
-    }> | null;
-    status?: Status | null;
-    persona: {
-      __typename: 'Persona';
-      personaId: string;
-      name: string;
-      avatar: string;
-      prompt: string;
-      subtitle?: string | null;
-      description?: string | null;
-      color?: string | null;
-      model?: string | null;
-    };
-  } | null;
-};
-
-export type AddMessageAsyncMutationVariables = {
+export type AddMessageInput = {
   threadId: string;
   prompt: string;
 };
 
+export type AddMessagePayload = {
+  __typename: 'AddMessagePayload';
+  message?: Message | null;
+};
+
+export type AddVoiceInput = {
+  personaId: string;
+  message: string;
+};
+
+export type AddVoicePayload = {
+  __typename: 'AddVoicePayload';
+  message?: Message | null;
+};
+
+export type DeleteThreadInput = {
+  threadId: string;
+};
+
+export type DeleteThreadPayload = {
+  __typename: 'DeleteThreadPayload';
+  thread?: Thread | null;
+};
+
+export type SystemSendMessageChunkInput = {
+  userId: string;
+  threadId: string;
+  status: ThreadStatus;
+  chunk: string;
+};
+
+export type SystemSendMessageChunkPayload = {
+  __typename: 'SystemSendMessageChunkPayload';
+  userId: string;
+  threadId: string;
+  status: ThreadStatus;
+  chunk: string;
+};
+
+export type SystemAddMessageInput = {
+  userId: string;
+  threadId: string;
+  status: ThreadStatus;
+  message: MessageInput;
+};
+
+export type MessageInput = {
+  sender: string;
+  message: string;
+};
+
+export type SystemAddMessagePayload = {
+  __typename: 'SystemAddMessagePayload';
+  message?: Message | null;
+};
+
+export type GetPersonaInput = {
+  personaId: string;
+};
+
+export type GetThreadInput = {
+  threadId: string;
+};
+
+export type RecieveMessageChunkAsyncInput = {
+  threadId: string;
+};
+
+export type AddThreadMutationVariables = {
+  input: AddThreadInput;
+};
+
+export type AddThreadMutation = {
+  addThread?: {
+    __typename: 'AddThreadPayload';
+    thread?: {
+      __typename: 'Thread';
+      threadId: string;
+      userId: string;
+      status?: ThreadStatus | null;
+    } | null;
+  } | null;
+};
+
+export type AddMessageAsyncMutationVariables = {
+  input: AddMessageInput;
+};
+
 export type AddMessageAsyncMutation = {
   addMessageAsync?: {
-    __typename: 'Message';
-    sender: string;
-    text: string;
+    __typename: 'AddMessagePayload';
+    message?: {
+      __typename: 'Message';
+      sender: string;
+      message: string;
+    } | null;
   } | null;
 };
 
 export type AddVoiceMutationVariables = {
-  personaId?: string | null;
-  message: string;
+  input: AddVoiceInput;
 };
 
 export type AddVoiceMutation = {
-  addVoice?: string | null;
-};
-
-export type SendMessageChunkMutationVariables = {
-  userId: string;
-  threadId: string;
-  status: Status;
-  data: string;
-};
-
-export type SendMessageChunkMutation = {
-  sendMessageChunk?: {
-    __typename: 'MessageChunk';
-    userId: string;
-    threadId: string;
-    data: string;
-    status: Status;
+  addVoice?: {
+    __typename: 'AddVoicePayload';
+    message?: {
+      __typename: 'Message';
+      sender: string;
+      message: string;
+    } | null;
   } | null;
 };
 
-export type AddMessageSystemMutationVariables = {
-  userId: string;
-  threadId: string;
-  status: Status;
-  message: MessageInput;
+export type DeleteThreadMutationVariables = {
+  input: DeleteThreadInput;
 };
 
-export type AddMessageSystemMutation = {
-  addMessageSystem?: {
-    __typename: 'Thread';
-    userId?: string | null;
-    threadId?: string | null;
-    data?: Array<{
+export type DeleteThreadMutation = {
+  deleteThread?: {
+    __typename: 'DeleteThreadPayload';
+    thread?: {
+      __typename: 'Thread';
+      threadId: string;
+      userId: string;
+      status?: ThreadStatus | null;
+    } | null;
+  } | null;
+};
+
+export type SystemSendMessageChunkMutationVariables = {
+  input: SystemSendMessageChunkInput;
+};
+
+export type SystemSendMessageChunkMutation = {
+  systemSendMessageChunk?: {
+    __typename: 'SystemSendMessageChunkPayload';
+    userId: string;
+    threadId: string;
+    status: ThreadStatus;
+    chunk: string;
+  } | null;
+};
+
+export type SystemAddMessageMutationVariables = {
+  input: SystemAddMessageInput;
+};
+
+export type SystemAddMessageMutation = {
+  systemAddMessage?: {
+    __typename: 'SystemAddMessagePayload';
+    message?: {
       __typename: 'Message';
       sender: string;
-      text: string;
-    }> | null;
-    status?: Status | null;
-    persona: {
-      __typename: 'Persona';
-      personaId: string;
-      name: string;
-      avatar: string;
-      prompt: string;
-      subtitle?: string | null;
-      description?: string | null;
-      color?: string | null;
-      model?: string | null;
-    };
+      message: string;
+    } | null;
   } | null;
 };
 
 export type GetPersonaQueryVariables = {
-  personaId: string;
+  input: GetPersonaInput;
 };
 
 export type GetPersonaQuery = {
@@ -213,20 +244,20 @@ export type GetAllPersonasQuery = {
 };
 
 export type GetThreadQueryVariables = {
-  threadId: string;
+  input: GetThreadInput;
 };
 
 export type GetThreadQuery = {
   getThread?: {
     __typename: 'Thread';
-    userId?: string | null;
-    threadId?: string | null;
-    data?: Array<{
+    threadId: string;
+    userId: string;
+    messages?: Array<{
       __typename: 'Message';
       sender: string;
-      text: string;
+      message: string;
     }> | null;
-    status?: Status | null;
+    status?: ThreadStatus | null;
     persona: {
       __typename: 'Persona';
       personaId: string;
@@ -246,14 +277,14 @@ export type GetAllThreadsQueryVariables = {};
 export type GetAllThreadsQuery = {
   getAllThreads?: Array<{
     __typename: 'Thread';
-    userId?: string | null;
-    threadId?: string | null;
-    data?: Array<{
+    threadId: string;
+    userId: string;
+    messages?: Array<{
       __typename: 'Message';
       sender: string;
-      text: string;
+      message: string;
     }> | null;
-    status?: Status | null;
+    status?: ThreadStatus | null;
     persona: {
       __typename: 'Persona';
       personaId: string;
@@ -269,15 +300,15 @@ export type GetAllThreadsQuery = {
 };
 
 export type RecieveMessageChunkAsyncSubscriptionVariables = {
-  threadId: string;
+  input: RecieveMessageChunkAsyncInput;
 };
 
 export type RecieveMessageChunkAsyncSubscription = {
   recieveMessageChunkAsync?: {
-    __typename: 'MessageChunk';
+    __typename: 'SystemSendMessageChunkPayload';
     userId: string;
     threadId: string;
-    data: string;
-    status: Status;
+    status: ThreadStatus;
+    chunk: string;
   } | null;
 };

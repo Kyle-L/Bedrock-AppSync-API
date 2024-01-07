@@ -8,127 +8,78 @@ type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationOutput: OutputType;
 };
 
-export const addThread = /* GraphQL */ `mutation AddThread($personaId: String!) {
-  addThread(personaId: $personaId) {
-    userId
-    threadId
-    data {
-      sender
-      text
-      __typename
-    }
-    status
-    persona {
-      personaId
-      name
-      avatar
-      prompt
-      subtitle
-      description
-      color
-      model
+export const addThread = /* GraphQL */ `mutation AddThread($input: AddThreadInput!) {
+  addThread(input: $input) {
+    thread {
+      threadId
+      userId
+      status
       __typename
     }
     __typename
   }
 }
 ` as GeneratedMutation<APITypes.AddThreadMutationVariables, APITypes.AddThreadMutation>;
-export const deleteThread = /* GraphQL */ `mutation DeleteThread($threadId: String!) {
-  deleteThread(threadId: $threadId) {
-    userId
-    threadId
-    data {
+export const addMessageAsync = /* GraphQL */ `mutation AddMessageAsync($input: AddMessageInput!) {
+  addMessageAsync(input: $input) {
+    message {
       sender
-      text
+      message
       __typename
     }
-    status
-    persona {
-      personaId
-      name
-      avatar
-      prompt
-      subtitle
-      description
-      color
-      model
+    __typename
+  }
+}
+` as GeneratedMutation<APITypes.AddMessageAsyncMutationVariables, APITypes.AddMessageAsyncMutation>;
+export const addVoice = /* GraphQL */ `mutation AddVoice($input: AddVoiceInput!) {
+  addVoice(input: $input) {
+    message {
+      sender
+      message
+      __typename
+    }
+    __typename
+  }
+}
+` as GeneratedMutation<APITypes.AddVoiceMutationVariables, APITypes.AddVoiceMutation>;
+export const deleteThread = /* GraphQL */ `mutation DeleteThread($input: DeleteThreadInput!) {
+  deleteThread(input: $input) {
+    thread {
+      threadId
+      userId
+      status
       __typename
     }
     __typename
   }
 }
 ` as GeneratedMutation<APITypes.DeleteThreadMutationVariables, APITypes.DeleteThreadMutation>;
-export const addMessageAsync =
-  /* GraphQL */ `mutation AddMessageAsync($threadId: String!, $prompt: String!) {
-  addMessageAsync(threadId: $threadId, prompt: $prompt) {
-    sender
-    text
-    __typename
-  }
-}
-` as GeneratedMutation<APITypes.AddMessageAsyncMutationVariables, APITypes.AddMessageAsyncMutation>;
-export const addVoice = /* GraphQL */ `mutation AddVoice($personaId: String, $message: String!) {
-  addVoice(personaId: $personaId, message: $message)
-}
-` as GeneratedMutation<APITypes.AddVoiceMutationVariables, APITypes.AddVoiceMutation>;
-export const sendMessageChunk = /* GraphQL */ `mutation SendMessageChunk(
-  $userId: String!
-  $threadId: String!
-  $status: Status!
-  $data: String!
-) {
-  sendMessageChunk(
-    userId: $userId
-    threadId: $threadId
-    status: $status
-    data: $data
-  ) {
+export const systemSendMessageChunk =
+  /* GraphQL */ `mutation SystemSendMessageChunk($input: SystemSendMessageChunkInput!) {
+  systemSendMessageChunk(input: $input) {
     userId
     threadId
-    data
     status
+    chunk
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.SendMessageChunkMutationVariables,
-  APITypes.SendMessageChunkMutation
->;
-export const addMessageSystem = /* GraphQL */ `mutation AddMessageSystem(
-  $userId: String!
-  $threadId: String!
-  $status: Status!
-  $message: MessageInput!
-) {
-  addMessageSystem(
-    userId: $userId
-    threadId: $threadId
-    status: $status
-    message: $message
-  ) {
-    userId
-    threadId
-    data {
+    APITypes.SystemSendMessageChunkMutationVariables,
+    APITypes.SystemSendMessageChunkMutation
+  >;
+export const systemAddMessage =
+  /* GraphQL */ `mutation SystemAddMessage($input: SystemAddMessageInput!) {
+  systemAddMessage(input: $input) {
+    message {
       sender
-      text
-      __typename
-    }
-    status
-    persona {
-      personaId
-      name
-      avatar
-      prompt
-      subtitle
-      description
-      color
-      model
+      message
       __typename
     }
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.AddMessageSystemMutationVariables,
-  APITypes.AddMessageSystemMutation
->;
+    APITypes.SystemAddMessageMutationVariables,
+    APITypes.SystemAddMessageMutation
+  >;

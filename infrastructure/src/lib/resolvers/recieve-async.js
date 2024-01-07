@@ -18,7 +18,7 @@ export function response(ctx) {
   // a users id is in the data field
   const filter = util.transform.toSubscriptionFilter({
     userId: { eq: ctx.identity.sub },
-    threadId: { eq: ctx.args.threadId }
+    threadId: { eq: ctx.args.input.threadId }
   });
 
   extensions.setSubscriptionFilter(filter);

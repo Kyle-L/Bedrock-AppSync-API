@@ -13,7 +13,7 @@ const config = {
  */
 export const sendRequest = async (
   query: string,
-  variables: { [key: string]: string | { sender: string; text: string } }
+  variables: { [key: string]: string | { sender: string; message: string } }
 ) => {
   if (!config.url) {
     console.error('GRAPHQL_URL is missing. Aborting operation.');
@@ -26,19 +26,20 @@ export const sendRequest = async (
   });
 };
 
-export const addMessageSystemMutation = `mutation Mutation($userId: String!, $threadId: String!, $status: Status!, $message: MessageInput!) {
-  addMessageSystem(userId: $userId, threadId: $threadId, status: $status, message: $message) {
-      userId
-      threadId
-      status
+export const addMessageSystemMutation = `mutation Mutation($userId: ID!, $threadId: ID!, $status: ThreadStatus!, $message: MessageInput!) {
+  systemAddMessage(input: {userId: $userId, threadId: $threadId, status: $status, message: $message}) {
+      message {
+          sender
+          message
+      }
   }
 }`;
 
-export const sendMessageChunkMutation = `mutation Mutation($userId: String!, $threadId: String!, $status: Status!, $data: String!) {
-    sendMessageChunk(userId: $userId, threadId: $threadId, status: $status, data: $data) {
+export const sendMessageChunkMutation = `mutation Mutation($userId: ID!, $threadId: ID!, $status: ThreadStatus!, $chunk: String!) {
+  systemSendMessageChunk(input: {userId: $userId, threadId: $threadId, status: $status, chunk: $chunk}) {
+        chunk
+        status
         userId
         threadId
-        status
-        data
     }
 }`;

@@ -4,17 +4,70 @@ schema {
   subscription: Subscription
 }
 
-enum Status {
+############## ENUMS #####################
+
+enum ThreadStatus {
   NEW
   PENDING
   PROCESSING
   COMPLETE
 }
 
+############## INPUTS #####################
+
+input GetPersonaInput {
+  personaId: ID!
+}
+
+input GetThreadInput {
+  threadId: ID!
+}
+
+input DeleteThreadInput {
+  threadId: ID!
+}
+
+input AddThreadInput {
+  personaId: ID!
+}
+
+input MessageInput {
+  sender: String!
+  message: String!
+}
+
+input AddMessageInput {
+  threadId: ID!
+  prompt: ID!
+}
+
+input SystemSendMessageChunkInput {
+  userId: ID!
+  threadId: ID!
+  status: ThreadStatus!
+  chunk: String!
+}
+
+input SystemAddMessageInput {
+  userId: ID!
+  threadId: ID!
+  status: ThreadStatus!
+  message: MessageInput!
+}
+
+input AddVoiceInput {
+  personaId: ID!
+  message: String!
+}
+
+input RecieveMessageChunkAsyncInput {
+  threadId: ID!
+}
+
 ############## TYPES #####################
 
 type Persona @aws_cognito_user_pools @aws_iam {
-  personaId: String!
+  personaId: ID!
 
   name: String!
   avatar: String!
@@ -29,61 +82,85 @@ type Persona @aws_cognito_user_pools @aws_iam {
 }
 
 type MessageChunk @aws_cognito_user_pools @aws_iam {
-  userId: String!
-  threadId: String!
-  data: String!
-  status: Status!
+  userId: ID!
+  threadId: ID!
+  chunk: String!
+  status: ThreadStatus!
 }
 
 type Message @aws_cognito_user_pools @aws_iam {
   sender: String!
-  text: String!
-}
-
-input MessageInput {
-  sender: String!
-  text: String!
+  message: String!
 }
 
 type Thread @aws_cognito_user_pools @aws_iam {
-  userId: String
-  threadId: String
-  data: [Message!]
-  status: Status
+  threadId: ID!
+  userId: ID!
+  messages: [Message!]
+  status: ThreadStatus
 
   persona: Persona!
 }
 
+############## PAYLOADS #####################
+
+type AddThreadPayload @aws_cognito_user_pools @aws_iam {
+  thread: Thread
+}
+
+type AddMessagePayload @aws_cognito_user_pools @aws_iam {
+  message: Message
+}
+
+type AddVoicePayload @aws_cognito_user_pools @aws_iam {
+  message: Message
+}
+
+type DeleteThreadPayload @aws_cognito_user_pools @aws_iam {
+  thread: Thread
+}
+
+type SystemSendMessageChunkPayload @aws_cognito_user_pools @aws_iam {
+    userId: ID!
+  threadId: ID!
+  status: ThreadStatus!
+  chunk: String!
+}
+
+type SystemAddMessagePayload @aws_cognito_user_pools @aws_iam {
+  message: Message
+}
+
 ############## QUERIES #####################
 
-type Query {
-  getPersona(personaId: String!): Persona @aws_cognito_user_pools @aws_iam
-  getAllPersonas: [Persona!] @aws_cognito_user_pools @aws_iam
+type Query @aws_cognito_user_pools @aws_iam {
+  getPersona(input: GetPersonaInput!): Persona
+  getAllPersonas: [Persona!]
 
-  getThread(threadId: String!): Thread @aws_cognito_user_pools @aws_iam
-  getAllThreads: [Thread!] @aws_cognito_user_pools @aws_iam
+  getThread(input: GetThreadInput!): Thread
+  getAllThreads: [Thread!]
 }
 
 ############## MUTATIONS #####################
 
 type Mutation {
-  addThread(personaId: String!): Thread @aws_cognito_user_pools @aws_iam
-  deleteThread(threadId: String!): Thread @aws_cognito_user_pools @aws_iam
+  # Creation
+  addThread(input: AddThreadInput!): AddThreadPayload @aws_cognito_user_pools @aws_iam
+  addMessageAsync(input: AddMessageInput!): AddMessagePayload @aws_cognito_user_pools
+  addVoice(input: AddVoiceInput!): AddVoicePayload @aws_cognito_user_pools @aws_iam
 
-  addMessageAsync(threadId: String!, prompt: String!): Message @aws_cognito_user_pools
+  # Deletion
+  deleteThread(input: DeleteThreadInput!): DeleteThreadPayload @aws_cognito_user_pools @aws_iam
 
-  addVoice(personaId: String, message: String!): String @aws_cognito_user_pools @aws_iam
-
-  # The following mutation is protected by IAM authorization
-  sendMessageChunk(userId: String!, threadId: String!, status: Status!, data: String!): MessageChunk @aws_iam
-
-  addMessageSystem(userId: String!, threadId: String!, status: Status!, message: MessageInput!): Thread @aws_iam
+  # System
+  systemSendMessageChunk(input: SystemSendMessageChunkInput!): SystemSendMessageChunkPayload @aws_iam
+  systemAddMessage(input: SystemAddMessageInput!): SystemAddMessagePayload @aws_iam
 }
 
 ############## SUBSCRIPTIONS #####################
 
 type Subscription {
-  recieveMessageChunkAsync(threadId: String!): MessageChunk
-    @aws_subscribe(mutations: ["sendMessageChunk"])
+  recieveMessageChunkAsync(input: RecieveMessageChunkAsyncInput!): SystemSendMessageChunkPayload
+    @aws_subscribe(mutations: ["systemSendMessageChunk"])
     @aws_cognito_user_pools
 }

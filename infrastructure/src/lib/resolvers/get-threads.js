@@ -20,8 +20,8 @@ export function response(ctx) {
     util.error(ctx.error.message, ctx.error.type);
   }
   return ctx.result.items.map((item) => ({
-    userId: item.pk.split('#')[1],
     threadId: item.sk.split('#')[1],
+    userId: item.pk.split('#')[1],
     ...item
   }));
 }
