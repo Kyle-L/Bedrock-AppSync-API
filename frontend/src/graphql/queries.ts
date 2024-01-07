@@ -40,12 +40,6 @@ export const getThread = /* GraphQL */ `query GetThread($input: GetThreadInput!)
   getThread(input: $input) {
     threadId
     userId
-    messages {
-      sender
-      message
-      __typename
-    }
-    status
     persona {
       personaId
       name
@@ -57,6 +51,14 @@ export const getThread = /* GraphQL */ `query GetThread($input: GetThreadInput!)
       model
       __typename
     }
+    messages {
+      sender
+      message
+      createdAt
+      __typename
+    }
+    status
+    createdAt
     __typename
   }
 }
@@ -65,12 +67,6 @@ export const getAllThreads = /* GraphQL */ `query GetAllThreads {
   getAllThreads {
     threadId
     userId
-    messages {
-      sender
-      message
-      __typename
-    }
-    status
     persona {
       personaId
       name
@@ -82,6 +78,14 @@ export const getAllThreads = /* GraphQL */ `query GetAllThreads {
       model
       __typename
     }
+    messages {
+      sender
+      message
+      createdAt
+      __typename
+    }
+    status
+    createdAt
     __typename
   }
 }

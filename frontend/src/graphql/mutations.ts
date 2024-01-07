@@ -14,6 +14,7 @@ export const addThread = /* GraphQL */ `mutation AddThread($input: AddThreadInpu
       threadId
       userId
       status
+      createdAt
       __typename
     }
     __typename
@@ -25,6 +26,7 @@ export const addMessageAsync = /* GraphQL */ `mutation AddMessageAsync($input: A
     message {
       sender
       message
+      createdAt
       __typename
     }
     __typename
@@ -36,6 +38,7 @@ export const addVoice = /* GraphQL */ `mutation AddVoice($input: AddVoiceInput!)
     message {
       sender
       message
+      createdAt
       __typename
     }
     __typename
@@ -48,6 +51,7 @@ export const deleteThread = /* GraphQL */ `mutation DeleteThread($input: DeleteT
       threadId
       userId
       status
+      createdAt
       __typename
     }
     __typename
@@ -74,6 +78,7 @@ export const systemAddMessage =
     message {
       sender
       message
+      createdAt
       __typename
     }
     __typename

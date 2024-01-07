@@ -16,11 +16,9 @@ export default function ThreadCard({
 }) {
   return (
     <motion.li
-      key={`persona_${persona.personaId}`}
       initial={{ opacity: 0, x: -100 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -100 }}
-      // transition={{ delay: index * 0.1 }}
       className={[
         'flex items-center w-full',
         `bg-gradient-to-br ${gradientColorMap[persona.color as keyof typeof gradientColorMap]}`,
@@ -29,7 +27,7 @@ export default function ThreadCard({
       ].join(' ')}
     >
       <button
-        className="w-full h-full flex items-center hover:brightness-100 transition-filter"
+        className="flex items-center hover:brightness-100 transition-filter"
         onClick={() => onClickCallBack()}
       >
         <img
@@ -41,15 +39,14 @@ export default function ThreadCard({
           <p className="font-normal text-xs -mt-1">{persona.subtitle}</p>
         </div>
       </button>
-      <motion.button
-        animate={{ opacity: 1, y: 0 }}
-        initial={{ opacity: 0, y: 0 }}
-        exit={{ opacity: 0, y: 5 }}
-        className="mr-4"
-        onClick={() => onDeleteCallBack()}
-      >
-        Reset
-      </motion.button>
+      <p className="ml-auto pr-2 text-sm font-normal">
+        <span className="font-bold">{thread.messages?.length ?? 0}</span> messages
+        <span className="font-bold"> · </span>
+        {new Date(thread.createdAt!).toLocaleDateString()}
+      </p>
+      <button className="ml-auto pr-2 text-sm font-normal" onClick={() => onDeleteCallBack()}>
+        Delete
+      </button>
     </motion.li>
   );
 }

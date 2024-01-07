@@ -91,15 +91,16 @@ type MessageChunk @aws_cognito_user_pools @aws_iam {
 type Message @aws_cognito_user_pools @aws_iam {
   sender: String!
   message: String!
+  createdAt: String!
 }
 
 type Thread @aws_cognito_user_pools @aws_iam {
   threadId: ID!
   userId: ID!
-  messages: [Message!]
-  status: ThreadStatus
-
   persona: Persona!
+  messages: [Message!]
+  status: ThreadStatus!
+  createdAt: String!
 }
 
 ############## PAYLOADS #####################
@@ -121,7 +122,7 @@ type DeleteThreadPayload @aws_cognito_user_pools @aws_iam {
 }
 
 type SystemSendMessageChunkPayload @aws_cognito_user_pools @aws_iam {
-    userId: ID!
+  userId: ID!
   threadId: ID!
   status: ThreadStatus!
   chunk: String!

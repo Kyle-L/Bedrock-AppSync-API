@@ -72,7 +72,8 @@ export const handler: Handler = async (event: Event) => {
     return {
       message: {
         sender: 'User',
-        message: event.arguments.input.prompt
+        message: event.arguments.input.prompt,
+        createdAt: new Date().toISOString()
       }
     };
   } catch (error) {

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Message, Thread } from '../API';
 import Logo from '../components/Logo';
-import ChatConversation from '../components/animated/Conversation';
+import ChatConversation from '../components/animated/ChatConversation';
 import LoadingDots from '../components/animated/LoadingDots';
 import * as mutations from '../graphql/mutations';
 import * as querys from '../graphql/queries';
@@ -70,7 +70,8 @@ export default function ThreadPage() {
             if (response.chunk) {
               setLastMessage((prevLastMessage) => ({
                 sender: 'Assistant',
-                message: `${prevLastMessage?.message ?? ''}${response.chunk}`
+                message: `${prevLastMessage?.message ?? ''}${response.chunk}`,
+                createdAt: new Date().toISOString()
               }));
             }
 
@@ -104,7 +105,10 @@ export default function ThreadPage() {
       if (lastMessage) {
         updatedConversationHistory = [...updatedConversationHistory, lastMessage];
       }
-      return [...updatedConversationHistory, { sender: 'User', message: input }];
+      return [
+        ...updatedConversationHistory,
+        { sender: 'User', message: input, createdAt: new Date().toISOString() }
+      ];
     });
 
     // Clear the input.

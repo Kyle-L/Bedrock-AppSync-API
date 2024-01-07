@@ -15,23 +15,11 @@ export type Thread = {
   __typename: 'Thread';
   threadId: string;
   userId: string;
-  messages?: Array<Message> | null;
-  status?: ThreadStatus | null;
   persona: Persona;
+  messages?: Array<Message> | null;
+  status: ThreadStatus;
+  createdAt: string;
 };
-
-export type Message = {
-  __typename: 'Message';
-  sender: string;
-  message: string;
-};
-
-export enum ThreadStatus {
-  NEW = 'NEW',
-  PENDING = 'PENDING',
-  PROCESSING = 'PROCESSING',
-  COMPLETE = 'COMPLETE'
-}
 
 export type Persona = {
   __typename: 'Persona';
@@ -44,6 +32,20 @@ export type Persona = {
   color?: string | null;
   model?: string | null;
 };
+
+export type Message = {
+  __typename: 'Message';
+  sender: string;
+  message: string;
+  createdAt: string;
+};
+
+export enum ThreadStatus {
+  NEW = 'NEW',
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  COMPLETE = 'COMPLETE'
+}
 
 export type AddMessageInput = {
   threadId: string;
@@ -129,7 +131,8 @@ export type AddThreadMutation = {
       __typename: 'Thread';
       threadId: string;
       userId: string;
-      status?: ThreadStatus | null;
+      status: ThreadStatus;
+      createdAt: string;
     } | null;
   } | null;
 };
@@ -145,6 +148,7 @@ export type AddMessageAsyncMutation = {
       __typename: 'Message';
       sender: string;
       message: string;
+      createdAt: string;
     } | null;
   } | null;
 };
@@ -160,6 +164,7 @@ export type AddVoiceMutation = {
       __typename: 'Message';
       sender: string;
       message: string;
+      createdAt: string;
     } | null;
   } | null;
 };
@@ -175,7 +180,8 @@ export type DeleteThreadMutation = {
       __typename: 'Thread';
       threadId: string;
       userId: string;
-      status?: ThreadStatus | null;
+      status: ThreadStatus;
+      createdAt: string;
     } | null;
   } | null;
 };
@@ -205,6 +211,7 @@ export type SystemAddMessageMutation = {
       __typename: 'Message';
       sender: string;
       message: string;
+      createdAt: string;
     } | null;
   } | null;
 };
@@ -252,12 +259,6 @@ export type GetThreadQuery = {
     __typename: 'Thread';
     threadId: string;
     userId: string;
-    messages?: Array<{
-      __typename: 'Message';
-      sender: string;
-      message: string;
-    }> | null;
-    status?: ThreadStatus | null;
     persona: {
       __typename: 'Persona';
       personaId: string;
@@ -269,6 +270,14 @@ export type GetThreadQuery = {
       color?: string | null;
       model?: string | null;
     };
+    messages?: Array<{
+      __typename: 'Message';
+      sender: string;
+      message: string;
+      createdAt: string;
+    }> | null;
+    status: ThreadStatus;
+    createdAt: string;
   } | null;
 };
 
@@ -279,12 +288,6 @@ export type GetAllThreadsQuery = {
     __typename: 'Thread';
     threadId: string;
     userId: string;
-    messages?: Array<{
-      __typename: 'Message';
-      sender: string;
-      message: string;
-    }> | null;
-    status?: ThreadStatus | null;
     persona: {
       __typename: 'Persona';
       personaId: string;
@@ -296,6 +299,14 @@ export type GetAllThreadsQuery = {
       color?: string | null;
       model?: string | null;
     };
+    messages?: Array<{
+      __typename: 'Message';
+      sender: string;
+      message: string;
+      createdAt: string;
+    }> | null;
+    status: ThreadStatus;
+    createdAt: string;
   }> | null;
 };
 

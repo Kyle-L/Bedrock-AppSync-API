@@ -14,14 +14,16 @@ export function request(ctx) {
       sk: `THREAD#${id}`
     }),
     update: {
-      expression: 'SET #messages = :messages, #status = :status, #persona = :persona',
+      expression: 'SET #messages = :messages, #status = :status, #createdAt = :createdAt, #persona = :persona',
       expressionNames: {
         '#status': 'status',
+        '#createdAt': 'createdAt',
         '#persona': 'persona',
         '#messages': 'messages'
       },
       expressionValues: {
         ':status': { S: 'NEW' },
+        ':createdAt': { S: `${util.time.nowISO8601()}` },
         ':persona': { M: util.dynamodb.toMapValues(ctx.prev.result) },
         ':messages': { L: [] }
       }

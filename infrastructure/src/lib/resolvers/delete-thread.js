@@ -22,6 +22,10 @@ export function response(ctx) {
     util.error(ctx.error.message, ctx.error.type);
   }
   return {
-    thread: ctx.result
-  }
+    thread: {
+      threadId: ctx.result.sk.split('#')[1],
+      userId: ctx.result.pk.split('#')[1],
+      ...ctx.result
+    }
+  };
 }

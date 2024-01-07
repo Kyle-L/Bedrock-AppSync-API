@@ -17,7 +17,16 @@ export function request(ctx) {
         '#status': 'status'
       },
       expressionValues: {
-        ':messages': { L: [{ M: util.dynamodb.toMapValues(ctx.args.input.message) }] },
+        ':messages': {
+          L: [
+            {
+              M: util.dynamodb.toMapValues({
+                ...ctx.args.input.message,
+                createdAt: util.time.nowISO8601()
+              })
+            }
+          ]
+        },
         ':status': { S: ctx.args.input.status },
         ':empty_list': { L: [] }
       }
