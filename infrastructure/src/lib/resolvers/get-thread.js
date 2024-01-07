@@ -8,7 +8,7 @@ export function request(ctx) {
   return get({
     key: {
       pk: `USER#${ctx.identity.sub}`,
-      sk: `THREAD#${ctx.arguments.threadId}`
+      sk: `THREAD#${ctx.args.input.threadId}`
     }
   });
 }
@@ -21,8 +21,8 @@ export function response(ctx) {
     util.error(ctx.error.message, ctx.error.type);
   }
   return {
-    userId: ctx.result.pk.split('#')[1],
     threadId: ctx.result.sk.split('#')[1],
+    userId: ctx.result.pk.split('#')[1],
     ...ctx.result
   };
 }

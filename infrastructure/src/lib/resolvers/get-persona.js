@@ -7,7 +7,7 @@ export function request(ctx) {
   return get({
     key: {
       pk: `PERSONA`,
-      sk: `PERSONA#${ctx.arguments.personaId}`
+      sk: `PERSONA#${ctx.args.input.personaId}`
     }
   });
 }

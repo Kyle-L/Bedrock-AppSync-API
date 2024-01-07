@@ -130,8 +130,8 @@ export class BackendStack extends cdk.Stack {
       conversationHistoryDataSource,
       '../resolvers/delete-thread.js'
     );
-    const addMessageSystemFunction = createResolverFunction(
-      'addMessageSystem',
+    const systemAddMessageFunction = createResolverFunction(
+      'systemAddMessage',
       conversationHistoryDataSource,
       '../resolvers/add-message.js'
     );
@@ -147,12 +147,12 @@ export class BackendStack extends cdk.Stack {
       { typeName: 'Query', fieldName: 'getAllThreads', pipelineConfig: [getAllThreadsFunction] },
       { typeName: 'Mutation', fieldName: 'addThread', pipelineConfig: [getPersonaFunction, addThreadFunction] },
       { typeName: 'Mutation', fieldName: 'deleteThread', pipelineConfig: [deleteThreadFunction] },
-      { typeName: 'Mutation', fieldName: 'addMessageSystem', pipelineConfig: [addMessageSystemFunction] },
+      { typeName: 'Mutation', fieldName: 'systemAddMessage', pipelineConfig: [systemAddMessageFunction] },
       { typeName: 'Mutation', fieldName: 'addMessageAsync', pipelineConfig: [getThreadFunction, predictAsyncFunction] },
       { typeName: 'Mutation', fieldName: 'addVoice', pipelineConfig: [getPersonaFunction, getVoiceFunction] },
       {
         typeName: 'Mutation',
-        fieldName: 'sendMessageChunk',
+        fieldName: 'systemSendMessageChunk',
         runtime: appsync.FunctionRuntime.JS_1_0_0,
         code: noneCode,
         dataSource: noneDataSource

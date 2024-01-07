@@ -7,18 +7,18 @@ export function request(ctx) {
   return {
     operation: 'UpdateItem',
     key: util.dynamodb.toMapValues({
-      pk: `USER#${ctx.args.userId}`,
-      sk: `THREAD#${ctx.args.threadId}`
+      pk: `USER#${ctx.args.input.userId}`,
+      sk: `THREAD#${ctx.args.input.threadId}`
     }),
     update: {
-      expression: 'SET #data = list_append(if_not_exists(#data, :empty_list), :data), #status = :status',
+      expression: 'SET #messages = list_append(if_not_exists(#messages, :empty_list), :messages), #status = :status',
       expressionNames: {
-        '#data': 'data',
+        '#messages': 'messages',
         '#status': 'status'
       },
       expressionValues: {
-        ':data': { L: [{ M: util.dynamodb.toMapValues(ctx.args.message) }] },
-        ':status': { S: ctx.args.status },
+        ':messages': { L: [{ M: util.dynamodb.toMapValues(ctx.args.input.message) }] },
+        ':status': { S: ctx.args.input.status },
         ':empty_list': { L: [] }
       }
     }
@@ -32,5 +32,7 @@ export function response(ctx) {
   if (ctx.error) {
     util.error(ctx.error.message, ctx.error.type);
   }
-  return ctx.result;
+  return {
+    message: ctx.result.messages[ctx.result.messages.length - 1]
+  };
 }
