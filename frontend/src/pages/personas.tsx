@@ -44,6 +44,8 @@ export default function Personas() {
    * @param threadId {string} The threadId to delete.
    */
   const deleteThread = async (threadId: string) => {
+    setThreads(threads.filter((thread) => thread.threadId !== threadId));
+
     await client.graphql({
       query: mutations.deleteThread,
       variables: {
@@ -52,8 +54,6 @@ export default function Personas() {
         }
       }
     });
-
-    setThreads(threads.filter((thread) => thread.threadId !== threadId));
   };
 
   useEffect(() => {
@@ -90,9 +90,10 @@ export default function Personas() {
           <AnimatePresence>
             {[...personas]
               .sort((a, b) => a.name.localeCompare(b.name))
-              .map((persona) => {
+              .map((persona, index) => {
                 return (
                   <PersonaCard
+                    key={persona.personaId}
                     persona={persona}
                     onClickCallBack={() => createThread(persona.personaId!)}
                   />
@@ -106,9 +107,10 @@ export default function Personas() {
         <h1 className="text-2xl font-extrabold w-full">Start a Conversation</h1>
         <ul className="w-full">
           <AnimatePresence>
-            {[...threads].map((persona) => {
+            {[...threads].map((persona, index) => {
               return (
                 <ThreadCard
+                  key={persona.threadId}
                   persona={persona.persona!}
                   thread={persona}
                   onClickCallBack={() => navigate(`/thread/${persona.threadId}`)}

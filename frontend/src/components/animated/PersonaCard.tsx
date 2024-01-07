@@ -12,11 +12,9 @@ export default function PersonaCard({
 }) {
   return (
     <motion.li
-      key={`persona_${persona.personaId}`}
       initial={{ opacity: 0, x: -100 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -100 }}
-      // transition={{ delay: index * 0.1 }}
       className={[
         'flex items-center w-full',
         `bg-gradient-to-br ${gradientColorMap[persona.color as keyof typeof gradientColorMap]}`,

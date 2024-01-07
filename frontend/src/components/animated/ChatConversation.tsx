@@ -29,7 +29,9 @@ export default function ChatConversation({
               (chat.sender === 'Assistant' ? thread.persona.name : userAttributes?.name) ?? 'N/A'
           })}
           key={index}
+          name={chat.sender === 'Assistant' ? thread.persona.name : userAttributes?.name ?? 'N/A'}
           text={chat.message}
+          timestamp={chat.createdAt}
           isAnimated={index === conversationHistory.length}
         />
       ))}
