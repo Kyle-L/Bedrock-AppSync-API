@@ -14,16 +14,18 @@ export function request(ctx) {
       sk: `THREAD#${id}`
     }),
     update: {
-      expression: 'SET #data = :data, #status = :status, #persona = :persona',
+      expression: 'SET #messages = :messages, #status = :status, #createdAt = :createdAt, #persona = :persona',
       expressionNames: {
         '#status': 'status',
+        '#createdAt': 'createdAt',
         '#persona': 'persona',
-        '#data': 'data'
+        '#messages': 'messages'
       },
       expressionValues: {
         ':status': { S: 'NEW' },
+        ':createdAt': { S: `${util.time.nowISO8601()}` },
         ':persona': { M: util.dynamodb.toMapValues(ctx.prev.result) },
-        ':data': { L: [] }
+        ':messages': { L: [] }
       }
     }
   };
@@ -37,8 +39,10 @@ export function response(ctx) {
     util.error(ctx.error.message, ctx.error.type);
   }
   return {
-    userId: ctx.result.pk.split('#')[1],
-    threadId: ctx.result.sk.split('#')[1],
-    ...ctx.result
+    thread: {
+      threadId: ctx.result.sk.split('#')[1],
+      userId: ctx.result.pk.split('#')[1],
+      ...ctx.result
+    }
   };
 }

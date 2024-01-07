@@ -8,14 +8,12 @@ const TABLE_NAME = process.env.TABLE_NAME || '';
 const sqsClient = new SQSClient();
 const dynamodb = new DynamoDBClient();
 
-interface EventArguments {
-  [key: string]: string;
-}
-
 interface Event
   extends AppSyncResolverEvent<{
-    arguments: EventArguments;
-    [key: string]: string | EventArguments;
+    input: {
+      prompt: string;
+      threadId: string;
+    };
   }> {}
 
 export const handler: Handler = async (event: Event) => {
@@ -32,19 +30,19 @@ export const handler: Handler = async (event: Event) => {
     throw new Error('Thread is currently processing');
   }
 
-  // Condition 3: The thread ID is missing. If it is, generate a new one.
-  const threadId = event.prev?.result?.sk;
+  // Condition 3: The thread ID is missing.
+  let threadId = event.prev?.result?.sk;
   if (!threadId) {
     throw new Error('That thread does not exist');
   }
-  event.arguments.threadId = threadId.split('#')[1];
+  threadId = threadId.split('#')[1];
 
   try {
     const dynamoParams = {
       TableName: TABLE_NAME,
       Key: {
         pk: { S: `USER#${id}` },
-        sk: { S: `THREAD#${event.arguments.threadId}` }
+        sk: { S: `THREAD#${threadId}` }
       },
       UpdateExpression: 'SET #status = :status',
       ExpressionAttributeNames: {
@@ -54,8 +52,6 @@ export const handler: Handler = async (event: Event) => {
         ':status': { S: 'PENDING' }
       }
     };
-
-    console.log('DynamoDB Parameters:', dynamoParams);
 
     // Perform DynamoDB update asynchronously
     const dynamoPromise = dynamodb.send(new UpdateItemCommand(dynamoParams));
@@ -73,7 +69,13 @@ export const handler: Handler = async (event: Event) => {
     await Promise.all([dynamoPromise, sqsPromise]);
 
     console.log('DynamoDB and SQS operations completed successfully');
-    return { sender: 'User', text: event.arguments.prompt };
+    return {
+      message: {
+        sender: 'User',
+        message: event.arguments.input.prompt,
+        createdAt: new Date().toISOString()
+      }
+    };
   } catch (error) {
     console.error('Error:', error);
     throw new Error('An error occurred');

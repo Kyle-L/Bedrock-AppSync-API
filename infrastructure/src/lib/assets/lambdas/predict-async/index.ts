@@ -16,12 +16,11 @@ async function createTimeoutTask(timeout: number) {
 }
 
 async function processChunk(userId: string, threadId: string, chunk: string, status = 'PROCESSING') {
-  console.log(`Received Chunk: ${chunk}`);
-  await sendRequest(sendMessageChunkMutation, {
+  return await sendRequest(sendMessageChunkMutation, {
     userId,
     threadId,
     status,
-    data: chunk
+    chunk
   });
 }
 
@@ -37,9 +36,9 @@ async function updateMessageSystemStatus(
   userId: string,
   threadId: string,
   status: 'PEMNDING' | 'NEW' | 'PROCESSING' | 'COMPLETE',
-  message: { sender: string; text: string }
+  message: { sender: string; message: string }
 ) {
-  await sendRequest(addMessageSystemMutation, {
+  return await sendRequest(addMessageSystemMutation, {
     userId,
     threadId,
     status,
@@ -53,7 +52,7 @@ async function updateMessageSystemStatus(
  * @param threadId {string} The thread ID.
  * @param eventResult {Promise<void>}
  */
-async function completeProcessing(userId: string, threadId: string, eventResult: { sender: string; text: string }) {
+async function completeProcessing(userId: string, threadId: string, eventResult: { sender: string; message: string }) {
   const result = await Promise.all([
     // Update the thread's status to COMPLETE and add the AI's response to the thread's message history.
     updateMessageSystemStatus(userId, threadId, 'COMPLETE', eventResult),
@@ -94,22 +93,25 @@ async function processEvent({
   const timeoutTask = createTimeoutTask(eventTimeout);
 
   const processingTask = new Promise(async (resolve) => {
-    await updateMessageSystemStatus(userId, threadId, 'PROCESSING', {
-      sender: 'User',
-      text: userPrompt
-    });
-
     console.log(`Processing prompt: ${fullPrompt}`);
 
     try {
-      await processAsynchronously({
-        prompt: fullPrompt,
-        callback: async (chunk) => {
-          await processChunk(userId, threadId, chunk);
-          eventResult += chunk;
-        },
-        model
-      });
+      await Promise.all([
+        await updateMessageSystemStatus(userId, threadId, 'PROCESSING', {
+          sender: 'User',
+          message: userPrompt
+        }),
+
+        await processAsynchronously({
+          prompt: fullPrompt,
+          callback: async (chunk) => {
+            console.log(`Received Chunk: ${chunk}`);
+            await processChunk(userId, threadId, chunk);
+            eventResult += chunk;
+          },
+          model
+        })
+      ]);
     } catch (err) {
       console.error(err);
       eventResult = 'An error occurred while processing the prompt.';
@@ -120,7 +122,7 @@ async function processEvent({
 
   const res = await Promise.race([processingTask, timeoutTask]);
 
-  await completeProcessing(userId, threadId, { sender: 'Assistant', text: eventResult });
+  await completeProcessing(userId, threadId, { sender: 'Assistant', message: eventResult });
 
   return res;
 }
@@ -142,7 +144,7 @@ export async function handler(event: SQSEvent) {
     const eventData = JSON.parse(record.body);
 
     const userId = eventData.identity.sub;
-    const threadId = eventData.arguments.threadId;
+    const threadId = eventData.arguments.input.threadId;
     const systemPrompt = eventData.prev.result.persona.prompt;
     const personaModel = eventData.prev.result.persona.model;
     const history = (eventData.prev.result.data || [])
@@ -151,7 +153,7 @@ export async function handler(event: SQSEvent) {
       })
       .join('\n\n');
     const threadHistory = `${systemPrompt}${history}`;
-    const userPrompt = eventData.arguments.prompt;
+    const userPrompt = eventData.arguments.input.prompt;
 
     console.log(`Received Event: ${JSON.stringify(eventData)}`);
     return processEvent({

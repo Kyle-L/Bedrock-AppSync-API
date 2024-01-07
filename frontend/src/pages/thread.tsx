@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Message, Thread } from '../API';
 import Logo from '../components/Logo';
-import ChatBubble from '../components/animated/ChatBubble';
+import ChatConversation from '../components/animated/ChatConversation';
 import LoadingDots from '../components/animated/LoadingDots';
 import * as mutations from '../graphql/mutations';
 import * as querys from '../graphql/queries';
@@ -15,47 +15,63 @@ import { getAvatarURL } from '../utils/avatar';
 
 const client = generateClient();
 
-export default function AIInput() {
+export default function ThreadPage() {
+  // State
   const [conversationHistory, setConversationHistory] = useState<Omit<Message, '__typename'>[]>([]);
   const [lastMessage, setLastMessage] = useState<Omit<Message, '__typename'> | null>();
   const [loading, setLoading] = useState(false);
-  const [prompt, setPrompt] = useState('');
+  const [input, setInput] = useState('');
   const [thread, setThread] = useState<Thread | null>(null);
 
+  // Hooks
   const { threadId } = useParams();
   const { userAttributes } = useAuth();
   const { setBackground } = useBackground();
   const { addAlert } = useAlert();
 
-  useEffect(() => {
-    if (!threadId) return;
+  // Prevents the page from loading if there is no threadId
+  if (!threadId) return null;
 
-    const fetchData = async () => {
-      try {
-        const { data } = await client.graphql({ query: querys.getThread, variables: { threadId } });
-        setThread(data.getThread as Thread);
-      } catch (err: any) {
-        addAlert(err?.message ?? 'Something went wrong', 'warning');
-      }
-    };
+  /**
+   * Fetches the thread data from the API.
+   */
+  const fetchData = async () => {
+    try {
+      const { data } = await client.graphql({
+        query: querys.getThread,
+        variables: {
+          input: {
+            threadId
+          }
+        }
+      });
+      setThread(data.getThread as Thread);
+    } catch (err: any) {
+      addAlert(err?.message ?? 'Something went wrong', 'error');
+    }
+  };
 
-    fetchData();
-
-    const createSub = client
+  /**
+   * Creates a subscription to recieve messages from the chatbot.
+   * @returns
+   */
+  const createSubscription = () => {
+    // Create subscription function
+    return client
       .graphql({
         query: subscriptions.recieveMessageChunkAsync,
-        variables: { threadId }
+        variables: { input: { threadId } }
       })
       .subscribe({
         next: ({ data }) => {
           const response = data?.recieveMessageChunkAsync;
 
           if (response) {
-            console.log('lastMessage?.text: ', lastMessage);
-            if (response.data) {
+            if (response.chunk) {
               setLastMessage((prevLastMessage) => ({
                 sender: 'Assistant',
-                text: `${prevLastMessage?.text ?? ''}${response.data}`
+                message: `${prevLastMessage?.message ?? ''}${response.chunk}`,
+                createdAt: new Date().toISOString()
               }));
             }
 
@@ -68,54 +84,71 @@ export default function AIInput() {
           addAlert(error?.message ?? 'Something went wrong', 'warning');
         }
       });
+  };
 
-    return () => createSub.unsubscribe();
-  }, [threadId]);
-
-  useEffect(() => {
-    if (!thread) return;
-
-    setConversationHistory(thread.data ?? []);
-    setBackground(thread.persona!.color ?? 'default');
-  }, [thread]);
-
+  /**
+   * Submits the user's input to the chatbot.
+   * @returns
+   */
   const onSubmit = async () => {
-    // Base Case 1: A thread is needed to generate a response.
-    if (!threadId) return;
+    // Pre-condition: We have an input.
+    if (!input) return;
 
-    // Base Case 2: The prompt actually has content.
-    if (!prompt) return;
-
-    // Starts loading...
+    // Start loading indicators
     setLoading(true);
 
-    // Adds the prompt to the conversation history.
+    // Move both the last message into the conversation history, so that the typing animation is
+    // no longer displayed for the last message. We also add the user's input to the conversation,
+    // so that it is displayed in the UI.
     setConversationHistory((prevConversationHistory) => {
       let updatedConversationHistory = [...prevConversationHistory];
       if (lastMessage) {
         updatedConversationHistory = [...updatedConversationHistory, lastMessage];
       }
-      return [...updatedConversationHistory, { sender: 'User', text: prompt }];
+      return [
+        ...updatedConversationHistory,
+        { sender: 'User', message: input, createdAt: new Date().toISOString() }
+      ];
     });
 
-    // Clears the prompt.
-    setPrompt('');
+    // Clear the input.
+    setInput('');
 
     // Clear the last message.
     setLastMessage(null);
 
+    // Starts the async conversation with the chatbot.
+    // We will recieve the messages from the chatbot via a subscription.
     client
       .graphql({
         query: mutations.addMessageAsync,
         variables: {
-          prompt,
-          threadId
+          input: {
+            prompt: input,
+            threadId
+          }
         }
       })
       .catch((err: any) => {
-        addAlert(err?.message ?? 'Something went wrong', 'warning');
+        addAlert(err?.message ?? 'Something went wrong', 'error');
       });
   };
+
+  // Fetches the thread data from the API.
+  useEffect(() => {
+    if (!threadId) return;
+    fetchData();
+    const subscription = createSubscription();
+    return () => subscription.unsubscribe();
+  }, [threadId]);
+
+  // Loads the thread data into the states.
+  useEffect(() => {
+    // Use effect for updating conversation history and background
+    if (!thread) return;
+    setConversationHistory(thread.messages ?? []);
+    setBackground(thread.persona!.color ?? 'default');
+  }, [thread]);
 
   if (!thread) return <div>Loading...</div>;
 
@@ -136,25 +169,18 @@ export default function AIInput() {
         }}
         className="w-full max-w-2xl"
       >
-        {[...conversationHistory, lastMessage!].filter(Boolean).map((chat, index) => (
-          <ChatBubble
-            picture={getAvatarURL({
-              avatar: chat.sender === 'Assistant' ? thread.persona.avatar : undefined,
-              name:
-                (chat.sender === 'Assistant' ? thread.persona.name : userAttributes?.name) ?? 'N/A'
-            })}
-            key={index}
-            text={chat.text}
-            isAnimated={index === conversationHistory.length}
-          />
-        ))}
-
+        <ChatConversation
+          conversationHistory={conversationHistory}
+          lastMessage={lastMessage}
+          thread={thread}
+          userAttributes={userAttributes}
+        />
         {!loading ? (
           <textarea
             className="w-full shadow-md rounded-xl p-2 my-2"
             placeholder={`Message ${thread.persona.name}...`}
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
           />
         ) : (
           <div className="w-full pt-1 pb-2">

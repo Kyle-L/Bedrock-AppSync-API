@@ -8,8 +8,8 @@ type GeneratedQuery<InputType, OutputType> = string & {
   __generatedQueryOutput: OutputType;
 };
 
-export const getPersona = /* GraphQL */ `query GetPersona($personaId: String!) {
-  getPersona(personaId: $personaId) {
+export const getPersona = /* GraphQL */ `query GetPersona($input: GetPersonaInput!) {
+  getPersona(input: $input) {
     personaId
     name
     avatar
@@ -36,16 +36,10 @@ export const getAllPersonas = /* GraphQL */ `query GetAllPersonas {
   }
 }
 ` as GeneratedQuery<APITypes.GetAllPersonasQueryVariables, APITypes.GetAllPersonasQuery>;
-export const getThread = /* GraphQL */ `query GetThread($threadId: String!) {
-  getThread(threadId: $threadId) {
-    userId
+export const getThread = /* GraphQL */ `query GetThread($input: GetThreadInput!) {
+  getThread(input: $input) {
     threadId
-    data {
-      sender
-      text
-      __typename
-    }
-    status
+    userId
     persona {
       personaId
       name
@@ -57,20 +51,22 @@ export const getThread = /* GraphQL */ `query GetThread($threadId: String!) {
       model
       __typename
     }
+    messages {
+      sender
+      message
+      createdAt
+      __typename
+    }
+    status
+    createdAt
     __typename
   }
 }
 ` as GeneratedQuery<APITypes.GetThreadQueryVariables, APITypes.GetThreadQuery>;
 export const getAllThreads = /* GraphQL */ `query GetAllThreads {
   getAllThreads {
-    userId
     threadId
-    data {
-      sender
-      text
-      __typename
-    }
-    status
+    userId
     persona {
       personaId
       name
@@ -82,6 +78,14 @@ export const getAllThreads = /* GraphQL */ `query GetAllThreads {
       model
       __typename
     }
+    messages {
+      sender
+      message
+      createdAt
+      __typename
+    }
+    status
+    createdAt
     __typename
   }
 }

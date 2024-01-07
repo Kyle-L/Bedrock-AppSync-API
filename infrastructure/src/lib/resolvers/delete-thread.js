@@ -8,7 +8,7 @@ export function request(ctx) {
     operation: 'DeleteItem',
     key: util.dynamodb.toMapValues({
       pk: `USER#${ctx.identity.sub}`,
-      sk: `THREAD#${ctx.arguments.threadId}`
+      sk: `THREAD#${ctx.arguments.input.threadId}`
     })
   };
 }
@@ -21,5 +21,11 @@ export function response(ctx) {
   if (ctx.error) {
     util.error(ctx.error.message, ctx.error.type);
   }
-  return ctx.result;
+  return {
+    thread: {
+      threadId: ctx.result.sk.split('#')[1],
+      userId: ctx.result.pk.split('#')[1],
+      ...ctx.result
+    }
+  };
 }
