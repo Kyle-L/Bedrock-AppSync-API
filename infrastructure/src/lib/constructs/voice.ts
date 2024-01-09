@@ -18,7 +18,7 @@ export class VoiceConstruct extends Construct {
 
     // Voice Lambda
     this.voiceLambda = new NodejsFunction(this, 'VoiceLambda', {
-      runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
+      runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '../assets/lambdas/polly/index.ts'),
       environment: {
         S3_BUCKET: s3Bucket.bucketName
