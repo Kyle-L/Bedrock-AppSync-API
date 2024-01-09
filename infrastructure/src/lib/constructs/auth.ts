@@ -20,7 +20,7 @@ export class AuthConstruct extends Construct {
 
     // Pre-signup Lambda
     this.presignupLambda = new NodejsFunction(this, 'PreSignupLambda', {
-      runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
+      runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '../assets/lambdas/pre-signup/index.ts'),
       bundling: {
         minify: true,

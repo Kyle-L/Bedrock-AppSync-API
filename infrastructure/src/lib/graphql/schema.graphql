@@ -69,16 +69,13 @@ input RecieveMessageChunkAsyncInput {
 type Persona @aws_cognito_user_pools @aws_iam {
   personaId: ID!
 
-  name: String!           # The name of the persona    
-  avatar: String!         # The URL of the persona's avatar image
-
-  prompt: String!         # The system prompt that the persona uses.
-
-  subtitle: String        # A subtitle for the persona, displayed in the UI
-  description: String     # A description of the persona
-  color: String           # The color of the persona's background and related UI elements
-
-  model: String           # The name of the model that the persona uses
+  name: String! # The name of the persona
+  avatar: String! # The URL of the persona's avatar image
+  prompt: String! # The system prompt that the persona uses.
+  subtitle: String # A subtitle for the persona, displayed in the UI
+  description: String # A description of the persona
+  color: String # The color of the persona's background and related UI elements
+  model: String # The name of the model that the persona uses
   knowledgeBaseId: String # The ID of the knowledge base that the persona can use
 }
 

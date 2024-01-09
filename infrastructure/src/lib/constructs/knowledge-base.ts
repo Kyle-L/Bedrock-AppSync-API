@@ -15,7 +15,7 @@ export class KnowledgeBaseConstruct extends Construct {
   constructor(scope: Construct, id: string, props: KnowledgeBaseConstructProps) {
     super(scope, id);
 
-    const pineconeKbName = `${scope.node.path}-KnowledgeBase`;
+    const pineconeKbName = `${scope.node.path.replace(/\//g, '-')}-KnowledgeBase`;
     const pineconeConnectionString = props.pineconeConnectionString;
     const textField = 'text-field';
     const metadataField = 'metadata-field';
@@ -29,7 +29,7 @@ export class KnowledgeBaseConstruct extends Construct {
 
     // Bedrock Knowledge Base IAM role
     const knowledgeBaseRoleArn = new iam.Role(this, 'KnowledgeBaseRole', {
-      roleName: 'AmazonBedrockExecutionRoleForKnowledgeBase',
+      roleName: 'AmazonBedrockExecutionRoleForKnowledgeBase_CDK',
       assumedBy: new iam.ServicePrincipal('bedrock.amazonaws.com'),
       managedPolicies: [iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess')]
     }).roleArn;

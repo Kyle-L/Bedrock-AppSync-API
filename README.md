@@ -7,6 +7,7 @@
   - [Infrastructure Services Used](#infrastructure-services-used)
   - [The Event Flow](#the-event-flow)
 - [Zero to Hero](#zero-to-hero)
+  - [Setup](#setup)
   - [Pinecone Setup (Optional)](#pinecone-setup-optional)
   - [Backend](#backend)
   - [Frontend](#frontend)
@@ -60,6 +61,30 @@ A simple [Vite](https://vitejs.dev/) and [TypeScript](https://www.typescriptlang
 
 # Zero to Hero
 > This section guides you through the process of deploying the infrastructure.
+
+## Setup
+
+1. Pre-requisites:
+  - [Node.js](https://nodejs.org/en/) version 14 or later.
+  - [AWS CLI](https://aws.amazon.com/cli/) version 2 or later.
+  - [AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html) version 2 or later.
+  - [Pinecone](https://www.pinecone.io/) account (optional).
+
+2. Clone the repository and navigate to the infrastructure directory.
+```bash
+git@github.com:Kyle-L/Bedrock-AppSync-API.git 
+cd Bedrock-AppSync-API/infrastructure
+```
+
+3. Install the dependencies.
+```bash
+npm install
+```
+
+4. Install AWS CDK
+```bash
+npm install -g aws-cdk
+```
 
 ## Pinecone Setup (Optional)
 > If you are not familiar with Pinecone, Pinecone is a vector database that allows you to store and query high-dimensional vectors. It is used in this project to store the embeddings of the messages and to query for similar messages.

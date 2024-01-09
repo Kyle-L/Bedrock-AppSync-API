@@ -28,7 +28,7 @@ export class PredictConstruct extends Construct {
 
     // Queue Lambda
     this.queueLambda = new NodejsFunction(this, 'PredictAsyncQueueLambda', {
-      runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
+      runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '../assets/lambdas/queue-trigger/index.ts'),
       environment: {
         QUEUE_URL: this.queue.queueUrl,
@@ -53,7 +53,7 @@ export class PredictConstruct extends Construct {
     props.conversationHistoryTable.grantReadWriteData(this.queueLambda);
 
     this.predictAsyncLambda = new NodejsFunction(this, 'PredictAsyncLambda', {
-      runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
+      runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '../assets/lambdas/predict-async/index.ts'),
       environment: {
         GRAPHQL_URL: props.appSyncApi.graphqlUrl
