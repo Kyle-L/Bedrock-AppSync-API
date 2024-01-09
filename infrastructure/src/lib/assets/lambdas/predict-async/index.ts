@@ -78,7 +78,8 @@ async function processEvent({
   history,
   userPrompt,
   eventTimeout,
-  model
+  model,
+  knowledgeBaseId
 }: {
   userId: string;
   threadId: string;
@@ -86,6 +87,7 @@ async function processEvent({
   userPrompt: string;
   eventTimeout: number;
   model: string;
+  knowledgeBaseId: string;
 }) {
   const fullPrompt = `${history}\n\nUser: ${userPrompt}\n\Assistant: `;
   let eventResult = '';
@@ -109,7 +111,8 @@ async function processEvent({
             await processChunk(userId, threadId, chunk);
             eventResult += chunk;
           },
-          model
+          model,
+          knowledgeBaseId
         })
       ]);
     } catch (err) {
@@ -146,6 +149,7 @@ export async function handler(event: SQSEvent) {
     const userId = eventData.identity.sub;
     const threadId = eventData.arguments.input.threadId;
     const systemPrompt = eventData.prev.result.persona.prompt;
+    const knowledgeBaseId = eventData.prev.result.persona.knowledgeBaseId;
     const personaModel = eventData.prev.result.persona.model;
     const history = (eventData.prev.result.data || [])
       .map((message: { sender: string; text: string }) => {
@@ -162,7 +166,8 @@ export async function handler(event: SQSEvent) {
       history: threadHistory,
       userPrompt,
       eventTimeout: adjustedTimeout,
-      model: personaModel
+      model: personaModel,
+      knowledgeBaseId
     });
   });
 
