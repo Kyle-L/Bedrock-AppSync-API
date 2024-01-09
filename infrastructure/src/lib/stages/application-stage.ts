@@ -15,6 +15,12 @@ interface ApplicationStageProps extends StageProps {
    * @default - No custom domain.
    */
   domains?: string[];
+
+  /**
+   * The Pinecone connection string. Pinecone is used to store the knowledge base,
+   * a vector database.
+   */
+  pineconeConnectionString?: string;
 }
 
 /**
@@ -25,7 +31,7 @@ interface ApplicationStageProps extends StageProps {
  * @returns The application stage.
  */
 export class ApplicationStage extends Stage {
-  constructor(scope: Construct, id: string, props?: ApplicationStageProps) {
+  constructor(scope: Construct, id: string, props: ApplicationStageProps) {
     super(scope, id, props);
 
     // The frontend stack is what is reasponsible for hosting our React web

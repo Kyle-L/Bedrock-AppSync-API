@@ -9,15 +9,17 @@ import {
   PredictConstruct,
   VoiceConstruct
 } from '../constructs';
+import { KnowledgeBaseConstruct } from '../constructs/knowledge-base';
 
 interface BackendStackProps extends cdk.StackProps {
   domains?: string[];
+  pineconeConnectionString?: string;
   acmCertificateArn?: string;
   removalPolicy?: cdk.RemovalPolicy;
 }
 
 export class BackendStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: BackendStackProps) {
+  constructor(scope: Construct, id: string, props: BackendStackProps) {
     super(scope, id, props);
 
     // Cognito User Pool
@@ -43,7 +45,16 @@ export class BackendStack extends cdk.Stack {
       conversationHistoryTable: conversationHistoryConstruct.table
     });
 
-    // WIP - Voice Lambda
+    let knowledgeBase: KnowledgeBaseConstruct | undefined;
+    if (props.pineconeConnectionString) {
+      knowledgeBase = new KnowledgeBaseConstruct(this, 'KnowledgeBase', {
+        pineconeConnectionString: props.pineconeConnectionString
+      });
+    }
+
+    // Voice Lambda
+    // TODO: Finish AppSync integration with this so that users can have the responses
+    //       from the bot read to them.
     const voiceConstruct = new VoiceConstruct(this, 'Voice');
 
     /*================================= Data Sources =================================*/

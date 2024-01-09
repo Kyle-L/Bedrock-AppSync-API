@@ -6,6 +6,10 @@
   - [Terminology](#terminology)
   - [Infrastructure Services Used](#infrastructure-services-used)
   - [The Event Flow](#the-event-flow)
+- [Zero to Hero](#zero-to-hero)
+  - [Pinecone Setup (Optional)](#pinecone-setup-optional)
+  - [Backend](#backend)
+  - [Frontend](#frontend)
 
 
 # Overview
@@ -53,3 +57,26 @@ A simple [Vite](https://vitejs.dev/) and [TypeScript](https://www.typescriptlang
 9. The user will recieve the result of the Gen AI processing via an AppSync subscription.
 10. The user can then send another message to the AppSync API.
 11. The process repeats.
+
+# Zero to Hero
+> This section guides you through the process of deploying the infrastructure.
+
+## Pinecone Setup (Optional)
+> If you are not familiar with Pinecone, Pinecone is a vector database that allows you to store and query high-dimensional vectors. It is used in this project to store the embeddings of the messages and to query for similar messages.
+> For this project, we are using it as the vector database that backs a [Bedrock Knowledge Base](https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base.html) to allow our chatbot to provide relevant responses to the user based on data from an S3 bucket.
+
+1. Create a Pinecone account at [https://www.pinecone.io/](https://www.pinecone.io/).
+
+2. Create a new Pinecone index.
+  - There are additional configurations that you must provide when creating a Pinecone index:
+    - Name – The name of the vector index. Choose any valid name of your choice. Later, when you create your knowledge base, enter the name you choose in the Vector index name field.
+    - Dimensions – The number of dimensions in the vector. Choose `1536`. This is what the Knowledge Base uses.
+    - Distance metric – The metric used to measure the similarity between vectors. While the Knowledge Base supports multiple distance metrics, choose `cosine` for this example. You can experiment with other distance metrics later.
+
+3. Get the Pinecone API key and the Pinecone index name.
+  - You can find the API key and the index name in the Pinecone console.
+  - Save these for later, as you will need them when deploying the infrastructure.
+
+## Backend
+
+## Frontend

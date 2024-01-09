@@ -25,6 +25,7 @@
     "@aws-sdk/lib-dynamodb": "^3.485.0",
     "@aws-sdk/protocol-http": "^3.374.0",
     "@aws-sdk/signature-v4": "^3.374.0",
+    "@pinecone-database/pinecone": "^1.1.2",
     "@types/aws-lambda": "^8.10.130",
     "aws-cdk-lib": "2.118.0",
     "aws-lambda": "^1.0.7",
