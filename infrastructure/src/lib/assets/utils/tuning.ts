@@ -55,7 +55,7 @@ export const MODEL_TUNINGS: ModelTunings<'claude' | 'ai21' | 'titan' | 'claudeKb
   claudeKb: {
     params: {
       model: 'anthropic.claude-v2:1',
-      maxTokens: 200,
+      maxTokens: 500,
       temperature: 0.7
     },
     bindings: {

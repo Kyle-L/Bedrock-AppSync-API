@@ -76,7 +76,8 @@ async function processEvent({
   userId,
   threadId,
   history,
-  userPrompt,
+  query,
+  promptTemplate,
   eventTimeout,
   model,
   knowledgeBaseId
@@ -84,28 +85,30 @@ async function processEvent({
   userId: string;
   threadId: string;
   history: string;
-  userPrompt: string;
+  query: string;
+  promptTemplate: string;
   eventTimeout: number;
   model: string;
   knowledgeBaseId: string;
 }) {
-  const fullPrompt = `${history}\n\nUser: ${userPrompt}\n\Assistant: `;
+  const fullQuery = `${history}\n\nUser: ${query}\n\Assistant: `;
   let eventResult = '';
 
   const timeoutTask = createTimeoutTask(eventTimeout);
 
   const processingTask = new Promise(async (resolve) => {
-    console.log(`Processing prompt: ${fullPrompt}`);
+    console.log(`Processing prompt: ${fullQuery}`);
 
     try {
       await Promise.all([
         await updateMessageSystemStatus(userId, threadId, 'PROCESSING', {
           sender: 'User',
-          message: userPrompt
+          message: query
         }),
 
         await processAsynchronously({
-          prompt: fullPrompt,
+          query: fullQuery,
+          promptTemplate,
           callback: async (chunk) => {
             console.log(`Received Chunk: ${chunk}`);
             await processChunk(userId, threadId, chunk);
@@ -148,7 +151,7 @@ export async function handler(event: SQSEvent) {
 
     const userId = eventData.identity.sub;
     const threadId = eventData.arguments.input.threadId;
-    const systemPrompt = eventData.prev.result.persona.prompt;
+    const promptTemplate = eventData.prev.result.persona.prompt;
     const knowledgeBaseId = eventData.prev.result.persona.knowledgeBaseId;
     const personaModel = eventData.prev.result.persona.model;
     const history = (eventData.prev.result.data || [])
@@ -156,15 +159,15 @@ export async function handler(event: SQSEvent) {
         return `${message.sender}: ${message.text}`;
       })
       .join('\n\n');
-    const threadHistory = `${systemPrompt}${history}`;
-    const userPrompt = eventData.arguments.input.prompt;
+    const query = eventData.arguments.input.prompt;
 
     console.log(`Received Event: ${JSON.stringify(eventData)}`);
     return processEvent({
       userId,
       threadId,
-      history: threadHistory,
-      userPrompt,
+      history,
+      query,
+      promptTemplate,
       eventTimeout: adjustedTimeout,
       model: personaModel,
       knowledgeBaseId

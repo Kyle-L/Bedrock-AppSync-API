@@ -71,7 +71,7 @@ type Persona @aws_cognito_user_pools @aws_iam {
 
   name: String! # The name of the persona
   avatar: String! # The URL of the persona's avatar image
-  prompt: String! # The system prompt that the persona uses.
+  prompt: String # The system prompt that the persona uses.
   subtitle: String # A subtitle for the persona, displayed in the UI
   description: String # A description of the persona
   color: String # The color of the persona's background and related UI elements
