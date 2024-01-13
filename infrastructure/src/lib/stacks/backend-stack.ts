@@ -34,9 +34,17 @@ export class BackendStack extends cdk.Stack {
       userPoolClient: authConstruct.userPoolClient
     });
 
+    let knowledgeBase: KnowledgeBaseConstruct | undefined;
+    if (props.pineconeConnectionString) {
+      knowledgeBase = new KnowledgeBaseConstruct(this, 'KnowledgeBase', {
+        pineconeConnectionString: props.pineconeConnectionString
+      });
+    }
+
     // DynamoDB Table
     const conversationHistoryConstruct = new ConversationHistoryConstruct(this, 'ConversationHistory', {
-      removalPolicy: props?.removalPolicy
+      removalPolicy: props?.removalPolicy,
+      knowledgeBaseId: knowledgeBase?.knowledgeBase?.knowledgeBaseId
     });
 
     // Prediction lambdas
@@ -44,13 +52,6 @@ export class BackendStack extends cdk.Stack {
       appSyncApi: apiConstruct.appsync,
       conversationHistoryTable: conversationHistoryConstruct.table
     });
-
-    let knowledgeBase: KnowledgeBaseConstruct | undefined;
-    if (props.pineconeConnectionString) {
-      knowledgeBase = new KnowledgeBaseConstruct(this, 'KnowledgeBase', {
-        pineconeConnectionString: props.pineconeConnectionString
-      });
-    }
 
     // Voice Lambda
     // TODO: Finish AppSync integration with this so that users can have the responses

@@ -6,6 +6,7 @@ import getDefaultPersonas from '../assets/data/default-personas';
 
 export interface ConversationHistoryProps {
   removalPolicy?: cdk.RemovalPolicy;
+  knowledgeBaseId?: string;
 }
 
 export class ConversationHistoryConstruct extends Construct {
@@ -29,13 +30,13 @@ export class ConversationHistoryConstruct extends Construct {
     });
 
     // Add the default items to the table using custom resources
-    new AwsCustomResource(this, 'DefaultPersonas', {
+    new AwsCustomResource(this, 'Personas', {
       onCreate: {
         service: 'DynamoDB',
         action: 'batchWriteItem',
         parameters: {
           RequestItems: {
-            [this.table.tableName]: getDefaultPersonas().map((item) => ({
+            [this.table.tableName]: getDefaultPersonas({ knowledgeBaseId: props?.knowledgeBaseId }).map((item) => ({
               PutRequest: {
                 Item: item
               }

@@ -2,23 +2,28 @@ import { Persona, Thread } from '../../API';
 import { motion } from 'framer-motion';
 import { gradientColorMap } from '../gradient-dict';
 import { getAvatarURL } from '../../utils/avatar';
+import type { ComponentPropsWithoutRef } from 'react';
+
+interface ThreadCardProps extends ComponentPropsWithoutRef<React.ElementType> {
+  persona: Persona;
+  thread: Thread;
+  onClickCallBack: () => void;
+  onDeleteCallBack: () => void;
+}
 
 export default function ThreadCard({
   persona,
   thread,
   onClickCallBack,
-  onDeleteCallBack
-}: {
-  persona: Persona;
-  thread: Thread;
-  onClickCallBack: () => void;
-  onDeleteCallBack: () => void;
-}) {
+  onDeleteCallBack,
+  ...props
+}: ThreadCardProps) {
   return (
     <motion.li
       initial={{ opacity: 0, x: -100 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -100 }}
+      {...props}
       className={[
         'flex items-center w-full',
         `bg-gradient-to-br ${gradientColorMap[persona.color as keyof typeof gradientColorMap]}`,
