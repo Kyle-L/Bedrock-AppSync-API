@@ -20,21 +20,23 @@ export default function ChatConversation({
   userAttributes: FetchUserAttributesOutput | undefined;
 }) {
   return (
-    <>
-      {[...conversationHistory, lastMessage!].filter(Boolean).map((chat, index) => (
-        <ChatBubble
-          picture={getAvatarURL({
-            avatar: chat.sender === 'Assistant' ? thread.persona.avatar : undefined,
-            name:
-              (chat.sender === 'Assistant' ? thread.persona.name : userAttributes?.name) ?? 'N/A'
-          })}
-          key={index}
-          name={chat.sender === 'Assistant' ? thread.persona.name : userAttributes?.name ?? 'N/A'}
-          text={chat.message}
-          timestamp={chat.createdAt}
-          isAnimated={index === conversationHistory.length}
-        />
-      ))}
-    </>
+    <div className="flex flex-col flex-col-reverse max-h-96 overflow-y-auto">
+      <div className="flex flex-col space-y-4">
+        {[...conversationHistory, lastMessage!].filter(Boolean).map((chat, index) => (
+          <ChatBubble
+            picture={getAvatarURL({
+              avatar: chat.sender === 'Assistant' ? thread.persona.avatar : undefined,
+              name:
+                (chat.sender === 'Assistant' ? thread.persona.name : userAttributes?.name) ?? 'N/A'
+            })}
+            key={index}
+            name={chat.sender === 'Assistant' ? thread.persona.name : userAttributes?.name ?? 'N/A'}
+            text={chat.message}
+            timestamp={chat.createdAt}
+            isAnimated={index === conversationHistory.length}
+          />
+        ))}
+      </div>
+    </div>
   );
 }

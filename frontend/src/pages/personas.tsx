@@ -96,6 +96,7 @@ export default function Personas() {
                     key={persona.personaId}
                     persona={persona}
                     onClickCallBack={() => createThread(persona.personaId!)}
+                    transition={{ delay: index * 0.1 }}
                   />
                 );
               })}
@@ -115,6 +116,7 @@ export default function Personas() {
                   thread={persona}
                   onClickCallBack={() => navigate(`/thread/${persona.threadId}`)}
                   onDeleteCallBack={() => deleteThread(persona.threadId!)}
+                  transition={{ delay: personas.length * 0.1 + index * 0.1 }}
                 />
               );
             })}

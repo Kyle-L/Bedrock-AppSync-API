@@ -3,18 +3,20 @@ import { motion } from 'framer-motion';
 import { gradientColorMap } from '../gradient-dict';
 import { getAvatarURL } from '../../utils/avatar';
 
-export default function PersonaCard({
-  persona,
-  onClickCallBack
-}: {
+import type { ComponentPropsWithoutRef } from 'react';
+
+interface PersonaCardProps extends ComponentPropsWithoutRef<React.ElementType> {
   persona: Persona;
   onClickCallBack: () => void;
-}) {
+}
+
+export default function PersonaCard({ persona, onClickCallBack, ...props }: PersonaCardProps) {
   return (
     <motion.li
       initial={{ opacity: 0, x: -100 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -100 }}
+      {...props}
       className={[
         'flex items-center w-full',
         `bg-gradient-to-br ${gradientColorMap[persona.color as keyof typeof gradientColorMap]}`,
