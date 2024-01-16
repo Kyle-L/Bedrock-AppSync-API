@@ -18,7 +18,6 @@ This repository contains the AWS CDK Infrastructure-as-code for an AWS AppSync w
 
 A simple [Vite](https://vitejs.dev/) and [TypeScript](https://www.typescriptlang.org/) based frontend is provided to demonstrate the functionality of the API.
 
-
 # Architecture
 ![Diagram](./docs/diagram.svg)
 
@@ -103,5 +102,7 @@ npm install -g aws-cdk
   - Save these for later, as you will need them when deploying the infrastructure.
 
 ## Backend
+![Work-in-Progress](docs/wip.jpg)
 
 ## Frontend
+![Work-in-Progress](docs/wip.jpg)
