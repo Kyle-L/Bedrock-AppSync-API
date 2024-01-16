@@ -5,7 +5,20 @@
 
 version: 2
 updates:
+  # Root
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Infrastructure
   - package-ecosystem: 'npm'
-    directory: '/' # Location of package manifests
+    directory: '/infrastructure'
+    schedule:
+      interval: 'weekly'
+
+  # Frontend
+  - package-ecosystem: 'npm'
+    directory: '/frontend'
     schedule:
       interval: 'weekly'
