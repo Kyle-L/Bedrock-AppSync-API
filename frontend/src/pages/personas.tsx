@@ -104,25 +104,27 @@ export default function Personas() {
         </ul>
       </div>
 
-      <div className="w-full mt-4 mb-8">
-        <h1 className="text-2xl font-extrabold w-full">Start a Conversation</h1>
-        <ul className="w-full">
-          <AnimatePresence>
-            {[...threads].map((persona, index) => {
-              return (
-                <ThreadCard
-                  key={persona.threadId}
-                  persona={persona.persona!}
-                  thread={persona}
-                  onClickCallBack={() => navigate(`/thread/${persona.threadId}`)}
-                  onDeleteCallBack={() => deleteThread(persona.threadId!)}
-                  transition={{ delay: personas.length * 0.1 + index * 0.1 }}
-                />
-              );
-            })}
-          </AnimatePresence>
-        </ul>
-      </div>
+      {threads.length > 0 && (
+        <div className="w-full mt-4 mb-8">
+          <h1 className="text-2xl font-extrabold w-full">Open Conversations</h1>
+          <ul className="w-full">
+            <AnimatePresence>
+              {[...threads].map((persona, index) => {
+                return (
+                  <ThreadCard
+                    key={persona.threadId}
+                    persona={persona.persona!}
+                    thread={persona}
+                    onClickCallBack={() => navigate(`/thread/${persona.threadId}`)}
+                    onDeleteCallBack={() => deleteThread(persona.threadId!)}
+                    transition={{ delay: personas.length * 0.1 + index * 0.1 }}
+                  />
+                );
+              })}
+            </AnimatePresence>
+          </ul>
+        </div>
+      )}
     </>
   );
 }
