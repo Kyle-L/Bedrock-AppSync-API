@@ -1,6 +1,7 @@
 import { DynamoDBClient, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { SQSClient, SendMessageCommand, SendMessageCommandInput } from '@aws-sdk/client-sqs';
 import { AppSyncIdentityCognito, AppSyncResolverEvent, Handler } from 'aws-lambda';
+import { MessageSystemStatus } from 'lib/assets/utils/types';
 
 const QUEUE_URL = process.env.QUEUE_URL || '';
 const TABLE_NAME = process.env.TABLE_NAME || '';
@@ -26,7 +27,11 @@ export const handler: Handler = async (event: Event) => {
   const id = (event.identity as AppSyncIdentityCognito).sub;
 
   // Condition 2: The thread is not currently processing. If it is, throw an error.
-  if (event.prev?.result?.status && event.prev.result.status !== 'NEW' && event.prev.result.status !== 'COMPLETE') {
+  if (
+    event.prev?.result?.status &&
+    event.prev.result.status !== MessageSystemStatus.NEW &&
+    event.prev.result.status !== MessageSystemStatus.COMPLETE
+  ) {
     throw new Error('Thread is currently processing');
   }
 
@@ -49,7 +54,7 @@ export const handler: Handler = async (event: Event) => {
         '#status': 'status'
       },
       ExpressionAttributeValues: {
-        ':status': { S: 'PENDING' }
+        ':status': { S: MessageSystemStatus.PENDING }
       }
     };
 

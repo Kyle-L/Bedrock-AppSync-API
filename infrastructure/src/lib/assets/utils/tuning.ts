@@ -9,7 +9,7 @@ type ModelTunings<T extends string> = {
   };
 };
 
-export const MODEL_TUNINGS: ModelTunings<'claude' | 'ai21' | 'titan' | 'claudeKb'> = {
+export const MODEL_TUNINGS: ModelTunings<'claude' | 'ai21' | 'titan' | 'claudeInstant'> = {
   titan: {
     params: {
       model: 'amazon.titan-text-express-v1',
@@ -52,9 +52,9 @@ export const MODEL_TUNINGS: ModelTunings<'claude' | 'ai21' | 'titan' | 'claudeKb
       stop: ['\nUser:', '\nAssistant:']
     }
   },
-  claudeKb: {
+  claudeInstant: {
     params: {
-      model: 'anthropic.claude-v2:1',
+      model: 'anthropic.claude-instant-v1',
       maxTokens: 500,
       temperature: 0.7
     },

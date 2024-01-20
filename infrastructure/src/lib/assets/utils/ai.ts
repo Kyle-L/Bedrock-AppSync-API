@@ -83,5 +83,5 @@ async function getContext(prompt: string, knowledgeBaseId: string): Promise<stri
     })
     .promise();
 
-  return JSON.stringify(result?.retrievalResults);
+  return result?.retrievalResults.map((result) => result.content.text).join('\n\n') || '';
 }
