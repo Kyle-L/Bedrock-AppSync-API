@@ -34,6 +34,7 @@ export class BackendStack extends cdk.Stack {
       userPoolClient: authConstruct.userPoolClient
     });
 
+    // Knowledge Base - Handles integration with Pinecone
     let knowledgeBase: KnowledgeBaseConstruct | undefined;
     if (props.pineconeConnectionString) {
       knowledgeBase = new KnowledgeBaseConstruct(this, 'KnowledgeBase', {
@@ -41,21 +42,19 @@ export class BackendStack extends cdk.Stack {
       });
     }
 
-    // DynamoDB Table
+    // DynamoDB Table - Stores personas and conversation threads/messages.
     const conversationHistoryConstruct = new ConversationHistoryConstruct(this, 'ConversationHistory', {
       removalPolicy: props?.removalPolicy,
       knowledgeBaseId: knowledgeBase?.knowledgeBase?.knowledgeBaseId
     });
 
-    // Prediction lambdas
+    // Prediction lambdas - Handles integration with Bedrock.
     const predictConstruct = new PredictConstruct(this, 'Predict', {
       appSyncApi: apiConstruct.appsync,
       conversationHistoryTable: conversationHistoryConstruct.table
     });
 
-    // Voice Lambda
-    // TODO: Finish AppSync integration with this so that users can have the responses
-    //       from the bot read to them.
+    // Voice Lambda - Handles integration with Azure Cognitive Speech Services (Because AWS Polly lacks custom voices)
     const voiceConstruct = new VoiceConstruct(this, 'Voice');
 
     /*================================= Data Sources =================================*/
@@ -161,7 +160,7 @@ export class BackendStack extends cdk.Stack {
       { typeName: 'Mutation', fieldName: 'deleteThread', pipelineConfig: [deleteThreadFunction] },
       { typeName: 'Mutation', fieldName: 'systemAddMessage', pipelineConfig: [systemAddMessageFunction] },
       { typeName: 'Mutation', fieldName: 'addMessageAsync', pipelineConfig: [getThreadFunction, predictAsyncFunction] },
-      { typeName: 'Mutation', fieldName: 'addVoice', pipelineConfig: [getPersonaFunction, getVoiceFunction] },
+      { typeName: 'Mutation', fieldName: 'addVoice', pipelineConfig: [getThreadFunction, getVoiceFunction] },
       {
         typeName: 'Mutation',
         fieldName: 'systemSendMessageChunk',

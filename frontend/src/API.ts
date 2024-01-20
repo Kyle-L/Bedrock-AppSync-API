@@ -25,12 +25,14 @@ export type Persona = {
   __typename: 'Persona';
   personaId: string;
   name: string;
-  avatar: string;
-  prompt: string;
+  avatar?: string | null;
+  prompt?: string | null;
   subtitle?: string | null;
   description?: string | null;
   color?: string | null;
   model?: string | null;
+  knowledgeBaseId?: string | null;
+  voice?: string | null;
 };
 
 export type Message = {
@@ -58,13 +60,13 @@ export type AddMessagePayload = {
 };
 
 export type AddVoiceInput = {
-  personaId: string;
+  threadId: string;
   message: string;
 };
 
 export type AddVoicePayload = {
   __typename: 'AddVoicePayload';
-  message?: Message | null;
+  result?: string | null;
 };
 
 export type DeleteThreadInput = {
@@ -160,12 +162,7 @@ export type AddVoiceMutationVariables = {
 export type AddVoiceMutation = {
   addVoice?: {
     __typename: 'AddVoicePayload';
-    message?: {
-      __typename: 'Message';
-      sender: string;
-      message: string;
-      createdAt: string;
-    } | null;
+    result?: string | null;
   } | null;
 };
 
@@ -225,12 +222,14 @@ export type GetPersonaQuery = {
     __typename: 'Persona';
     personaId: string;
     name: string;
-    avatar: string;
-    prompt: string;
+    avatar?: string | null;
+    prompt?: string | null;
     subtitle?: string | null;
     description?: string | null;
     color?: string | null;
     model?: string | null;
+    knowledgeBaseId?: string | null;
+    voice?: string | null;
   } | null;
 };
 
@@ -241,12 +240,14 @@ export type GetAllPersonasQuery = {
     __typename: 'Persona';
     personaId: string;
     name: string;
-    avatar: string;
-    prompt: string;
+    avatar?: string | null;
+    prompt?: string | null;
     subtitle?: string | null;
     description?: string | null;
     color?: string | null;
     model?: string | null;
+    knowledgeBaseId?: string | null;
+    voice?: string | null;
   }> | null;
 };
 
@@ -263,12 +264,14 @@ export type GetThreadQuery = {
       __typename: 'Persona';
       personaId: string;
       name: string;
-      avatar: string;
-      prompt: string;
+      avatar?: string | null;
+      prompt?: string | null;
       subtitle?: string | null;
       description?: string | null;
       color?: string | null;
       model?: string | null;
+      knowledgeBaseId?: string | null;
+      voice?: string | null;
     };
     messages?: Array<{
       __typename: 'Message';
@@ -292,12 +295,14 @@ export type GetAllThreadsQuery = {
       __typename: 'Persona';
       personaId: string;
       name: string;
-      avatar: string;
-      prompt: string;
+      avatar?: string | null;
+      prompt?: string | null;
       subtitle?: string | null;
       description?: string | null;
       color?: string | null;
       model?: string | null;
+      knowledgeBaseId?: string | null;
+      voice?: string | null;
     };
     messages?: Array<{
       __typename: 'Message';

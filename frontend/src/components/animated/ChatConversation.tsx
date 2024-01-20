@@ -24,6 +24,7 @@ export default function ChatConversation({
       <div className="flex flex-col space-y-4">
         {[...conversationHistory, lastMessage!].filter(Boolean).map((chat, index) => (
           <ChatBubble
+            id={chat.sender === 'Assistant' ? thread.threadId : undefined}
             picture={getAvatarURL({
               avatar: chat.sender === 'Assistant' ? thread.persona.avatar : undefined,
               name:
