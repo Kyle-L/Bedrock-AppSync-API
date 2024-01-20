@@ -19,6 +19,7 @@ export class ApiConstruct extends Construct {
     this.appsync = new appsync.GraphqlApi(this, 'AppSyncApi', {
       name: 'GenAIApi',
       definition: appsync.Definition.fromFile(path.join(__dirname, '../graphql/schema.graphql')),
+      xrayEnabled: true,
       authorizationConfig: {
         defaultAuthorization: {
           authorizationType: appsync.AuthorizationType.USER_POOL,

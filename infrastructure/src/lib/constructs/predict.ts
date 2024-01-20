@@ -20,7 +20,6 @@ export class PredictConstruct extends Construct {
   constructor(scope: Construct, id: string, props: PredictConstructProps) {
     super(scope, id);
 
-    // A conversation history table
     // SQS Queue
     this.queue = new cdk.aws_sqs.Queue(this, 'ConversationQueue', {
       visibilityTimeout: cdk.Duration.seconds(300)
@@ -39,6 +38,7 @@ export class PredictConstruct extends Construct {
         sourceMap: true
       },
       timeout: cdk.Duration.seconds(30),
+      memorySize: 256,
       initialPolicy: [
         // Allow the lambda to call SQS
         new iam.PolicyStatement({
@@ -63,7 +63,7 @@ export class PredictConstruct extends Construct {
         minify: true,
         sourceMap: true
       },
-      memorySize: 512,
+      memorySize: 756,
       timeout: cdk.Duration.seconds(30),
       initialPolicy: [
         // Allow the lambda to call Bedrock

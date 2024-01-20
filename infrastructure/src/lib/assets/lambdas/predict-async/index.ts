@@ -1,21 +1,27 @@
 import { SQSEvent } from 'aws-lambda';
 import { processAsynchronously } from 'lib/assets/utils/ai';
 import { addMessageSystemMutation, sendMessageChunkMutation, sendRequest } from './queries';
+import { EventResult, EventType, MessageSystemStatus } from '../../utils/types';
 
 const EVENT_TIMEOUT = 25000;
 
 /**
  * A timeout task that resolves after a specified timeout.
- * @param timeout {number} The timeout in milliseconds.
- * @returns {Promise<{ statusCode: number; message: string }>} The result of the timeout task.
+ * @param timeout The timeout in milliseconds.
+ * @returns The result of the timeout task.
  */
-async function createTimeoutTask(timeout: number) {
+async function createTimeoutTask(timeout: number): Promise<{ statusCode: number; message: string }> {
   return new Promise((resolve) => {
     setTimeout(() => resolve({ statusCode: 504, message: 'Task timed out!' }), timeout);
   });
 }
 
-async function processChunk(userId: string, threadId: string, chunk: string, status = 'PROCESSING') {
+async function processChunk(
+  userId: string,
+  threadId: string,
+  chunk: string,
+  status: MessageSystemStatus = MessageSystemStatus.PENDING
+) {
   return await sendRequest(sendMessageChunkMutation, {
     userId,
     threadId,
@@ -35,7 +41,7 @@ async function processChunk(userId: string, threadId: string, chunk: string, sta
 async function updateMessageSystemStatus(
   userId: string,
   threadId: string,
-  status: 'PEMNDING' | 'NEW' | 'PROCESSING' | 'COMPLETE',
+  status: MessageSystemStatus,
   message: { sender: string; message: string }
 ) {
   return await sendRequest(addMessageSystemMutation, {
@@ -48,17 +54,17 @@ async function updateMessageSystemStatus(
 
 /**
  * Completes the processing of an event by updating the thread's status to COMPLETE and adding the AI's response to the thread's message history.
- * @param userId {string} The user ID.
- * @param threadId {string} The thread ID.
- * @param eventResult {Promise<void>}
+ * @param userId The user ID.
+ * @param threadId The thread ID.
+ * @param eventResult The AI's response.
  */
-async function completeProcessing(userId: string, threadId: string, eventResult: { sender: string; message: string }) {
+async function completeProcessing(userId: string, threadId: string, eventResult: EventResult) {
   const result = await Promise.all([
     // Update the thread's status to COMPLETE and add the AI's response to the thread's message history.
-    updateMessageSystemStatus(userId, threadId, 'COMPLETE', eventResult),
+    updateMessageSystemStatus(userId, threadId, MessageSystemStatus.COMPLETE, eventResult),
 
     // Send an empty chunk to indicate that the processing is complete.
-    processChunk(userId, threadId, '', 'COMPLETE')
+    processChunk(userId, threadId, '', MessageSystemStatus.COMPLETE)
   ]);
 
   console.log('Result:', JSON.stringify(result));
@@ -81,16 +87,7 @@ async function processEvent({
   eventTimeout,
   model,
   knowledgeBaseId
-}: {
-  userId: string;
-  threadId: string;
-  history: string;
-  query: string;
-  promptTemplate: string;
-  eventTimeout: number;
-  model: string;
-  knowledgeBaseId: string;
-}) {
+}: EventType) {
   const fullQuery = `${history}\n\nUser: ${query}\n\Assistant: `;
   let eventResult = '';
 
@@ -101,7 +98,7 @@ async function processEvent({
 
     try {
       await Promise.all([
-        await updateMessageSystemStatus(userId, threadId, 'PROCESSING', {
+        await updateMessageSystemStatus(userId, threadId, MessageSystemStatus.PROCESSING, {
           sender: 'User',
           message: query
         }),
@@ -135,8 +132,8 @@ async function processEvent({
 
 /**
  * Processes a batch of events.
- * @param event {SQSEvent} SQS event containing the batch of events to process.
- * @returns {Promise<{ statusCode: number; message: string }[]>} The results of the events.
+ * @param event SQS event containing the batch of events to process.
+ * @returns The results of the events.
  */
 export async function handler(event: SQSEvent) {
   if (!event.Records || event.Records.length === 0) {
