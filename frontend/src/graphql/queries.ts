@@ -18,6 +18,8 @@ export const getPersona = /* GraphQL */ `query GetPersona($input: GetPersonaInpu
     description
     color
     model
+    knowledgeBaseId
+    voice
     __typename
   }
 }
@@ -32,6 +34,8 @@ export const getAllPersonas = /* GraphQL */ `query GetAllPersonas {
     description
     color
     model
+    knowledgeBaseId
+    voice
     __typename
   }
 }
@@ -49,6 +53,8 @@ export const getThread = /* GraphQL */ `query GetThread($input: GetThreadInput!)
       description
       color
       model
+      knowledgeBaseId
+      voice
       __typename
     }
     messages {
@@ -76,6 +82,8 @@ export const getAllThreads = /* GraphQL */ `query GetAllThreads {
       description
       color
       model
+      knowledgeBaseId
+      voice
       __typename
     }
     messages {

@@ -35,12 +35,7 @@ export const addMessageAsync = /* GraphQL */ `mutation AddMessageAsync($input: A
 ` as GeneratedMutation<APITypes.AddMessageAsyncMutationVariables, APITypes.AddMessageAsyncMutation>;
 export const addVoice = /* GraphQL */ `mutation AddVoice($input: AddVoiceInput!) {
   addVoice(input: $input) {
-    message {
-      sender
-      message
-      createdAt
-      __typename
-    }
+    result
     __typename
   }
 }
