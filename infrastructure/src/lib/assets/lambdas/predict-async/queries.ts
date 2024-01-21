@@ -34,12 +34,14 @@ export const addMessageSystemMutation = `mutation Mutation($userId: ID!, $thread
   }
 }`;
 
-export const sendMessageChunkMutation = `mutation Mutation($userId: ID!, $threadId: ID!, $status: ThreadStatus!, $textChunk: String, $audioChunk: String) {
-  systemSendMessageChunk(input: {userId: $userId, threadId: $threadId, status: $status, textChunk: $textChunk, audioChunk: $audioChunk}) {
-        textChunk
-        audioChunk
+export const sendMessageChunkMutation = `mutation Mutation($userId: ID!, $threadId: ID!, $status: ThreadStatus!, $chunkOrder: Int!, $chunkType: ChunkType!, $chunk: String!) {
+  systemSendMessageChunk(input: {userId: $userId, threadId: $threadId, status: $status, chunkOrder: $chunkOrder, chunkType: $chunkType, chunk: $chunk}) {
         status
         userId
         threadId
-    }
+
+        chunkOrder
+        chunkType
+        chunk
+  }
 }`;
