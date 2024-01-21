@@ -45,8 +45,10 @@ input SystemSendMessageChunkInput {
   userId: ID!
   threadId: ID!
   status: ThreadStatus!
-  textChunk: String
-  audioChunk: String
+
+  chunkOrder: Int!
+  chunkType: String!
+  chunk: String!
 }
 
 input SystemAddMessageInput {
@@ -85,8 +87,10 @@ type MessageChunk @aws_cognito_user_pools @aws_iam {
   userId: ID!
   threadId: ID!
   status: ThreadStatus!
-  textChunk: String
-  audioChunk: String
+
+  chunkOrder: Int!
+  chunkType: String!
+  chunk: String!
 }
 
 type Message @aws_cognito_user_pools @aws_iam {
