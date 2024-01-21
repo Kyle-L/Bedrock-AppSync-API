@@ -45,7 +45,8 @@ input SystemSendMessageChunkInput {
   userId: ID!
   threadId: ID!
   status: ThreadStatus!
-  chunk: String!
+  textChunk: String
+  audioChunk: String
 }
 
 input SystemAddMessageInput {
@@ -83,8 +84,9 @@ type Persona @aws_cognito_user_pools @aws_iam {
 type MessageChunk @aws_cognito_user_pools @aws_iam {
   userId: ID!
   threadId: ID!
-  chunk: String!
   status: ThreadStatus!
+  textChunk: String
+  audioChunk: String
 }
 
 type Message @aws_cognito_user_pools @aws_iam {
@@ -120,13 +122,6 @@ type DeleteThreadPayload @aws_cognito_user_pools @aws_iam {
   thread: Thread
 }
 
-type SystemSendMessageChunkPayload @aws_cognito_user_pools @aws_iam {
-  userId: ID!
-  threadId: ID!
-  status: ThreadStatus!
-  chunk: String!
-}
-
 type SystemAddMessagePayload @aws_cognito_user_pools @aws_iam {
   message: Message
 }
@@ -153,14 +148,14 @@ type Mutation {
   deleteThread(input: DeleteThreadInput!): DeleteThreadPayload @aws_cognito_user_pools @aws_iam
 
   # System
-  systemSendMessageChunk(input: SystemSendMessageChunkInput!): SystemSendMessageChunkPayload @aws_iam
+  systemSendMessageChunk(input: SystemSendMessageChunkInput!): MessageChunk @aws_iam
   systemAddMessage(input: SystemAddMessageInput!): SystemAddMessagePayload @aws_iam
 }
 
 ############## SUBSCRIPTIONS #####################
 
 type Subscription {
-  recieveMessageChunkAsync(input: RecieveMessageChunkAsyncInput!): SystemSendMessageChunkPayload
+  recieveMessageChunkAsync(input: RecieveMessageChunkAsyncInput!): MessageChunk
     @aws_subscribe(mutations: ["systemSendMessageChunk"])
     @aws_cognito_user_pools
 }

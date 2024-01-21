@@ -1,4 +1,4 @@
-import { BedrockChat } from 'langchain/chat_models/bedrock';
+import { BedrockChat } from '@langchain/community/chat_models/bedrock';
 import { StringOutputParser } from 'langchain/schema/output_parser';
 import { MODEL_TUNINGS } from './tuning';
 import { BedrockAgentRuntime } from 'aws-sdk'; // Assuming AWS SDK has Bedrock client

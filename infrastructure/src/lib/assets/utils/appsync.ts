@@ -56,30 +56,3 @@ export const AppSyncRequestIAM = async (params: RequestParams) => {
     httpRequest.end();
   });
 };
-
-export const AppSyncRequestApiKey = async <T = object>(params: RequestParams) => {
-  const endpoint = new URL(params.config.url);
-
-  const request = new HttpRequest({
-    hostname: endpoint.host,
-    port: 443,
-    path: endpoint.pathname,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': params.config.key || '',
-      host: endpoint.host
-    },
-    body: JSON.stringify(params.operation)
-  });
-
-  return new Promise<GraphQLResult<T>>((resolve, reject) => {
-    const httpRequest = https.request({ ...request, host: endpoint.hostname }, (result) => {
-      result.on('data', (data) => {
-        resolve(JSON.parse(data.toString()));
-      });
-    });
-    httpRequest.write(request.body);
-    httpRequest.end();
-  });
-};

@@ -117,7 +117,6 @@ export default function Personas() {
                     thread={persona}
                     onClickCallBack={() => navigate(`/thread/${persona.threadId}`)}
                     onDeleteCallBack={() => deleteThread(persona.threadId!)}
-                    transition={{ delay: personas.length * 0.1 + index * 0.1 }}
                   />
                 );
               })}

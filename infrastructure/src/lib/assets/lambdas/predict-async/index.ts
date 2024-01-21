@@ -1,9 +1,20 @@
-import { SQSEvent } from 'aws-lambda';
+import { AppSyncIdentityCognito, Context, SQSEvent } from 'aws-lambda';
 import { processAsynchronously } from 'lib/assets/utils/ai';
 import { addMessageSystemMutation, sendMessageChunkMutation, sendRequest } from './queries';
 import { EventResult, EventType, MessageSystemStatus } from '../../utils/types';
+import { getSpeechSecret, synthesizeAudio } from 'lib/assets/utils/voice';
+import { SpeechConfig } from 'microsoft-cognitiveservices-speech-sdk';
+import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-const EVENT_TIMEOUT = 25000;
+// Constants
+const EVENT_TIMEOUT_BUFFER = 5000; // 5 second
+
+// Environment variables
+const BUCKET = process.env.S3_BUCKET || '';
+
+// Clients
+const s3Client = new S3Client();
 
 /**
  * A timeout task that resolves after a specified timeout.
@@ -16,17 +27,19 @@ async function createTimeoutTask(timeout: number): Promise<{ statusCode: number;
   });
 }
 
-async function processChunk(
+async function sendChunk(
   userId: string,
   threadId: string,
-  chunk: string,
+  textChunk: string,
+  audioChunk: string,
   status: MessageSystemStatus = MessageSystemStatus.PENDING
 ) {
-  return await sendRequest(sendMessageChunkMutation, {
+  await sendRequest(sendMessageChunkMutation, {
     userId,
     threadId,
     status,
-    chunk
+    textChunk,
+    audioChunk
   });
 }
 
@@ -64,7 +77,7 @@ async function completeProcessing(userId: string, threadId: string, eventResult:
     updateMessageSystemStatus(userId, threadId, MessageSystemStatus.COMPLETE, eventResult),
 
     // Send an empty chunk to indicate that the processing is complete.
-    processChunk(userId, threadId, '', MessageSystemStatus.COMPLETE)
+    sendChunk(userId, threadId, '', '', MessageSystemStatus.COMPLETE)
   ]);
 
   console.log('Result:', JSON.stringify(result));
@@ -78,20 +91,17 @@ async function completeProcessing(userId: string, threadId: string, eventResult:
  * @param eventTimeout {number} The timeout for the event.
  * @returns {Promise<{ statusCode: number; message: string }>} The result of the event.
  */
-async function processEvent({
-  userId,
-  threadId,
-  history,
-  query,
-  promptTemplate,
-  eventTimeout,
-  model,
-  knowledgeBaseId
-}: EventType) {
+async function processEvent({ userId, threadId, history, query, eventTimeout, persona }: EventType) {
   const fullQuery = `${history}\n\nUser: ${query}\n\Assistant: `;
   let eventResult = '';
+  let lastSentence = '';
+  const audioJobs: Promise<void>[] = [];
 
   const timeoutTask = createTimeoutTask(eventTimeout);
+
+  // Sets up Azure Speech Config
+  const { speechKey, speechRegion } = await getSpeechSecret();
+  const speechConfig = SpeechConfig.fromSubscription(speechKey, speechRegion);
 
   const processingTask = new Promise(async (resolve) => {
     console.log(`Processing prompt: ${fullQuery}`);
@@ -102,18 +112,34 @@ async function processEvent({
           sender: 'User',
           message: query
         }),
-
         await processAsynchronously({
           query: fullQuery,
-          promptTemplate,
+          promptTemplate: persona.prompt,
           callback: async (chunk) => {
             console.log(`Received Chunk: ${chunk}`);
-            await processChunk(userId, threadId, chunk);
+            await sendChunk(userId, threadId, chunk, '');
             eventResult += chunk;
+            lastSentence += chunk;
+
+            // If we have a complete sentence, process the audio for it.
+            const sentenceEndIndex = findSentenceEndIndex(lastSentence);
+            if (sentenceEndIndex !== -1) {
+              const sentence = lastSentence.substring(0, sentenceEndIndex + 1);
+              lastSentence = lastSentence.substring(sentenceEndIndex + 1);
+
+              audioJobs.push(synthesizeAndUploadAudio(
+                cleanUpText(sentence),
+                speechConfig,
+                persona.voice,
+                userId,
+                threadId
+              ))
+            }
           },
-          model,
-          knowledgeBaseId
-        })
+          model: persona.model,
+          knowledgeBaseId: persona.knowledgeBaseId
+        }),
+        ...audioJobs
       ]);
     } catch (err) {
       console.error(err);
@@ -130,27 +156,74 @@ async function processEvent({
   return res;
 }
 
+async function synthesizeAndUploadAudio(
+  audioText: string,
+  speechConfig: SpeechConfig,
+  voice: string,
+  userId: string,
+  threadId: string
+) {
+  const audioFile = `/tmp/${generateUniqueId()}.mp3`;
+
+  const result = await synthesizeAudio({
+    message: audioText,
+    speechConfig,
+    audioFile,
+    voice
+  });
+
+  const uuid = generateUniqueId();
+  const uploadCommand = new PutObjectCommand({
+    Bucket: BUCKET,
+    Key: `${uuid}.mp3`,
+    Body: result
+  });
+
+  await s3Client.send(uploadCommand);
+
+  const getObjectCommand = new GetObjectCommand({
+    Bucket: BUCKET,
+    Key: `${uuid}.mp3`
+  });
+
+  const signedUrl = await getSignedUrl(s3Client, getObjectCommand, { expiresIn: 3600 });
+  await sendChunk(userId, threadId, '', signedUrl);
+}
+
+function findSentenceEndIndex(text: string) {
+  const periodIndex = text.lastIndexOf('.');
+  const questionIndex = text.lastIndexOf('?');
+  const exclamationIndex = text.lastIndexOf('!');
+  return Math.max(periodIndex, Math.max(questionIndex, exclamationIndex));
+}
+
+function cleanUpText(text: string) {
+  return text.replaceAll(/(\*[^*]+\*)|(_[^_]+_)|(~[^~]+~)|(`[^`]+`)/g, '');
+}
+
+function generateUniqueId() {
+  return Math.random().toString(36).substring(7);
+}
+
 /**
  * Processes a batch of events.
  * @param event SQS event containing the batch of events to process.
  * @returns The results of the events.
  */
-export async function handler(event: SQSEvent) {
+export async function handler(event: SQSEvent, context: Context) {
   if (!event.Records || event.Records.length === 0) {
     throw new Error('No records found in the event. Aborting operation.');
   }
 
-  const numberOfEvents = event.Records.length;
-  const adjustedTimeout = EVENT_TIMEOUT / numberOfEvents;
+  // Each event gets a timeout of the remaining time divided by the number of events, this way
+  // we can ensure that we don't exceed the timeout for the lambda.
+  const eventTimeout = (context.getRemainingTimeInMillis() - EVENT_TIMEOUT_BUFFER) / event.Records.length;
 
   const processingTasks = event.Records.map(async (record) => {
     const eventData = JSON.parse(record.body);
 
     const userId = eventData.identity.sub;
     const threadId = eventData.arguments.input.threadId;
-    const promptTemplate = eventData.prev.result.persona.prompt;
-    const knowledgeBaseId = eventData.prev.result.persona.knowledgeBaseId;
-    const personaModel = eventData.prev.result.persona.model;
     const history = (eventData.prev.result.data || [])
       .map((message: { sender: string; text: string }) => {
         return `${message.sender}: ${message.text}`;
@@ -164,10 +237,8 @@ export async function handler(event: SQSEvent) {
       threadId,
       history,
       query,
-      promptTemplate,
-      eventTimeout: adjustedTimeout,
-      model: personaModel,
-      knowledgeBaseId
+      eventTimeout: eventTimeout,
+      persona: eventData.prev.result.persona
     });
   });
 
