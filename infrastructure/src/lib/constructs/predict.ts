@@ -4,16 +4,19 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import path = require('path');
+import * as path from 'path';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
-import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+
 interface PredictConstructProps extends cdk.StackProps {
-  appSyncApi: appsync.GraphqlApi;
-  conversationHistoryTable: dynamodb.Table;
+  api: appsync.GraphqlApi;
+  table: dynamodb.Table;
+  bucket: s3.Bucket;
 }
 
 export class PredictConstruct extends Construct {
+  readonly voiceLambda: NodejsFunction;
   readonly predictAsyncLambda: NodejsFunction;
   readonly queue: sqs.Queue;
   readonly queueLambda: NodejsFunction;
@@ -31,19 +34,8 @@ export class PredictConstruct extends Construct {
       visibilityTimeout: cdk.Duration.seconds(300),
       deadLetterQueue: {
         queue: deadLetterQueue,
-        maxReceiveCount: 1 // After 1 failed attempt, send to deadletter queue 
+        maxReceiveCount: 1 // After 1 failed attempt, send to deadletter queue
       }
-    });
-
-    // S3 bucket for storing audio files and other assets.
-    const s3Bucket = new s3.Bucket(this, 'PredictionBucket', {
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      autoDeleteObjects: true,
-      lifecycleRules: [
-        {
-          expiration: cdk.Duration.days(1)
-        }
-      ]
     });
 
     // Create azure speech secret with region and key.
@@ -60,7 +52,7 @@ export class PredictConstruct extends Construct {
       entry: path.join(__dirname, '../assets/lambdas/queue-trigger/index.ts'),
       environment: {
         QUEUE_URL: this.queue.queueUrl,
-        TABLE_NAME: props.conversationHistoryTable.tableName
+        TABLE_NAME: props.table.tableName
       },
       bundling: {
         minify: true,
@@ -82,9 +74,9 @@ export class PredictConstruct extends Construct {
       runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '../assets/lambdas/predict-async/index.ts'),
       environment: {
-        GRAPHQL_URL: props.appSyncApi.graphqlUrl,
+        GRAPHQL_URL: props.api.graphqlUrl,
         AZURE_SPEECH_SECRET: speechSecret.secretArn,
-        S3_BUCKET: s3Bucket.bucketName
+        S3_BUCKET: props.bucket.bucketName
       },
       bundling: {
         nodeModules: ['langchain'],
@@ -103,17 +95,41 @@ export class PredictConstruct extends Construct {
 
         // Allow the lambda to call AppSync
         new iam.PolicyStatement({
-          resources: [`${props.appSyncApi.arn}/*`],
+          resources: [`${props.api.arn}/*`],
           actions: ['appsync:GraphQL']
         })
       ]
     });
 
-    props.conversationHistoryTable.grantReadWriteData(this.queueLambda);
+    // Voice Lambda
+    this.voiceLambda = new NodejsFunction(this, 'VoiceLambda', {
+      runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
+      entry: path.join(__dirname, '../assets/lambdas/voice/index.ts'),
+      environment: {
+        S3_BUCKET: props.bucket.bucketName,
+        AZURE_SPEECH_SECRET: speechSecret.secretArn
+      },
+      bundling: {
+        minify: true,
+        sourceMap: true
+      },
+      timeout: cdk.Duration.seconds(30)
+    });
+
+    props.table.grantReadWriteData(this.queueLambda);
     speechSecret.grantRead(this.predictAsyncLambda);
-    s3Bucket.grantReadWrite(this.predictAsyncLambda);
+
+    // Grants the lambda permission to get the Azure speech secret.
+    speechSecret.grantRead(this.voiceLambda);
+
+    // Grants the lambda permission to write/read to/from the S3 bucket.
+    // This is limited to the audio prefix.
+    props.bucket.grantReadWrite(this.voiceLambda, 'audio/*');
+    props.bucket.grantReadWrite(this.predictAsyncLambda, 'audio/*');
 
     // Trigger the AI Lambda when a message is sent to the SQS queue.
-    this.predictAsyncLambda.addEventSource(new cdk.aws_lambda_event_sources.SqsEventSource(this.queue));
+    this.predictAsyncLambda.addEventSource(
+      new cdk.aws_lambda_event_sources.SqsEventSource(this.queue)
+    );
   }
 }

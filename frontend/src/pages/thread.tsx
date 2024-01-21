@@ -41,7 +41,7 @@ export default function ThreadPage() {
       audioIndex,
       audioClips
     });
-    
+
     const playNextAudioClip = async () => {
       // Check if there are more audio clips to play
       if (audioIndex < audioClips.length && !audioPlaying) {
@@ -60,7 +60,7 @@ export default function ThreadPage() {
         const onAudioEnded = () => {
           // Remove the event listener to avoid memory leaks
           audio.removeEventListener('ended', onAudioEnded);
-          
+
           // Increment the index to play the next audio clip
           setAudioIndex((prevIndex) => prevIndex + 1);
           setAudioPlaying(false);

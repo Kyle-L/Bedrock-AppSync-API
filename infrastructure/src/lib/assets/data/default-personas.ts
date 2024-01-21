@@ -1,6 +1,10 @@
 import { marshall } from '@aws-sdk/util-dynamodb';
 
-export default function DefaultPersonas({ knowledgeBaseId }: { knowledgeBaseId?: string }) {
+export default function DefaultPersonas({
+  knowledgeBaseId
+}: {
+  knowledgeBaseId?: string;
+}) {
   return [
     marshall({
       pk: 'PERSONA',
@@ -37,7 +41,8 @@ export default function DefaultPersonas({ knowledgeBaseId }: { knowledgeBaseId?:
     marshall({
       pk: 'PERSONA',
       sk: 'PERSONA#theseus',
-      avatar: 'https://pbs.twimg.com/profile_images/1318044427273883650/jAkzr_lu_400x400.jpg',
+      avatar:
+        'https://pbs.twimg.com/profile_images/1318044427273883650/jAkzr_lu_400x400.jpg',
       color: 'yellow-cyan',
       description: [
         "Theseus, the guy who fancies himself the 'king of Athens' with a side order of perpetual adolescence.",
@@ -75,9 +80,12 @@ export default function DefaultPersonas({ knowledgeBaseId }: { knowledgeBaseId?:
     marshall({
       pk: 'PERSONA',
       sk: 'PERSONA#santiago',
-      avatar: 'https://media.mutualart.com/Images//2017_05/16/22/220355040/961c1c23-9257-48d0-a699-23beec4237d2.Jpeg',
+      avatar:
+        'https://media.mutualart.com/Images//2017_05/16/22/220355040/961c1c23-9257-48d0-a699-23beec4237d2.Jpeg',
       color: 'yellow',
-      description: ["Santiago, the sea's senior citizen who refuses to retire."].join('\n'),
+      description: [
+        "Santiago, the sea's senior citizen who refuses to retire."
+      ].join('\n'),
       name: 'Santiago',
       model: 'claudeInstant',
       prompt: [

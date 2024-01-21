@@ -6,8 +6,7 @@ import {
   ApiConstruct,
   AuthConstruct,
   ConversationHistoryConstruct,
-  PredictConstruct,
-  VoiceConstruct
+  PredictConstruct
 } from '../constructs';
 import { KnowledgeBaseConstruct } from '../constructs/knowledge-base';
 
@@ -36,26 +35,28 @@ export class BackendStack extends cdk.Stack {
 
     // Knowledge Base - Handles integration with Pinecone
     let knowledgeBase: KnowledgeBaseConstruct | undefined;
-    if (props.pineconeConnectionString) {
-      knowledgeBase = new KnowledgeBaseConstruct(this, 'KnowledgeBase', {
-        pineconeConnectionString: props.pineconeConnectionString
-      });
-    }
+    // if (props.pineconeConnectionString) {
+    //   knowledgeBase = new KnowledgeBaseConstruct(this, 'KnowledgeBase', {
+    //     pineconeConnectionString: props.pineconeConnectionString
+    //   });
+    // }
 
     // DynamoDB Table - Stores personas and conversation threads/messages.
-    const conversationHistoryConstruct = new ConversationHistoryConstruct(this, 'ConversationHistory', {
-      removalPolicy: props?.removalPolicy,
-      knowledgeBaseId: knowledgeBase?.knowledgeBase?.knowledgeBaseId
-    });
+    const conversationHistoryConstruct = new ConversationHistoryConstruct(
+      this,
+      'ConversationHistory',
+      {
+        removalPolicy: props?.removalPolicy,
+        knowledgeBaseId: knowledgeBase?.knowledgeBase?.knowledgeBaseId
+      }
+    );
 
     // Prediction lambdas - Handles integration with Bedrock.
     const predictConstruct = new PredictConstruct(this, 'Predict', {
-      appSyncApi: apiConstruct.appsync,
-      conversationHistoryTable: conversationHistoryConstruct.table
+      api: apiConstruct.appsync,
+      table: conversationHistoryConstruct.table,
+      bucket: conversationHistoryConstruct.bucket
     });
-
-    // Voice Lambda - Handles integration with Azure Cognitive Speech Services (Because AWS Polly lacks custom voices)
-    const voiceConstruct = new VoiceConstruct(this, 'Voice');
 
     /*================================= Data Sources =================================*/
 
@@ -66,22 +67,30 @@ export class BackendStack extends cdk.Stack {
     );
     const getVoiceDataSource = apiConstruct.appsync.addLambdaDataSource(
       'GetVoiceDataSource',
-      voiceConstruct.voiceLambda
+      predictConstruct.voiceLambda
     );
 
     // DynamoDB Data Sources
-    const conversationHistoryDataSource = apiConstruct.appsync.addDynamoDbDataSource(
-      'ConversationHistoryDataSource',
-      conversationHistoryConstruct.table
-    );
+    const conversationHistoryDataSource =
+      apiConstruct.appsync.addDynamoDbDataSource(
+        'ConversationHistoryDataSource',
+        conversationHistoryConstruct.table
+      );
 
     // None Data Sources
-    const noneDataSource = apiConstruct.appsync.addNoneDataSource('NoneDataSource');
+    const noneDataSource =
+      apiConstruct.appsync.addNoneDataSource('NoneDataSource');
 
     // Code
-    const passthroughCode = appsync.Code.fromAsset(path.join(__dirname, '../resolvers/pass-through.js'));
-    const noneCode = appsync.Code.fromAsset(path.join(__dirname, '../resolvers/none.js'));
-    const recieveAsyncCode = appsync.Code.fromAsset(path.join(__dirname, '../resolvers/recieve-async.js'));
+    const passthroughCode = appsync.Code.fromAsset(
+      path.join(__dirname, '../resolvers/pass-through.js')
+    );
+    const noneCode = appsync.Code.fromAsset(
+      path.join(__dirname, '../resolvers/none.js')
+    );
+    const recieveAsyncCode = appsync.Code.fromAsset(
+      path.join(__dirname, '../resolvers/recieve-async.js')
+    );
 
     /*================================= Functions =================================*/
 
@@ -146,21 +155,63 @@ export class BackendStack extends cdk.Stack {
       conversationHistoryDataSource,
       '../resolvers/add-message.js'
     );
-    const predictAsyncFunction = createLambdaFunction('PredictAsync', predictAsyncDataSource);
-    const getVoiceFunction = createLambdaFunction('getVoice', getVoiceDataSource);
+    const predictAsyncFunction = createLambdaFunction(
+      'PredictAsync',
+      predictAsyncDataSource
+    );
+    const getVoiceFunction = createLambdaFunction(
+      'getVoice',
+      getVoiceDataSource
+    );
 
     /*================================= Resolvers =================================*/
 
     const resolverConfigs = [
-      { typeName: 'Query', fieldName: 'getPersona', pipelineConfig: [getPersonaFunction] },
-      { typeName: 'Query', fieldName: 'getAllPersonas', pipelineConfig: [getAllPersonasFunction] },
-      { typeName: 'Query', fieldName: 'getThread', pipelineConfig: [getThreadFunction] },
-      { typeName: 'Query', fieldName: 'getAllThreads', pipelineConfig: [getAllThreadsFunction] },
-      { typeName: 'Mutation', fieldName: 'addThread', pipelineConfig: [getPersonaFunction, addThreadFunction] },
-      { typeName: 'Mutation', fieldName: 'deleteThread', pipelineConfig: [deleteThreadFunction] },
-      { typeName: 'Mutation', fieldName: 'systemAddMessage', pipelineConfig: [systemAddMessageFunction] },
-      { typeName: 'Mutation', fieldName: 'addMessageAsync', pipelineConfig: [getThreadFunction, predictAsyncFunction] },
-      { typeName: 'Mutation', fieldName: 'addVoice', pipelineConfig: [getThreadFunction, getVoiceFunction] },
+      {
+        typeName: 'Query',
+        fieldName: 'getPersona',
+        pipelineConfig: [getPersonaFunction]
+      },
+      {
+        typeName: 'Query',
+        fieldName: 'getAllPersonas',
+        pipelineConfig: [getAllPersonasFunction]
+      },
+      {
+        typeName: 'Query',
+        fieldName: 'getThread',
+        pipelineConfig: [getThreadFunction]
+      },
+      {
+        typeName: 'Query',
+        fieldName: 'getAllThreads',
+        pipelineConfig: [getAllThreadsFunction]
+      },
+      {
+        typeName: 'Mutation',
+        fieldName: 'addThread',
+        pipelineConfig: [getPersonaFunction, addThreadFunction]
+      },
+      {
+        typeName: 'Mutation',
+        fieldName: 'deleteThread',
+        pipelineConfig: [deleteThreadFunction]
+      },
+      {
+        typeName: 'Mutation',
+        fieldName: 'systemAddMessage',
+        pipelineConfig: [systemAddMessageFunction]
+      },
+      {
+        typeName: 'Mutation',
+        fieldName: 'addMessageAsync',
+        pipelineConfig: [getThreadFunction, predictAsyncFunction]
+      },
+      {
+        typeName: 'Mutation',
+        fieldName: 'addVoice',
+        pipelineConfig: [getThreadFunction, getVoiceFunction]
+      },
       {
         typeName: 'Mutation',
         fieldName: 'systemSendMessageChunk',
@@ -178,15 +229,19 @@ export class BackendStack extends cdk.Stack {
     ];
 
     resolverConfigs.forEach((config) => {
-      new appsync.Resolver(this, `${config.typeName}${config.fieldName}Resolver`, {
-        api: apiConstruct.appsync,
-        typeName: config.typeName,
-        fieldName: config.fieldName,
-        pipelineConfig: config.pipelineConfig,
-        runtime: appsync.FunctionRuntime.JS_1_0_0,
-        code: config.code || passthroughCode,
-        dataSource: config.dataSource
-      });
+      new appsync.Resolver(
+        this,
+        `${config.typeName}${config.fieldName}Resolver`,
+        {
+          api: apiConstruct.appsync,
+          typeName: config.typeName,
+          fieldName: config.fieldName,
+          pipelineConfig: config.pipelineConfig,
+          runtime: appsync.FunctionRuntime.JS_1_0_0,
+          code: config.code || passthroughCode,
+          dataSource: config.dataSource
+        }
+      );
     });
   }
 }

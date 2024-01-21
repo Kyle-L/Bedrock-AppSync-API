@@ -9,7 +9,9 @@ type ModelTunings<T extends string> = {
   };
 };
 
-export const MODEL_TUNINGS: ModelTunings<'claude' | 'ai21' | 'titan' | 'claudeInstant'> = {
+export const MODEL_TUNINGS: ModelTunings<
+  'claude' | 'ai21' | 'titan' | 'claudeInstant'
+> = {
   titan: {
     params: {
       model: 'amazon.titan-text-express-v1',

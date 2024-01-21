@@ -1,23 +1,32 @@
 import { DynamoDBClient, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
-import { SQSClient, SendMessageCommand, SendMessageCommandInput } from '@aws-sdk/client-sqs';
-import { AppSyncIdentityCognito, AppSyncResolverEvent, Handler } from 'aws-lambda';
+import {
+  SQSClient,
+  SendMessageCommand,
+  SendMessageCommandInput
+} from '@aws-sdk/client-sqs';
+import {
+  AppSyncIdentityCognito,
+  AppSyncResolverEvent,
+  Handler
+} from 'aws-lambda';
 import { MessageSystemStatus } from 'lib/assets/utils/types';
 
+// Environment variables
 const QUEUE_URL = process.env.QUEUE_URL || '';
 const TABLE_NAME = process.env.TABLE_NAME || '';
 
+// Clients
 const sqsClient = new SQSClient();
 const dynamodb = new DynamoDBClient();
 
-interface Event
-  extends AppSyncResolverEvent<{
+export const handler: Handler = async (
+  event: AppSyncResolverEvent<{
     input: {
       prompt: string;
       threadId: string;
     };
-  }> {}
-
-export const handler: Handler = async (event: Event) => {
+  }>
+) => {
   console.log('Received Event:', event);
 
   // Condition 1: User is authenticated. If not, throw an error.
@@ -29,8 +38,8 @@ export const handler: Handler = async (event: Event) => {
   // Condition 2: The thread is not currently processing. If it is, throw an error.
   if (
     event.prev?.result?.status &&
-    event.prev.result.status !== MessageSystemStatus.NEW &&
-    event.prev.result.status !== MessageSystemStatus.COMPLETE
+    event.prev.result.status == MessageSystemStatus.PENDING &&
+    event.prev.result.status == MessageSystemStatus.PROCESSING
   ) {
     throw new Error('Thread is currently processing');
   }
@@ -61,14 +70,13 @@ export const handler: Handler = async (event: Event) => {
     // Perform DynamoDB update asynchronously
     const dynamoPromise = dynamodb.send(new UpdateItemCommand(dynamoParams));
 
-    const sqsParams: SendMessageCommandInput = {
-      QueueUrl: QUEUE_URL,
-      MessageBody: JSON.stringify(event)
-    };
-    console.log('SQS Parameters:', sqsParams);
-
     // Perform SQS send asynchronously
-    const sqsPromise = sqsClient.send(new SendMessageCommand(sqsParams));
+    const sqsPromise = sqsClient.send(
+      new SendMessageCommand({
+        QueueUrl: QUEUE_URL,
+        MessageBody: JSON.stringify(event)
+      })
+    );
 
     // Wait for Assistanth DynamoDB and SQS operations to complete
     await Promise.all([dynamoPromise, sqsPromise]);

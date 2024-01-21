@@ -1,7 +1,15 @@
-import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { AppSyncIdentityCognito, AppSyncResolverEvent, Handler } from 'aws-lambda';
-import { getSpeechSecret, synthesizeAudio } from 'lib/assets/utils/voice';
+import {
+  AppSyncIdentityCognito,
+  AppSyncResolverEvent,
+  Handler
+} from 'aws-lambda';
+import { getAzureSpeechSecret, synthesizeAudio } from 'lib/assets/utils/voice';
 import * as azureSpeechSDK from 'microsoft-cognitiveservices-speech-sdk';
 
 // Static variables
@@ -10,6 +18,7 @@ const AUDIO_NAME_TEMPLATE = `audio-%s.${AUDIO_FORMAT}`;
 
 // Environment variables
 const S3_BUCKET = process.env.S3_BUCKET || '';
+const AZURE_SPEECH_SECRET = process.env.AZURE_SPEECH_SECRET || '';
 
 // Create clients
 const s3Client = new S3Client();
@@ -29,8 +38,12 @@ export const handler: Handler = async (
   console.log('Received Event:', event);
 
   // Sets up Azure Speech Config
-  const { speechKey, speechRegion } = await getSpeechSecret();
-  const speechConfig = azureSpeechSDK.SpeechConfig.fromSubscription(speechKey, speechRegion);
+  const { speechKey, speechRegion } =
+    await getAzureSpeechSecret(AZURE_SPEECH_SECRET);
+  const speechConfig = azureSpeechSDK.SpeechConfig.fromSubscription(
+    speechKey,
+    speechRegion
+  );
 
   // Gets the persona's voice from the event
   const voice = event?.prev?.result?.persona.voice || 'en-US-JennyNeural';
