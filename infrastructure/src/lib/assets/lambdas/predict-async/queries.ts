@@ -16,8 +16,7 @@ export const sendRequest = async (
   variables: { [key: string]: string | { sender: string; message: string } }
 ) => {
   if (!config.url) {
-    console.error('GRAPHQL_URL is missing. Aborting operation.');
-    return;
+    throw new Error('GRAPHQL_URL is missing. Aborting operation.');
   }
 
   return await AppSyncRequestIAM({
@@ -35,9 +34,10 @@ export const addMessageSystemMutation = `mutation Mutation($userId: ID!, $thread
   }
 }`;
 
-export const sendMessageChunkMutation = `mutation Mutation($userId: ID!, $threadId: ID!, $status: ThreadStatus!, $chunk: String!) {
-  systemSendMessageChunk(input: {userId: $userId, threadId: $threadId, status: $status, chunk: $chunk}) {
-        chunk
+export const sendMessageChunkMutation = `mutation Mutation($userId: ID!, $threadId: ID!, $status: ThreadStatus!, $textChunk: String, $audioChunk: String) {
+  systemSendMessageChunk(input: {userId: $userId, threadId: $threadId, status: $status, textChunk: $textChunk, audioChunk: $audioChunk}) {
+        textChunk
+        audioChunk
         status
         userId
         threadId

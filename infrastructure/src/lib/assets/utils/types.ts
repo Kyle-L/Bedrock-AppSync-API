@@ -3,10 +3,13 @@ export interface EventType {
   threadId: string;
   history: string;
   query: string;
-  promptTemplate: string;
   eventTimeout: number;
-  model: string;
-  knowledgeBaseId: string;
+  persona: {
+    voice: string;
+    model: string;
+    knowledgeBaseId: string;
+    prompt: string;
+  };
 }
 
 export interface EventResult {

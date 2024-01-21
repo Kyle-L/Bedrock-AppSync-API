@@ -17,6 +17,9 @@ const client = generateClient();
 
 export default function ThreadPage() {
   // State
+  const [audioPlaying, setAudioPlaying] = useState(false); // Whether or not an audio clip is currently playing
+  const [audioIndex, setAudioIndex] = useState(0); // Index of the audio clip to play next
+  const [audioClips, setAudioClips] = useState<HTMLAudioElement[]>([]);
   const [conversationHistory, setConversationHistory] = useState<Omit<Message, '__typename'>[]>([]);
   const [lastMessage, setLastMessage] = useState<Omit<Message, '__typename'> | null>();
   const [loading, setLoading] = useState(false);
@@ -31,6 +34,46 @@ export default function ThreadPage() {
 
   // Prevents the page from loading if there is no threadId
   if (!threadId) return null;
+
+  useEffect(() => {
+    console.log('audio', {
+      audioPlaying,
+      audioIndex,
+      audioClips
+    });
+    
+    const playNextAudioClip = async () => {
+      // Check if there are more audio clips to play
+      if (audioIndex < audioClips.length && !audioPlaying) {
+        console.log('playing audio clip', audioIndex);
+        setAudioPlaying(true);
+        const audio = audioClips[audioIndex];
+
+        // Play the current audio clip
+        try {
+          await audio.play();
+        } catch (error) {
+          console.error('Error playing audio:', error);
+        }
+
+        // Set a timeout to move to the next audio clip after the current one finishes
+        const onAudioEnded = () => {
+          // Remove the event listener to avoid memory leaks
+          audio.removeEventListener('ended', onAudioEnded);
+          
+          // Increment the index to play the next audio clip
+          setAudioIndex((prevIndex) => prevIndex + 1);
+          setAudioPlaying(false);
+        };
+
+        // Set up the event listener for the 'ended' event
+        audio.addEventListener('ended', onAudioEnded);
+      }
+    };
+
+    // Call the function to start playing audio clips
+    playNextAudioClip();
+  }, [audioIndex, audioClips, audioPlaying]);
 
   /**
    * Fetches the thread data from the API.
@@ -67,12 +110,18 @@ export default function ThreadPage() {
           const response = data?.recieveMessageChunkAsync;
 
           if (response) {
-            if (response.chunk) {
+            if (response.textChunk) {
               setLastMessage((prevLastMessage) => ({
                 sender: 'Assistant',
-                message: `${prevLastMessage?.message ?? ''}${response.chunk}`,
+                message: `${prevLastMessage?.message ?? ''}${response.textChunk}`,
                 createdAt: new Date().toISOString()
               }));
+            }
+
+            // Convert the response.chunk from base64 to an audio clip
+            if (response.audioChunk) {
+              const audio = new Audio(response.audioChunk);
+              setAudioClips((prevAudioClips) => [...prevAudioClips, audio]);
             }
 
             if (response.status === 'COMPLETE') {
