@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="RA2xmgia1k1ak0av1RqI" name="Page-1">
-        <mxGraphModel dx="2702" dy="2042" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="2468" dy="2224" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -85,10 +85,10 @@
                 <mxCell id="93" value="" style="whiteSpace=wrap;html=1;aspect=fixed;fontSize=12;fillColor=#dae8fc;strokeColor=#6c8ebf;container=0;" parent="103" vertex="1">
                     <mxGeometry x="5" width="30" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="129" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;targetPerimeterSpacing=6;" edge="1" parent="3" source="94" target="30">
+                <mxCell id="129" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;targetPerimeterSpacing=6;" parent="3" source="94" target="30" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="134" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;targetPerimeterSpacing=6;" edge="1" parent="3" source="94" target="6">
+                <mxCell id="134" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;targetPerimeterSpacing=6;" parent="3" source="94" target="6" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
                             <mxPoint x="220" y="340"/>
@@ -130,7 +130,7 @@
                 <mxCell id="4" value="AppSync&lt;br style=&quot;font-size: 12px;&quot;&gt;API" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#FF4F8B;gradientDirection=north;fillColor=#BC1356;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.appsync;" parent="3" vertex="1">
                     <mxGeometry x="40" y="320" width="40" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="137" value="S3 &lt;br&gt;(Audio Files)" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#60A337;gradientDirection=north;fillColor=#277116;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" vertex="1" parent="3">
+                <mxCell id="137" value="S3 &lt;br&gt;(Audio Files)" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#60A337;gradientDirection=north;fillColor=#277116;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" parent="3" vertex="1">
                     <mxGeometry x="520" y="40" width="40" height="40" as="geometry"/>
                 </mxCell>
                 <mxCell id="86" value="Retrieve&lt;br style=&quot;font-size: 12px;&quot;&gt;Frontend" style="edgeStyle=orthogonalEdgeStyle;html=1;fontSize=12;fontColor=#000000;startSize=6;sourcePerimeterSpacing=6;targetPerimeterSpacing=6;" parent="1" source="55" target="82" edge="1">
@@ -178,7 +178,7 @@
                 <mxCell id="83" value="S3" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#60A337;gradientDirection=north;fillColor=#277116;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" parent="81" vertex="1">
                     <mxGeometry x="160" y="60" width="40" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="135" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;targetPerimeterSpacing=6;" edge="1" parent="1" source="94" target="119">
+                <mxCell id="135" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;targetPerimeterSpacing=6;" parent="1" source="94" target="119" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
                             <mxPoint x="300" y="500"/>
@@ -198,10 +198,10 @@
                 <mxCell id="116" value="Admin" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;align=center;strokeColor=none;fillColor=#00BEF2;shape=mxgraph.azure.user;fontSize=12;" parent="1" vertex="1">
                     <mxGeometry x="-200" y="640" width="40" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="138" style="edgeStyle=orthogonalEdgeStyle;html=1;targetPerimeterSpacing=6;" edge="1" parent="1" source="119" target="137">
+                <mxCell id="138" style="edgeStyle=orthogonalEdgeStyle;html=1;targetPerimeterSpacing=6;" parent="1" source="119" target="137" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="140" style="edgeStyle=orthogonalEdgeStyle;html=1;targetPerimeterSpacing=6;" edge="1" parent="1" source="119" target="120">
+                <mxCell id="140" style="edgeStyle=orthogonalEdgeStyle;html=1;targetPerimeterSpacing=6;" parent="1" source="119" target="120" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
                             <mxPoint x="380" y="180"/>
@@ -210,13 +210,13 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="119" value="Synthesize Voice Lambda" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#F78E04;gradientDirection=north;fillColor=#D05C17;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;" vertex="1" parent="1">
+                <mxCell id="119" value="Synthesize Voice Lambda" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#F78E04;gradientDirection=north;fillColor=#D05C17;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;" parent="1" vertex="1">
                     <mxGeometry x="360" y="200" width="40" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="120" value="Azure Cognitive &lt;br&gt;Speech Services" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/ai_machine_learning/Cognitive_Services.svg;" vertex="1" parent="1">
+                <mxCell id="120" value="Azure Cognitive &lt;br&gt;Speech Services" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/ai_machine_learning/Cognitive_Services.svg;" parent="1" vertex="1">
                     <mxGeometry x="910" y="200" width="56.67" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="139" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=none;" edge="1" parent="1" source="119" target="137">
+                <mxCell id="139" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=none;" parent="1" source="119" target="137" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint x="400" y="220" as="sourcePoint"/>
                         <mxPoint x="578.3333333333335" y="46.00000000000023" as="targetPoint"/>

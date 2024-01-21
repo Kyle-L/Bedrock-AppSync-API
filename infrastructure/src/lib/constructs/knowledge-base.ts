@@ -12,10 +12,17 @@ export interface KnowledgeBaseConstructProps extends cdk.StackProps {
 export class KnowledgeBaseConstruct extends Construct {
   public readonly knowledgeBase: bedrockAgentCDK.BedrockKnowledgeBase;
 
-  constructor(scope: Construct, id: string, props: KnowledgeBaseConstructProps) {
+  constructor(
+    scope: Construct,
+    id: string,
+    props: KnowledgeBaseConstructProps
+  ) {
     super(scope, id);
 
-    const pineconeKbName = `${scope.node.path.replace(/\//g, '-')}-KnowledgeBase`;
+    const pineconeKbName = `${scope.node.path.replace(
+      /\//g,
+      '-'
+    )}-KnowledgeBase`;
     const pineconeConnectionString = props.pineconeConnectionString;
     const textField = 'text-field';
     const metadataField = 'metadata-field';
@@ -29,9 +36,11 @@ export class KnowledgeBaseConstruct extends Construct {
 
     // Bedrock Knowledge Base IAM role
     const knowledgeBaseRoleArn = new iam.Role(this, 'KnowledgeBaseRole', {
-      roleName: 'AmazonBedrockExecutionRoleForKnowledgeBase_CDK',
+      roleName: `AmazonBedrockExecutionRoleForKnowledgeBase_CDK_${scope.node.id}`,
       assumedBy: new iam.ServicePrincipal('bedrock.amazonaws.com'),
-      managedPolicies: [iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess')]
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess')
+      ]
     }).roleArn;
 
     // Create a secret for the Pinecone credentials
@@ -43,27 +52,31 @@ export class KnowledgeBaseConstruct extends Construct {
       }
     });
 
-    this.knowledgeBase = new bedrockAgentCDK.BedrockKnowledgeBase(this, 'KnowledgeBase', {
-      name: pineconeKbName,
-      roleArn: knowledgeBaseRoleArn,
-      storageConfiguration: {
-        pineconeConfiguration: {
-          credentialsSecretArn: pineconeSecret.secretArn,
-          connectionString: pineconeConnectionString,
-          fieldMapping: {
-            metadataField: metadataField,
-            textField: textField
-          }
+    this.knowledgeBase = new bedrockAgentCDK.BedrockKnowledgeBase(
+      this,
+      'KnowledgeBase',
+      {
+        name: pineconeKbName,
+        roleArn: knowledgeBaseRoleArn,
+        storageConfiguration: {
+          pineconeConfiguration: {
+            credentialsSecretArn: pineconeSecret.secretArn,
+            connectionString: pineconeConnectionString,
+            fieldMapping: {
+              metadataField: metadataField,
+              textField: textField
+            }
+          },
+          type: pineconeStorageConfigurationType
         },
-        type: pineconeStorageConfigurationType
-      },
-      dataSource: {
-        dataSourceConfiguration: {
-          s3Configuration: {
-            bucketArn: bucket.bucketArn
+        dataSource: {
+          dataSourceConfiguration: {
+            s3Configuration: {
+              bucketArn: bucket.bucketArn
+            }
           }
         }
       }
-    });
+    );
   }
 }

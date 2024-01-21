@@ -14,7 +14,8 @@ export function request(ctx) {
       sk: `THREAD#${id}`
     }),
     update: {
-      expression: 'SET #messages = :messages, #status = :status, #createdAt = :createdAt, #persona = :persona',
+      expression:
+        'SET #messages = :messages, #status = :status, #createdAt = :createdAt, #persona = :persona',
       expressionNames: {
         '#status': 'status',
         '#createdAt': 'createdAt',

@@ -144,16 +144,25 @@ type Query @aws_cognito_user_pools @aws_iam {
 
 type Mutation {
   # Creation
-  addThread(input: AddThreadInput!): AddThreadPayload @aws_cognito_user_pools @aws_iam
-  addMessageAsync(input: AddMessageInput!): AddMessagePayload @aws_cognito_user_pools
-  addVoice(input: AddVoiceInput!): AddVoicePayload @aws_cognito_user_pools @aws_iam
+  addThread(input: AddThreadInput!): AddThreadPayload
+    @aws_cognito_user_pools
+    @aws_iam
+  addMessageAsync(input: AddMessageInput!): AddMessagePayload
+    @aws_cognito_user_pools
+  addVoice(input: AddVoiceInput!): AddVoicePayload
+    @aws_cognito_user_pools
+    @aws_iam
 
   # Deletion
-  deleteThread(input: DeleteThreadInput!): DeleteThreadPayload @aws_cognito_user_pools @aws_iam
+  deleteThread(input: DeleteThreadInput!): DeleteThreadPayload
+    @aws_cognito_user_pools
+    @aws_iam
 
   # System
-  systemSendMessageChunk(input: SystemSendMessageChunkInput!): MessageChunk @aws_iam
-  systemAddMessage(input: SystemAddMessageInput!): SystemAddMessagePayload @aws_iam
+  systemSendMessageChunk(input: SystemSendMessageChunkInput!): MessageChunk
+    @aws_iam
+  systemAddMessage(input: SystemAddMessageInput!): SystemAddMessagePayload
+    @aws_iam
 }
 
 ############## SUBSCRIPTIONS #####################
