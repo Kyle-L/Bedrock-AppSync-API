@@ -54,7 +54,7 @@ export default function ChatBubble({
       setLoadingAudio(true);
 
       const sentences = [
-        `<s /><mstts:express-as style="whisper">${audioText}</mstts:express-as><s />`
+        `<s /><mstts:express-as style="angry">${audioText}</mstts:express-as><s />`
       ];
 
       let promises = sentences.map((sentence) => {

@@ -73,6 +73,41 @@ async function completeProcessing(
 }
 
 /**
+ * When given a promise, this function will ensure a callback is executed after the promise is resolved.
+ * If multiple promises are received, the promises will be executed in parallel, but the callbacks will be executed in order.
+ * @param initialPromise The initial promise to be handled.
+ * @param callback The callback function to be executed after each promise is resolved.
+ */
+function handlePromiseOrder(callback: (result: any, ...args: any[]) => void) {
+  // Array to keep track of promises
+  const promiseArray: Promise<any>[] = [];
+
+  // Return a function that can be used to add promises and callbacks at any time
+  function addPromise(promise: Promise<any>, ...args: any[]) {
+    const currentPromise = promise.then((result) => {
+      // Execute the callback after the promise is resolved
+      callback(result, ...args);
+    });
+
+    // Add the current promise to the array
+    promiseArray.push(currentPromise);
+
+    // Return the current promise for chaining
+    return currentPromise;
+  }
+
+  // Return an object with the addPromise function and an async function to wait for all promises
+  const result = {
+    addPromise,
+    waitForAll: async () => {
+      return Promise.all(promiseArray);
+    }
+  };
+
+  return result;
+}
+
+/**
  * Processes a single event.
  * @param userId {string} The user ID.
  * @param threadId {string} The thread ID.
@@ -90,9 +125,28 @@ async function processEvent({
   responseOptions
 }: EventType) {
   const fullQuery = `${history}\n\nUser: ${query}\n\Assistant: `;
-  let eventResult = '';
-  let lastSentence = '';
-  const audioJobs: Promise<void>[] = [];
+  let fullResponse = '';
+  let lastSentenceResponse = '';
+
+  const audioQueue = handlePromiseOrder(async (result) => {
+    console.log(`Received Audio Chunk: ${result}`);
+    await sendChunk({
+      userId,
+      threadId,
+      chunk: result,
+      chunkType: 'audio'
+    });
+  });
+
+  const textQueue = handlePromiseOrder(async (result) => {
+    console.log(`Received Text Chunk: ${result}`);
+    await sendChunk({
+      userId,
+      threadId,
+      chunk: result,
+      chunkType: 'text'
+    });
+  });
 
   const timeoutTask = createTimeoutTask(eventTimeout);
 
@@ -106,6 +160,7 @@ async function processEvent({
 
     try {
       await Promise.all([
+        // Adds the user's prompt to the thread's message history and updates the thread's status to PROCESSING.
         await updateMessageSystemStatus(
           userId,
           threadId,
@@ -115,44 +170,27 @@ async function processEvent({
             message: query
           }
         ),
+
+        // Kicks off the asynchronous processing of the prompt.
         await processAsynchronously({
           query: fullQuery,
           promptTemplate: persona.prompt,
-          callback: async (chunk) => {
-            console.log(`Received Chunk: ${chunk}`);
-            await sendChunk({
-              userId,
-              threadId,
-              chunk
-            });
-            eventResult += chunk;
-            lastSentence += chunk;
+          callback: (chunk) => {
+            textQueue.addPromise(Promise.resolve(chunk));
+            fullResponse += chunk;
+            lastSentenceResponse += chunk;
 
-            if (responseOptions.includeAudio) {
-              // If we have a complete sentence, process the audio for it.
-              const sentenceEndIndex = findSentenceEndIndex(lastSentence);
-              if (sentenceEndIndex !== -1) {
-                const sentence = lastSentence.substring(
-                  0,
-                  sentenceEndIndex + 1
-                );
-                lastSentence = lastSentence.substring(sentenceEndIndex + 1);
-
-                audioJobs.push(
+            if (responseOptions.includeAudio && lastSentenceResponse.trim()) {
+              const { sentence, remainingText, isComplete } =
+                getCompleteSentence(lastSentenceResponse);
+              if (isComplete) {
+                lastSentenceResponse = remainingText;
+                audioQueue.addPromise(
                   synthesizeAndUploadAudio(
                     cleanUpText(sentence),
                     speechConfig,
                     persona.voice,
-                    BUCKET,
-                    async (chunk) => {
-                      console.log(`Received Audio Chunk: ${chunk}`);
-                      await sendChunk({
-                        userId,
-                        threadId,
-                        chunk,
-                        chunkType: 'audio'
-                      });
-                    }
+                    BUCKET
                   )
                 );
               }
@@ -161,11 +199,14 @@ async function processEvent({
           model: persona.model,
           knowledgeBaseId: persona.knowledgeBaseId
         }),
-        ...audioJobs
+
+        // Wait for any remaining long running tasks to complete.
+        audioQueue.waitForAll(),
+        textQueue.waitForAll()
       ]);
     } catch (err) {
       console.error(err);
-      eventResult = 'An error occurred while processing the prompt.';
+      fullResponse = 'An error occurred while processing the prompt.';
     }
 
     resolve({ statusCode: 200, message: 'Success!' });
@@ -175,59 +216,24 @@ async function processEvent({
 
   await completeProcessing(userId, threadId, {
     sender: 'Assistant',
-    message: eventResult
+    message: fullResponse
   });
 
   return res;
 }
 
-async function synthesizeAndUploadAudio(
-  audioText: string,
-  speechConfig: SpeechConfig,
-  voice: string,
-  userId: string,
-  threadId: string
-) {
-  const audioFile = `/tmp/${generateUniqueId()}.mp3`;
-
-  const result = await synthesizeAudio({
-    message: audioText,
-    speechConfig,
-    audioFile,
-    voice
-  });
-
-  const uuid = generateUniqueId();
-  const uploadCommand = new PutObjectCommand({
-    Bucket: BUCKET,
-    Key: `${uuid}.mp3`,
-    Body: result
-  });
-
-  await s3Client.send(uploadCommand);
-
-  const getObjectCommand = new GetObjectCommand({
-    Bucket: BUCKET,
-    Key: `${uuid}.mp3`
-  });
-
-  const signedUrl = await getSignedUrl(s3Client, getObjectCommand, {
-    expiresIn: 3600
-  });
-  await sendChunk({
-    userId,
-    threadId,
-    chunk: signedUrl,
-    status: MessageSystemStatus.PROCESSING,
-    chunkType: 'audio'
-  });
-}
-
-function findSentenceEndIndex(text: string) {
-  const periodIndex = text.lastIndexOf('.');
-  const questionIndex = text.lastIndexOf('?');
-  const exclamationIndex = text.lastIndexOf('!');
-  return Math.max(periodIndex, Math.max(questionIndex, exclamationIndex));
+function getCompleteSentence(text: string): {
+  sentence: string;
+  remainingText: string;
+  isComplete: boolean;
+} {
+  const sentenceEndIndex = text.search(/[\.\?\!]/);
+  if (sentenceEndIndex === -1) {
+    return { sentence: text, remainingText: '', isComplete: false };
+  }
+  const sentence = text.substring(0, sentenceEndIndex + 1);
+  const remainingText = text.substring(sentenceEndIndex + 2);
+  return { sentence, remainingText, isComplete: true };
 }
 
 function cleanUpText(text: string) {

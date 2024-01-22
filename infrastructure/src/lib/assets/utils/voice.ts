@@ -73,6 +73,7 @@ export async function synthesizeAudio({
     audioConfig
   );
 
+  console.log(`Synthesizing speech for text: ${message}`);
   const result: Buffer = await new Promise((resolve, reject) => {
     synthesizer.speakSsmlAsync(
       messageSSML,
@@ -107,8 +108,7 @@ export async function synthesizeAndUploadAudio(
   audioText: string,
   speechConfig: azureSpeechSDK.SpeechConfig,
   voice: string,
-  bucket: string,
-  callback?: (chunk: string) => void
+  bucket: string
 ) {
   const audioFileName = AUDIO_NAME_TEMPLATE.replace(
     '%s',
@@ -140,7 +140,5 @@ export async function synthesizeAndUploadAudio(
     expiresIn: 3600
   });
 
-  if (callback) {
-    callback(signedUrl);
-  }
+  return signedUrl;
 }
