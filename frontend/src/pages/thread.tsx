@@ -222,7 +222,8 @@ export default function ThreadPage() {
           userAttributes={userAttributes}
         />
         {!loading ? (
-          <textarea
+          <input
+            type="text"
             className="w-full shadow-md rounded-xl p-2 my-2"
             placeholder={`Message ${thread.persona.name}...`}
             value={input}
