@@ -52,6 +52,7 @@ export enum ThreadStatus {
 export type AddMessageInput = {
   threadId: string;
   prompt: string;
+  includeAudio?: boolean | null;
 };
 
 export type AddMessagePayload = {
@@ -82,17 +83,19 @@ export type SystemSendMessageChunkInput = {
   userId: string;
   threadId: string;
   status: ThreadStatus;
-  textChunk: string;
-  audioChunk: string;
+  chunkOrder?: number | null;
+  chunkType: string;
+  chunk: string;
 };
 
-export type SystemSendMessageChunkPayload = {
-  __typename: 'SystemSendMessageChunkPayload';
+export type MessageChunk = {
+  __typename: 'MessageChunk';
   userId: string;
   threadId: string;
   status: ThreadStatus;
-  textChunk: string;
-  audioChunk: string;
+  chunkOrder?: number | null;
+  chunkType: string;
+  chunk: string;
 };
 
 export type SystemAddMessageInput = {
@@ -191,12 +194,13 @@ export type SystemSendMessageChunkMutationVariables = {
 
 export type SystemSendMessageChunkMutation = {
   systemSendMessageChunk?: {
-    __typename: 'SystemSendMessageChunkPayload';
+    __typename: 'MessageChunk';
     userId: string;
     threadId: string;
     status: ThreadStatus;
-    textChunk: string;
-    audioChunk: string;
+    chunkOrder?: number | null;
+    chunkType: string;
+    chunk: string;
   } | null;
 };
 
@@ -324,11 +328,12 @@ export type RecieveMessageChunkAsyncSubscriptionVariables = {
 
 export type RecieveMessageChunkAsyncSubscription = {
   recieveMessageChunkAsync?: {
-    __typename: 'SystemSendMessageChunkPayload';
+    __typename: 'MessageChunk';
     userId: string;
     threadId: string;
     status: ThreadStatus;
-    textChunk: string;
-    audioChunk: string;
+    chunkOrder?: number | null;
+    chunkType: string;
+    chunk: string;
   } | null;
 };

@@ -20,7 +20,7 @@ export default function ChatConversation({
   userAttributes: FetchUserAttributesOutput | undefined;
 }) {
   return (
-    <div className="flex flex-col flex-col-reverse max-h-96 overflow-y-auto">
+    <div className="flex flex-col flex-col-reverse">
       <div className="flex flex-col space-y-4">
         {[...conversationHistory, lastMessage!].filter(Boolean).map((chat, index) => (
           <ChatBubble

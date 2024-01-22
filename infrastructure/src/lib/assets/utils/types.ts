@@ -10,6 +10,9 @@ export interface EventType {
     knowledgeBaseId: string;
     prompt: string;
   };
+  responseOptions: {
+    includeAudio: boolean;
+  };
 }
 
 export interface EventResult {

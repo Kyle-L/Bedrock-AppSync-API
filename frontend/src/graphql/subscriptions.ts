@@ -14,8 +14,9 @@ export const recieveMessageChunkAsync =
     userId
     threadId
     status
-    textChunk
-    audioChunk
+    chunkOrder
+    chunkType
+    chunk
     __typename
   }
 }
