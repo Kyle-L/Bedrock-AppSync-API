@@ -39,6 +39,8 @@ input MessageInput {
 input AddMessageInput {
   threadId: ID!
   prompt: ID!
+
+  includeAudio: Boolean
 }
 
 input SystemSendMessageChunkInput {

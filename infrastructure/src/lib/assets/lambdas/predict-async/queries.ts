@@ -47,7 +47,7 @@ export async function sendChunk({
   chunkOrder = chunkOrder || 0;
   chunkType = chunkType || 'text';
 
-  await sendRequest(sendMessageChunkMutation, {
+  const result = (await sendRequest(sendMessageChunkMutation, {
     userId,
     threadId,
     status,
@@ -55,7 +55,19 @@ export async function sendChunk({
     chunkOrder,
     chunkType,
     chunk
-  });
+  })) as { errors?: any[]; data?: any };
+
+  if (result.errors) {
+    console.error(
+      'Error occurred while sending message chunk:',
+      JSON.stringify(result.errors)
+    );
+  } else {
+    console.log(
+      'Successfully sent message chunk:',
+      JSON.stringify(result.data)
+    );
+  }
 }
 
 /**
@@ -72,14 +84,29 @@ export async function updateMessageSystemStatus(
   status: MessageSystemStatus,
   message: { sender: string; message: string }
 ) {
-  return await sendRequest(addMessageSystemMutation, {
+  const result = (await sendRequest(addMessageSystemMutation, {
     userId,
     threadId,
     status,
     message
-  });
+  })) as { errors?: any[]; data?: any };
+
+  if (result.errors) {
+    console.error(
+      'Error occurred while updating thread status:',
+      JSON.stringify(result.errors)
+    );
+  } else {
+    console.log(
+      'Successfully updated thread status:',
+      JSON.stringify(result.data)
+    );
+  }
 }
 
+/**
+ * Sends a request to update the thread's status and add the AI's response to the thread's message history.
+ */
 export const addMessageSystemMutation = `mutation Mutation($userId: ID!, $threadId: ID!, $status: ThreadStatus!, $message: MessageInput!) {
   systemAddMessage(input: {userId: $userId, threadId: $threadId, status: $status, message: $message}) {
       message {
@@ -89,7 +116,10 @@ export const addMessageSystemMutation = `mutation Mutation($userId: ID!, $thread
   }
 }`;
 
-export const sendMessageChunkMutation = `mutation Mutation($userId: ID!, $threadId: ID!, $status: ThreadStatus!, $chunkOrder: Int!, $chunkType: ChunkType!, $chunk: String!) {
+/**
+ * Sends a chunk to the all subscribers of the thread providing the thread's status, the chunk's order, type, and content.
+ */
+export const sendMessageChunkMutation = `mutation Mutation($userId: ID!, $threadId: ID!, $status: ThreadStatus!, $chunkOrder: Int, $chunkType: String!, $chunk: String!) {
   systemSendMessageChunk(input: {userId: $userId, threadId: $threadId, status: $status, chunkOrder: $chunkOrder, chunkType: $chunkType, chunk: $chunk}) {
         status
         userId

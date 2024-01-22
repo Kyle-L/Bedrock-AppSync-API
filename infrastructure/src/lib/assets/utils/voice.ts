@@ -1,8 +1,21 @@
 import {
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client
+} from '@aws-sdk/client-s3';
+import {
   GetSecretValueCommand,
   SecretsManagerClient
 } from '@aws-sdk/client-secrets-manager';
 import * as azureSpeechSDK from 'microsoft-cognitiveservices-speech-sdk';
+
+// Static variables
+const AUDIO_FORMAT = 'mp3';
+const AUDIO_NAME_TEMPLATE = `%s.${AUDIO_FORMAT}`;
+const AUDIO_UPLOAD_DIR = 'audio';
+
+// Clients
+const s3Client = new S3Client();
 
 /**
  * Gets the Azure Speech secret from Secrets Manager.
@@ -84,4 +97,50 @@ export async function synthesizeAudio({
 
   synthesizer.close();
   return result;
+}
+
+function generateUniqueId() {
+  return Math.random().toString(36).substring(7);
+}
+
+export async function synthesizeAndUploadAudio(
+  audioText: string,
+  speechConfig: azureSpeechSDK.SpeechConfig,
+  voice: string,
+  bucket: string,
+  callback?: (chunk: string) => void
+) {
+  const audioFileName = AUDIO_NAME_TEMPLATE.replace(
+    '%s',
+    `${generateUniqueId()}.${AUDIO_FORMAT}`
+  );
+  const audioFile = `/tmp/${audioFileName}`;
+
+  const result = await synthesizeAudio({
+    message: audioText,
+    speechConfig,
+    audioFile,
+    voice
+  });
+
+  const uploadCommand = new PutObjectCommand({
+    Bucket: bucket,
+    Key: `${AUDIO_UPLOAD_DIR}/${audioFileName}`,
+    Body: result
+  });
+
+  await s3Client.send(uploadCommand);
+
+  const getObjectCommand = new GetObjectCommand({
+    Bucket: bucket,
+    Key: `${AUDIO_UPLOAD_DIR}/${audioFileName}`
+  });
+
+  const signedUrl = await getSignedUrl(s3Client, getObjectCommand, {
+    expiresIn: 3600
+  });
+
+  if (callback) {
+    callback(signedUrl);
+  }
 }

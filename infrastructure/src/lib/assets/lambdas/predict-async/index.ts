@@ -6,7 +6,10 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Context, SQSEvent } from 'aws-lambda';
 import { processAsynchronously } from 'lib/assets/utils/ai/bedrock-utils';
-import { getAzureSpeechSecret, synthesizeAudio } from 'lib/assets/utils/voice';
+import {
+  getAzureSpeechSecret,
+  synthesizeAndUploadAudio
+} from 'lib/assets/utils/voice';
 import { SpeechConfig } from 'microsoft-cognitiveservices-speech-sdk';
 import { EventResult, EventType, MessageSystemStatus } from '../../utils/types';
 import { sendChunk, updateMessageSystemStatus } from './queries';
@@ -83,7 +86,8 @@ async function processEvent({
   history,
   query,
   eventTimeout,
-  persona
+  persona,
+  responseOptions
 }: EventType) {
   const fullQuery = `${history}\n\nUser: ${query}\n\Assistant: `;
   let eventResult = '';
@@ -124,21 +128,34 @@ async function processEvent({
             eventResult += chunk;
             lastSentence += chunk;
 
-            // If we have a complete sentence, process the audio for it.
-            const sentenceEndIndex = findSentenceEndIndex(lastSentence);
-            if (sentenceEndIndex !== -1) {
-              const sentence = lastSentence.substring(0, sentenceEndIndex + 1);
-              lastSentence = lastSentence.substring(sentenceEndIndex + 1);
+            if (responseOptions.includeAudio) {
+              // If we have a complete sentence, process the audio for it.
+              const sentenceEndIndex = findSentenceEndIndex(lastSentence);
+              if (sentenceEndIndex !== -1) {
+                const sentence = lastSentence.substring(
+                  0,
+                  sentenceEndIndex + 1
+                );
+                lastSentence = lastSentence.substring(sentenceEndIndex + 1);
 
-              audioJobs.push(
-                synthesizeAndUploadAudio(
-                  cleanUpText(sentence),
-                  speechConfig,
-                  persona.voice,
-                  userId,
-                  threadId
-                )
-              );
+                audioJobs.push(
+                  synthesizeAndUploadAudio(
+                    cleanUpText(sentence),
+                    speechConfig,
+                    persona.voice,
+                    BUCKET,
+                    async (chunk) => {
+                      console.log(`Received Audio Chunk: ${chunk}`);
+                      await sendChunk({
+                        userId,
+                        threadId,
+                        chunk,
+                        chunkType: 'audio'
+                      });
+                    }
+                  )
+                );
+              }
             }
           },
           model: persona.model,
@@ -240,23 +257,23 @@ export async function handler(event: SQSEvent, context: Context) {
   const processingTasks = event.Records.map(async (record) => {
     const eventData = JSON.parse(record.body);
 
-    const userId = eventData.identity.sub;
-    const threadId = eventData.arguments.input.threadId;
     const history = (eventData.prev.result.data || [])
       .map((message: { sender: string; text: string }) => {
         return `${message.sender}: ${message.text}`;
       })
       .join('\n\n');
-    const query = eventData.arguments.input.prompt;
 
     console.log(`Received Event: ${JSON.stringify(eventData)}`);
     return processEvent({
-      userId,
-      threadId,
+      userId: eventData.identity.sub,
+      threadId: eventData.arguments.input.threadId,
       history,
-      query,
+      query: eventData.arguments.input.prompt,
       eventTimeout: eventTimeout,
-      persona: eventData.prev.result.persona
+      persona: eventData.prev.result.persona,
+      responseOptions: {
+        includeAudio: eventData.arguments.input.includeAudio
+      }
     });
   });
 

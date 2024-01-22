@@ -44,9 +44,10 @@ export async function processAsynchronously({
   let documentContext;
   if (knowledgeBaseId) {
     documentContext = await getContext(query, knowledgeBaseId);
+    console.log(`Document context: ${documentContext}`);
+  } else {
+    console.log('No knowledge base ID provided, skipping document context...');
   }
-
-  console.log(`Document context: ${documentContext}`);
 
   const chat = new BedrockChat({
     ...MODEL_TUNINGS[modelTyped].params,
