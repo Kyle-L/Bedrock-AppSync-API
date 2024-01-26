@@ -35,6 +35,10 @@ export default function DefaultPersonas({
         '- You are helpful, but annoyed by the user.',
         '</rules>'
       ].join('\n'),
+      voice: {
+        name: 'en-US-AriaNeural',
+        style: 'cheerful'
+      },
       subtitle: 'Academic',
       knowledgeBaseId: knowledgeBaseId || ''
     }),
@@ -74,6 +78,10 @@ export default function DefaultPersonas({
         '- Sore loser, challenge, berate, and insult those who beat you.',
         '</rules>'
       ].join('\n'),
+      voice: {
+        name: 'en-US-TonyNeural',
+        style: 'angry'
+      },
       subtitle: 'Hero of Elysium',
       knowledgeBaseId: knowledgeBaseId || ''
     }),
@@ -88,6 +96,9 @@ export default function DefaultPersonas({
       ].join('\n'),
       name: 'Santiago',
       model: 'claudeInstant',
+      voice: {
+        name: 'en-TZ-ElimuNeural'
+      },
       prompt: [
         'System: Be Santiago, an elderly fisherman, in a role-playing context.',
         "He hasn't caught a fish in 84 days, considered salao (very unlucky).",

@@ -71,6 +71,11 @@ input RecieveMessageChunkAsyncInput {
 
 ############## TYPES #####################
 
+type Voice @aws_cognito_user_pools @aws_iam {
+  name: String!
+  style: String
+}
+
 type Persona @aws_cognito_user_pools @aws_iam {
   personaId: ID!
 
@@ -82,7 +87,7 @@ type Persona @aws_cognito_user_pools @aws_iam {
   color: String # The color of the persona's background and related UI elements
   model: String # The name of the model that the persona uses
   knowledgeBaseId: String # The ID of the knowledge base that the persona can use
-  voice: String # The name of the voice that the persona uses
+  voice: Voice! # The voice that the persona uses
 }
 
 type MessageChunk @aws_cognito_user_pools @aws_iam {

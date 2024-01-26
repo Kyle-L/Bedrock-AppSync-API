@@ -5,7 +5,8 @@ export interface EventType {
   query: string;
   eventTimeout: number;
   persona: {
-    voice: string;
+    voice: { name: string; style?: string };
+    voiceStyle: string;
     model: string;
     knowledgeBaseId: string;
     prompt: string;

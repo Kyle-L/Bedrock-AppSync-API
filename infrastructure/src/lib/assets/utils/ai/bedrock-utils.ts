@@ -23,7 +23,7 @@ export async function processAsynchronously({
   promptTemplate?: string;
   model?: string;
   knowledgeBaseId?: string;
-  callback: (result: string) => void;
+  callback: (result: string) => Promise<void>;
 }) {
   if (model && !(model in MODEL_TUNINGS)) {
     throw new Error(`Model ${model} is not supported`);
@@ -65,12 +65,10 @@ export async function processAsynchronously({
     search_results: documentContext
   });
 
-  const stream = await chat
-    .pipe(new StringOutputParser())
-    .stream(formattedPrompt);
+  const stream = chat.pipe(new StringOutputParser()).stream(formattedPrompt);
 
-  for await (const chunk of stream) {
-    callback(chunk);
+  for await (const chunk of await stream) {
+    await callback(chunk);
   }
 }
 

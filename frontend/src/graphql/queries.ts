@@ -2,7 +2,7 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-import * as APITypes from '../API';
+import * as APITypes from "../API";
 type GeneratedQuery<InputType, OutputType> = string & {
   __generatedQueryInput: InputType;
   __generatedQueryOutput: OutputType;
@@ -19,11 +19,18 @@ export const getPersona = /* GraphQL */ `query GetPersona($input: GetPersonaInpu
     color
     model
     knowledgeBaseId
-    voice
+    voice {
+      name
+      style
+      __typename
+    }
     __typename
   }
 }
-` as GeneratedQuery<APITypes.GetPersonaQueryVariables, APITypes.GetPersonaQuery>;
+` as GeneratedQuery<
+  APITypes.GetPersonaQueryVariables,
+  APITypes.GetPersonaQuery
+>;
 export const getAllPersonas = /* GraphQL */ `query GetAllPersonas {
   getAllPersonas {
     personaId
@@ -35,11 +42,18 @@ export const getAllPersonas = /* GraphQL */ `query GetAllPersonas {
     color
     model
     knowledgeBaseId
-    voice
+    voice {
+      name
+      style
+      __typename
+    }
     __typename
   }
 }
-` as GeneratedQuery<APITypes.GetAllPersonasQueryVariables, APITypes.GetAllPersonasQuery>;
+` as GeneratedQuery<
+  APITypes.GetAllPersonasQueryVariables,
+  APITypes.GetAllPersonasQuery
+>;
 export const getThread = /* GraphQL */ `query GetThread($input: GetThreadInput!) {
   getThread(input: $input) {
     threadId
@@ -54,7 +68,6 @@ export const getThread = /* GraphQL */ `query GetThread($input: GetThreadInput!)
       color
       model
       knowledgeBaseId
-      voice
       __typename
     }
     messages {
@@ -83,7 +96,6 @@ export const getAllThreads = /* GraphQL */ `query GetAllThreads {
       color
       model
       knowledgeBaseId
-      voice
       __typename
     }
     messages {
@@ -97,4 +109,7 @@ export const getAllThreads = /* GraphQL */ `query GetAllThreads {
     __typename
   }
 }
-` as GeneratedQuery<APITypes.GetAllThreadsQueryVariables, APITypes.GetAllThreadsQuery>;
+` as GeneratedQuery<
+  APITypes.GetAllThreadsQueryVariables,
+  APITypes.GetAllThreadsQuery
+>;
