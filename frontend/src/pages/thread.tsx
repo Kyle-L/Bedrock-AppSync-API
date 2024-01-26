@@ -18,7 +18,10 @@ const client = generateClient();
 
 export default function ThreadPage() {
   // State
-  const [generateAudio, setGenerateAudio] = useState(false); // Whether or not to generate audio clips for the messages
+  const [generateAudio, setGenerateAudio] = useState(() => {
+    const storedValue = localStorage.getItem('generateAudio');
+    return storedValue ? JSON.parse(storedValue) : true;
+  }); // Whether or not to generate audio clips
   const [audioPlaying, setAudioPlaying] = useState(false); // Whether or not an audio clip is currently playing
   const [audioIndex, setAudioIndex] = useState(0); // Index of the audio clip to play next
   const [audioClips, setAudioClips] = useState<HTMLAudioElement[]>([]);
@@ -70,6 +73,10 @@ export default function ThreadPage() {
     // Call the function to start playing audio clips
     playNextAudioClip();
   }, [audioIndex, audioClips, audioPlaying]);
+
+  useEffect(() => {
+    localStorage.setItem('generateAudio', JSON.stringify(generateAudio));
+  }, [generateAudio]);
 
   /**
    * Fetches the thread data from the API.

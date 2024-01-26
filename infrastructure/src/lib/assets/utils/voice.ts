@@ -45,35 +45,42 @@ export async function getAzureSpeechSecret(secretId: string): Promise<{
   return { speechKey, speechRegion };
 }
 
+function cleanUpText(text: string) {
+  return text.replaceAll(/(\*[^*]+\*)|(_[^_]+_)|(~[^~]+~)|(`[^`]+`)/g, '');
+}
+
 export async function synthesizeAudio({
   voice,
   message,
   audioFile,
   speechConfig
 }: {
-  voice: string;
+  voice: { name: string; style?: string };
   message: string;
   audioFile: string;
   speechConfig: azureSpeechSDK.SpeechConfig;
 }) {
+  message = cleanUpText(message);
+
   const messageSSML = `
   <speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="en-US">
-    <voice name='${voice}'>
-      ${message || ''}
+    <voice name='${voice.name}'>
+      <mstts:express-as style='${voice.style || 'cheerful'}' styledegree='2'>
+        ${message || ''}
+      </mstts:express-as>
     </voice>
   </speak>`;
 
   const audioConfig = azureSpeechSDK.AudioConfig.fromAudioFileOutput(audioFile);
-  speechConfig.speechSynthesisVoiceName = voice;
   speechConfig.speechSynthesisOutputFormat =
-    azureSpeechSDK.SpeechSynthesisOutputFormat.Audio24Khz48KBitRateMonoMp3;
+    azureSpeechSDK.SpeechSynthesisOutputFormat.Audio48Khz96KBitRateMonoMp3
 
   const synthesizer = new azureSpeechSDK.SpeechSynthesizer(
     speechConfig,
     audioConfig
   );
 
-  console.log(`Synthesizing speech for text: ${message}`);
+  console.log(`Synthesizing speech for text: ${messageSSML}`);
   const result: Buffer = await new Promise((resolve, reject) => {
     synthesizer.speakSsmlAsync(
       messageSSML,
@@ -82,7 +89,7 @@ export async function synthesizeAudio({
           result.reason ===
           azureSpeechSDK.ResultReason.SynthesizingAudioCompleted
         ) {
-          console.log(`Speech synthesized for text: ${message}`);
+          console.log(`Speech synthesized for text: ${messageSSML}`);
           resolve(Buffer.from(result.audioData));
         } else {
           console.error('Speech synthesis failed:', result.errorDetails);
@@ -104,12 +111,17 @@ function generateUniqueId() {
   return Math.random().toString(36).substring(7);
 }
 
-export async function synthesizeAndUploadAudio(
-  audioText: string,
-  speechConfig: azureSpeechSDK.SpeechConfig,
-  voice: string,
-  bucket: string
-) {
+export async function synthesizeAndUploadAudio({
+  audioText,
+  speechConfig,
+  voice,
+  bucket
+}: {
+  audioText: string;
+  speechConfig: azureSpeechSDK.SpeechConfig;
+  voice: { name: string; style?: string };
+  bucket: string;
+}) {
   const audioFileName = AUDIO_NAME_TEMPLATE.replace(
     '%s',
     `${generateUniqueId()}.${AUDIO_FORMAT}`

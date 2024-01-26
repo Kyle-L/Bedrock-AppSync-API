@@ -48,14 +48,9 @@ export default function ChatBubble({
 
   const generateAudio = async (text: string) => {
     try {
-      // Filter out markdown by removing everything between asterisks, underscores, tildes, and backticks
-      const audioText = text.replaceAll(/(\*[^*]+\*)|(_[^_]+_)|(~[^~]+~)|(`[^`]+`)/g, '');
-
       setLoadingAudio(true);
 
-      const sentences = [
-        `<s /><mstts:express-as style="angry">${audioText}</mstts:express-as><s />`
-      ];
+      const sentences = [text];
 
       let promises = sentences.map((sentence) => {
         const result = client.graphql({

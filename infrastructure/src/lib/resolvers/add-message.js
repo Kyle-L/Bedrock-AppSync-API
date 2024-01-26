@@ -10,6 +10,10 @@ export function request(ctx) {
       pk: `USER#${ctx.args.input.userId}`,
       sk: `THREAD#${ctx.args.input.threadId}`
     }),
+    condition: util.transform.toDynamoDBConditionExpression({
+      pk: { attributeExists: true },
+      sk: { attributExists: true }
+    }),
     update: {
       expression:
         'SET #messages = list_append(if_not_exists(#messages, :empty_list), :messages), #status = :status',

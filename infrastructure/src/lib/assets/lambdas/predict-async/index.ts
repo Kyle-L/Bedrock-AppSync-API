@@ -73,41 +73,6 @@ async function completeProcessing(
 }
 
 /**
- * When given a promise, this function will ensure a callback is executed after the promise is resolved.
- * If multiple promises are received, the promises will be executed in parallel, but the callbacks will be executed in order.
- * @param initialPromise The initial promise to be handled.
- * @param callback The callback function to be executed after each promise is resolved.
- */
-function handlePromiseOrder(callback: (result: any, ...args: any[]) => void) {
-  // Array to keep track of promises
-  const promiseArray: Promise<any>[] = [];
-
-  // Return a function that can be used to add promises and callbacks at any time
-  function addPromise(promise: Promise<any>, ...args: any[]) {
-    const currentPromise = promise.then((result) => {
-      // Execute the callback after the promise is resolved
-      callback(result, ...args);
-    });
-
-    // Add the current promise to the array
-    promiseArray.push(currentPromise);
-
-    // Return the current promise for chaining
-    return currentPromise;
-  }
-
-  // Return an object with the addPromise function and an async function to wait for all promises
-  const result = {
-    addPromise,
-    waitForAll: async () => {
-      return Promise.all(promiseArray);
-    }
-  };
-
-  return result;
-}
-
-/**
  * Processes a single event.
  * @param userId {string} The user ID.
  * @param threadId {string} The thread ID.
@@ -127,26 +92,6 @@ async function processEvent({
   const fullQuery = `${history}\n\nUser: ${query}\n\Assistant: `;
   let fullResponse = '';
   let lastSentenceResponse = '';
-
-  const audioQueue = handlePromiseOrder(async (result) => {
-    console.log(`Received Audio Chunk: ${result}`);
-    await sendChunk({
-      userId,
-      threadId,
-      chunk: result,
-      chunkType: 'audio'
-    });
-  });
-
-  const textQueue = handlePromiseOrder(async (result) => {
-    console.log(`Received Text Chunk: ${result}`);
-    await sendChunk({
-      userId,
-      threadId,
-      chunk: result,
-      chunkType: 'text'
-    });
-  });
 
   const timeoutTask = createTimeoutTask(eventTimeout);
 
@@ -175,8 +120,15 @@ async function processEvent({
         await processAsynchronously({
           query: fullQuery,
           promptTemplate: persona.prompt,
-          callback: (chunk) => {
-            textQueue.addPromise(Promise.resolve(chunk));
+          callback: async (chunk) => {
+            console.log(`Received Text Chunk: ${chunk}`);
+            await sendChunk({
+              userId,
+              threadId,
+              chunk: chunk,
+              chunkType: 'text'
+            });
+
             fullResponse += chunk;
             lastSentenceResponse += chunk;
 
@@ -185,24 +137,27 @@ async function processEvent({
                 getCompleteSentence(lastSentenceResponse);
               if (isComplete) {
                 lastSentenceResponse = remainingText;
-                audioQueue.addPromise(
-                  synthesizeAndUploadAudio(
-                    cleanUpText(sentence),
-                    speechConfig,
-                    persona.voice,
-                    BUCKET
-                  )
-                );
+
+                console.log(`Received Audio Chunk: ${lastSentenceResponse}`);
+                const audio = await synthesizeAndUploadAudio({
+                  voice: persona.voice,
+                  audioText: sentence,
+                  bucket: BUCKET,
+                  speechConfig
+                });
+
+                await sendChunk({
+                  userId,
+                  threadId,
+                  chunk: audio,
+                  chunkType: 'audio'
+                });
               }
             }
           },
           model: persona.model,
           knowledgeBaseId: persona.knowledgeBaseId
-        }),
-
-        // Wait for any remaining long running tasks to complete.
-        audioQueue.waitForAll(),
-        textQueue.waitForAll()
+        })
       ]);
     } catch (err) {
       console.error(err);
@@ -234,14 +189,6 @@ function getCompleteSentence(text: string): {
   const sentence = text.substring(0, sentenceEndIndex + 1);
   const remainingText = text.substring(sentenceEndIndex + 2);
   return { sentence, remainingText, isComplete: true };
-}
-
-function cleanUpText(text: string) {
-  return text.replaceAll(/(\*[^*]+\*)|(_[^_]+_)|(~[^~]+~)|(`[^`]+`)/g, '');
-}
-
-function generateUniqueId() {
-  return Math.random().toString(36).substring(7);
 }
 
 /**
