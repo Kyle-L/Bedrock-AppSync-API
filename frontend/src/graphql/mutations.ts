@@ -70,7 +70,6 @@ export const systemSendMessageChunk = /* GraphQL */ `mutation SystemSendMessageC
     userId
     threadId
     status
-    chunkOrder
     chunkType
     chunk
     __typename

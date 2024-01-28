@@ -48,7 +48,6 @@ input SystemSendMessageChunkInput {
   threadId: ID!
   status: ThreadStatus!
 
-  chunkOrder: Int!
   chunkType: String!
   chunk: String!
 }
@@ -95,7 +94,6 @@ type MessageChunk @aws_cognito_user_pools @aws_iam {
   threadId: ID!
   status: ThreadStatus!
 
-  chunkOrder: Int!
   chunkType: String!
   chunk: String!
 }

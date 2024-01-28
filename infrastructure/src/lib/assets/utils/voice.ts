@@ -7,6 +7,7 @@ import {
   GetSecretValueCommand,
   SecretsManagerClient
 } from '@aws-sdk/client-secrets-manager';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import * as azureSpeechSDK from 'microsoft-cognitiveservices-speech-sdk';
 
 // Static variables
@@ -21,7 +22,7 @@ const s3Client = new S3Client();
  * Gets the Azure Speech secret from Secrets Manager.
  * @returns {Promise<{ speechKey: string; speechRegion: string; }>} The Azure Speech secret.
  */
-export async function getAzureSpeechSecret(secretId: string): Promise<{
+export async function getSecret(secretId: string): Promise<{
   speechKey: string;
   speechRegion: string;
 }> {
@@ -65,7 +66,9 @@ export async function synthesizeAudio({
   const messageSSML = `
   <speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="en-US">
     <voice name='${voice.name}'>
-      <mstts:express-as style='${voice.style || 'cheerful'}' styledegree='2'>
+      <mstts:express-as ${
+        voice.style ? `style='${voice.style}' styledegree='2'` : ''
+      }>
         ${message || ''}
       </mstts:express-as>
     </voice>
@@ -73,7 +76,7 @@ export async function synthesizeAudio({
 
   const audioConfig = azureSpeechSDK.AudioConfig.fromAudioFileOutput(audioFile);
   speechConfig.speechSynthesisOutputFormat =
-    azureSpeechSDK.SpeechSynthesisOutputFormat.Audio48Khz96KBitRateMonoMp3
+    azureSpeechSDK.SpeechSynthesisOutputFormat.Audio48Khz96KBitRateMonoMp3;
 
   const synthesizer = new azureSpeechSDK.SpeechSynthesizer(
     speechConfig,
