@@ -12,11 +12,19 @@ import useAlert from '../hooks/AlertHook';
 import { useAuth } from '../providers/AuthProvider';
 import { useBackground } from '../providers/BackgroundProvider';
 import { getAvatarURL } from '../utils/avatar';
+import { Switch } from '@headlessui/react';
 
 const client = generateClient();
 
 export default function ThreadPage() {
   // State
+  const [generateAudio, setGenerateAudio] = useState(() => {
+    const storedValue = localStorage.getItem('generateAudio');
+    return storedValue ? JSON.parse(storedValue) : true;
+  }); // Whether or not to generate audio clips
+  const [audioPlaying, setAudioPlaying] = useState(false); // Whether or not an audio clip is currently playing
+  const [audioIndex, setAudioIndex] = useState(0); // Index of the audio clip to play next
+  const [audioClips, setAudioClips] = useState<HTMLAudioElement[]>([]);
   const [conversationHistory, setConversationHistory] = useState<Omit<Message, '__typename'>[]>([]);
   const [lastMessage, setLastMessage] = useState<Omit<Message, '__typename'> | null>();
   const [loading, setLoading] = useState(false);
@@ -31,6 +39,44 @@ export default function ThreadPage() {
 
   // Prevents the page from loading if there is no threadId
   if (!threadId) return null;
+
+  useEffect(() => {
+    const playNextAudioClip = async () => {
+      // Check if there are more audio clips to play
+      if (audioIndex < audioClips.length && !audioPlaying) {
+        console.log('playing audio clip', audioIndex);
+        setAudioPlaying(true);
+        const audio = audioClips[audioIndex];
+
+        // Play the current audio clip
+        try {
+          await audio.play();
+        } catch (error) {
+          console.error('Error playing audio:', error);
+        }
+
+        // Set a timeout to move to the next audio clip after the current one finishes
+        const onAudioEnded = () => {
+          // Remove the event listener to avoid memory leaks
+          audio.removeEventListener('ended', onAudioEnded);
+
+          // Increment the index to play the next audio clip
+          setAudioIndex((prevIndex) => prevIndex + 1);
+          setAudioPlaying(false);
+        };
+
+        // Set up the event listener for the 'ended' event
+        audio.addEventListener('ended', onAudioEnded);
+      }
+    };
+
+    // Call the function to start playing audio clips
+    playNextAudioClip();
+  }, [audioIndex, audioClips, audioPlaying]);
+
+  useEffect(() => {
+    localStorage.setItem('generateAudio', JSON.stringify(generateAudio));
+  }, [generateAudio]);
 
   /**
    * Fetches the thread data from the API.
@@ -67,12 +113,18 @@ export default function ThreadPage() {
           const response = data?.recieveMessageChunkAsync;
 
           if (response) {
-            if (response.chunk) {
+            if (response.chunkType === 'text') {
               setLastMessage((prevLastMessage) => ({
                 sender: 'Assistant',
                 message: `${prevLastMessage?.message ?? ''}${response.chunk}`,
                 createdAt: new Date().toISOString()
               }));
+            }
+
+            // Convert the response.chunk from base64 to an audio clip
+            if (response.chunkType === 'audio') {
+              const audio = new Audio(response.chunk);
+              setAudioClips((prevAudioClips) => [...prevAudioClips, audio]);
             }
 
             if (response.status === 'COMPLETE') {
@@ -125,7 +177,8 @@ export default function ThreadPage() {
         variables: {
           input: {
             prompt: input,
-            threadId
+            threadId,
+            includeAudio: generateAudio
           }
         }
       })
@@ -176,7 +229,8 @@ export default function ThreadPage() {
           userAttributes={userAttributes}
         />
         {!loading ? (
-          <textarea
+          <input
+            type="text"
             className="w-full shadow-md rounded-xl p-2 my-2"
             placeholder={`Message ${thread.persona.name}...`}
             value={input}
@@ -191,6 +245,23 @@ export default function ThreadPage() {
           Send
         </button>
       </form>
+      {/* Generate audio checkbox */}
+      <div className="flex items-center mb-4 ml-auto">
+        <label className="mr-2 text-sm text-gray-500">Generate audio</label>
+        <Switch
+          checked={generateAudio}
+          onChange={setGenerateAudio}
+          className={`${generateAudio ? 'bg-red-500' : 'bg-slate-500'}
+          shadow-md relative inline-flex h-[18px] w-[36px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white/75`}
+        >
+          <span className="sr-only">Use setting</span>
+          <span
+            aria-hidden="true"
+            className={`${generateAudio ? 'translate-x-[18px]' : 'translate-x-0'}
+            pointer-events-none inline-block h-[15px] w-[15px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
+          />
+        </Switch>
+      </div>
     </>
   );
 }

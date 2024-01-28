@@ -39,12 +39,16 @@ input MessageInput {
 input AddMessageInput {
   threadId: ID!
   prompt: ID!
+
+  includeAudio: Boolean
 }
 
 input SystemSendMessageChunkInput {
   userId: ID!
   threadId: ID!
   status: ThreadStatus!
+
+  chunkType: String!
   chunk: String!
 }
 
@@ -66,6 +70,11 @@ input RecieveMessageChunkAsyncInput {
 
 ############## TYPES #####################
 
+type Voice @aws_cognito_user_pools @aws_iam {
+  name: String!
+  style: String
+}
+
 type Persona @aws_cognito_user_pools @aws_iam {
   personaId: ID!
 
@@ -77,14 +86,16 @@ type Persona @aws_cognito_user_pools @aws_iam {
   color: String # The color of the persona's background and related UI elements
   model: String # The name of the model that the persona uses
   knowledgeBaseId: String # The ID of the knowledge base that the persona can use
-  voice: String # The name of the voice that the persona uses
+  voice: Voice! # The voice that the persona uses
 }
 
 type MessageChunk @aws_cognito_user_pools @aws_iam {
   userId: ID!
   threadId: ID!
-  chunk: String!
   status: ThreadStatus!
+
+  chunkType: String!
+  chunk: String!
 }
 
 type Message @aws_cognito_user_pools @aws_iam {
@@ -120,13 +131,6 @@ type DeleteThreadPayload @aws_cognito_user_pools @aws_iam {
   thread: Thread
 }
 
-type SystemSendMessageChunkPayload @aws_cognito_user_pools @aws_iam {
-  userId: ID!
-  threadId: ID!
-  status: ThreadStatus!
-  chunk: String!
-}
-
 type SystemAddMessagePayload @aws_cognito_user_pools @aws_iam {
   message: Message
 }
@@ -145,22 +149,31 @@ type Query @aws_cognito_user_pools @aws_iam {
 
 type Mutation {
   # Creation
-  addThread(input: AddThreadInput!): AddThreadPayload @aws_cognito_user_pools @aws_iam
-  addMessageAsync(input: AddMessageInput!): AddMessagePayload @aws_cognito_user_pools
-  addVoice(input: AddVoiceInput!): AddVoicePayload @aws_cognito_user_pools @aws_iam
+  addThread(input: AddThreadInput!): AddThreadPayload
+    @aws_cognito_user_pools
+    @aws_iam
+  addMessageAsync(input: AddMessageInput!): AddMessagePayload
+    @aws_cognito_user_pools
+  addVoice(input: AddVoiceInput!): AddVoicePayload
+    @aws_cognito_user_pools
+    @aws_iam
 
   # Deletion
-  deleteThread(input: DeleteThreadInput!): DeleteThreadPayload @aws_cognito_user_pools @aws_iam
+  deleteThread(input: DeleteThreadInput!): DeleteThreadPayload
+    @aws_cognito_user_pools
+    @aws_iam
 
   # System
-  systemSendMessageChunk(input: SystemSendMessageChunkInput!): SystemSendMessageChunkPayload @aws_iam
-  systemAddMessage(input: SystemAddMessageInput!): SystemAddMessagePayload @aws_iam
+  systemSendMessageChunk(input: SystemSendMessageChunkInput!): MessageChunk
+    @aws_iam
+  systemAddMessage(input: SystemAddMessageInput!): SystemAddMessagePayload
+    @aws_iam
 }
 
 ############## SUBSCRIPTIONS #####################
 
 type Subscription {
-  recieveMessageChunkAsync(input: RecieveMessageChunkAsyncInput!): SystemSendMessageChunkPayload
+  recieveMessageChunkAsync(input: RecieveMessageChunkAsyncInput!): MessageChunk
     @aws_subscribe(mutations: ["systemSendMessageChunk"])
     @aws_cognito_user_pools
 }

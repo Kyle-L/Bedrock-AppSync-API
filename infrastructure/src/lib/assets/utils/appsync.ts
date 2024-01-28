@@ -46,40 +46,16 @@ export const AppSyncRequestIAM = async (params: RequestParams) => {
 
   const signedRequest = await signer.sign(requestToBeSigned);
 
-  return new Promise((resolve, reject) => {
-    const httpRequest = https.request({ ...signedRequest, host: endpoint.hostname }, (result) => {
-      result.on('data', (data) => {
-        resolve(JSON.parse(data.toString()));
-      });
-    });
+  return new Promise((resolve, _reject) => {
+    const httpRequest = https.request(
+      { ...signedRequest, host: endpoint.hostname },
+      (result) => {
+        result.on('data', (data) => {
+          resolve(JSON.parse(data.toString()));
+        });
+      }
+    );
     httpRequest.write(signedRequest.body);
-    httpRequest.end();
-  });
-};
-
-export const AppSyncRequestApiKey = async <T = object>(params: RequestParams) => {
-  const endpoint = new URL(params.config.url);
-
-  const request = new HttpRequest({
-    hostname: endpoint.host,
-    port: 443,
-    path: endpoint.pathname,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': params.config.key || '',
-      host: endpoint.host
-    },
-    body: JSON.stringify(params.operation)
-  });
-
-  return new Promise<GraphQLResult<T>>((resolve, reject) => {
-    const httpRequest = https.request({ ...request, host: endpoint.hostname }, (result) => {
-      result.on('data', (data) => {
-        resolve(JSON.parse(data.toString()));
-      });
-    });
-    httpRequest.write(request.body);
     httpRequest.end();
   });
 };
