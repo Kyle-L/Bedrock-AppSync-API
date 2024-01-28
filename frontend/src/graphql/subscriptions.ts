@@ -13,7 +13,6 @@ export const recieveMessageChunkAsync = /* GraphQL */ `subscription RecieveMessa
     userId
     threadId
     status
-    chunkOrder
     chunkType
     chunk
     __typename

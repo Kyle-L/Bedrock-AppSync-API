@@ -90,7 +90,6 @@ export type SystemSendMessageChunkInput = {
   userId: string,
   threadId: string,
   status: ThreadStatus,
-  chunkOrder?: number | null,
   chunkType: string,
   chunk: string,
 };
@@ -100,7 +99,6 @@ export type MessageChunk = {
   userId: string,
   threadId: string,
   status: ThreadStatus,
-  chunkOrder?: number | null,
   chunkType: string,
   chunk: string,
 };
@@ -205,7 +203,6 @@ export type SystemSendMessageChunkMutation = {
     userId: string,
     threadId: string,
     status: ThreadStatus,
-    chunkOrder?: number | null,
     chunkType: string,
     chunk: string,
   } | null,
@@ -347,7 +344,6 @@ export type RecieveMessageChunkAsyncSubscription = {
     userId: string,
     threadId: string,
     status: ThreadStatus,
-    chunkOrder?: number | null,
     chunkType: string,
     chunk: string,
   } | null,

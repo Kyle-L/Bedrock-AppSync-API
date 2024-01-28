@@ -1,96 +1,81 @@
 import { DynamoDBClient, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
-import {
-  SQSClient,
-  SendMessageCommand,
-  SendMessageCommandInput
-} from '@aws-sdk/client-sqs';
-import {
-  AppSyncIdentityCognito,
-  AppSyncResolverEvent,
-  Handler
-} from 'aws-lambda';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import { AppSyncIdentityCognito, AppSyncResolverEvent } from 'aws-lambda';
 import { MessageSystemStatus } from 'lib/assets/utils/types';
 
 // Environment variables
-const QUEUE_URL = process.env.QUEUE_URL || '';
-const TABLE_NAME = process.env.TABLE_NAME || '';
+const { QUEUE_URL = '', TABLE_NAME = '' } = process.env;
 
 // Clients
 const sqsClient = new SQSClient();
 const dynamodb = new DynamoDBClient();
 
-export const handler: Handler = async (
+export async function handler(
   event: AppSyncResolverEvent<{
-    input: {
-      prompt: string;
-      threadId: string;
-    };
+    input: { prompt: string; threadId: string };
   }>
-) => {
-  console.log('Received Event:', event);
+) {
+  const {
+    identity,
+    prev,
+    arguments: {
+      input: { prompt }
+    }
+  } = event;
 
   // Condition 1: User is authenticated. If not, throw an error.
-  if (!(event.identity as AppSyncIdentityCognito)?.sub) {
+  if (!(identity as AppSyncIdentityCognito)?.sub) {
     throw new Error('Missing identity');
   }
-  const id = (event.identity as AppSyncIdentityCognito).sub;
+  const id = (identity as AppSyncIdentityCognito).sub;
 
   // Condition 2: The thread is not currently processing. If it is, throw an error.
   if (
-    event.prev?.result?.status &&
-    event.prev.result.status == MessageSystemStatus.PENDING &&
-    event.prev.result.status == MessageSystemStatus.PROCESSING
+    !id ||
+    (prev?.result?.status &&
+      [MessageSystemStatus.PENDING, MessageSystemStatus.PROCESSING].includes(
+        prev.result.status
+      ))
   ) {
     throw new Error('Thread is currently processing');
   }
 
   // Condition 3: The thread ID is missing.
-  let threadId = event.prev?.result?.sk;
-  if (!threadId) {
-    throw new Error('That thread does not exist');
-  }
+  let threadId = prev?.result?.sk;
+  if (!threadId) throw new Error('That thread does not exist');
   threadId = threadId.split('#')[1];
 
   try {
+    // The command to set thread's status to PENDING to block other requests from processing.
     const dynamoParams = {
       TableName: TABLE_NAME,
-      Key: {
-        pk: { S: `USER#${id}` },
-        sk: { S: `THREAD#${threadId}` }
-      },
+      Key: { pk: { S: `USER#${id}` }, sk: { S: `THREAD#${threadId}` } },
       UpdateExpression: 'SET #status = :status',
-      ExpressionAttributeNames: {
-        '#status': 'status'
-      },
+      ExpressionAttributeNames: { '#status': 'status' },
       ExpressionAttributeValues: {
         ':status': { S: MessageSystemStatus.PENDING }
       }
     };
 
-    // Perform DynamoDB update asynchronously
-    const dynamoPromise = dynamodb.send(new UpdateItemCommand(dynamoParams));
+    // Inserts the user's request into the queue, and peforms the DynamoDB update in parallel.
+    await Promise.all([
+      dynamodb.send(new UpdateItemCommand(dynamoParams)),
+      sqsClient.send(
+        new SendMessageCommand({
+          QueueUrl: QUEUE_URL,
+          MessageBody: JSON.stringify(event)
+        })
+      )
+    ]);
 
-    // Perform SQS send asynchronously
-    const sqsPromise = sqsClient.send(
-      new SendMessageCommand({
-        QueueUrl: QUEUE_URL,
-        MessageBody: JSON.stringify(event)
-      })
-    );
-
-    // Wait for Assistanth DynamoDB and SQS operations to complete
-    await Promise.all([dynamoPromise, sqsPromise]);
-
-    console.log('DynamoDB and SQS operations completed successfully');
     return {
       message: {
         sender: 'User',
-        message: event.arguments.input.prompt,
+        message: prompt,
         createdAt: new Date().toISOString()
       }
     };
   } catch (error) {
-    console.error('Error:', error);
     throw new Error('An error occurred');
   }
-};
+}

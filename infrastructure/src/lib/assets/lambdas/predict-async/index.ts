@@ -1,44 +1,19 @@
-import {
-  GetObjectCommand,
-  PutObjectCommand,
-  S3Client
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Context, SQSEvent } from 'aws-lambda';
 import { processAsynchronously } from 'lib/assets/utils/ai/bedrock-utils';
-import {
-  getAzureSpeechSecret,
-  synthesizeAndUploadAudio
-} from 'lib/assets/utils/voice';
+import { getSecret, synthesizeAndUploadAudio } from 'lib/assets/utils/voice';
 import { SpeechConfig } from 'microsoft-cognitiveservices-speech-sdk';
 import { EventResult, EventType, MessageSystemStatus } from '../../utils/types';
 import { sendChunk, updateMessageSystemStatus } from './queries';
+import {
+  createTimeoutTask,
+  getCompleteSentence
+} from 'lib/assets/utils/functions';
 
 // Constants
 const EVENT_TIMEOUT_BUFFER = 5000; // 5 second
 
 // Environment variables
-const BUCKET = process.env.S3_BUCKET || '';
-const AZURE_SPEECH_SECRET = process.env.AZURE_SPEECH_SECRET || '';
-
-// Clients
-const s3Client = new S3Client();
-
-/**
- * A timeout task that resolves after a specified timeout.
- * @param timeout The timeout in milliseconds.
- * @returns The result of the timeout task.
- */
-async function createTimeoutTask(
-  timeout: number
-): Promise<{ statusCode: number; message: string }> {
-  return new Promise((resolve) => {
-    setTimeout(
-      () => resolve({ statusCode: 504, message: 'Task timed out!' }),
-      timeout
-    );
-  });
-}
+const { S3_BUCKET = '', AZURE_SPEECH_SECRET = '' } = process.env;
 
 /**
  * Completes the processing of an event by updating the thread's status to COMPLETE and adding the AI's response to the thread's message history.
@@ -46,7 +21,7 @@ async function createTimeoutTask(
  * @param threadId The thread ID.
  * @param eventResult The AI's response.
  */
-async function completeProcessing(
+async function completePrediction(
   userId: string,
   threadId: string,
   eventResult: EventResult
@@ -80,7 +55,7 @@ async function completeProcessing(
  * @param eventTimeout {number} The timeout for the event.
  * @returns {Promise<{ statusCode: number; message: string }>} The result of the event.
  */
-async function processEvent({
+async function processSingleEvent({
   userId,
   threadId,
   history,
@@ -89,15 +64,20 @@ async function processEvent({
   persona,
   responseOptions
 }: EventType) {
-  const fullQuery = `${history}\n\nUser: ${query}\n\Assistant: `;
+  const formattedHistory = history
+    .map((message) => {
+      return `${message.sender}: ${message.text}`;
+    })
+    .join('\n\n');
+
+  const fullQuery = `${formattedHistory}\n\nUser: ${query}\n\Assistant: `;
   let fullResponse = '';
   let lastSentenceResponse = '';
 
   const timeoutTask = createTimeoutTask(eventTimeout);
 
   // Sets up Azure Speech Config
-  const { speechKey, speechRegion } =
-    await getAzureSpeechSecret(AZURE_SPEECH_SECRET);
+  const { speechKey, speechRegion } = await getSecret(AZURE_SPEECH_SECRET);
   const speechConfig = SpeechConfig.fromSubscription(speechKey, speechRegion);
 
   const processingTask = new Promise(async (resolve) => {
@@ -133,16 +113,16 @@ async function processEvent({
             lastSentenceResponse += chunk;
 
             if (responseOptions.includeAudio && lastSentenceResponse.trim()) {
-              const { sentence, remainingText, isComplete } =
+              const { sentence, remainingText, containsComplete } =
                 getCompleteSentence(lastSentenceResponse);
-              if (isComplete) {
+              if (containsComplete) {
                 lastSentenceResponse = remainingText;
 
                 console.log(`Received Audio Chunk: ${lastSentenceResponse}`);
                 const audio = await synthesizeAndUploadAudio({
                   voice: persona.voice,
                   audioText: sentence,
-                  bucket: BUCKET,
+                  bucket: S3_BUCKET,
                   speechConfig
                 });
 
@@ -169,26 +149,12 @@ async function processEvent({
 
   const res = await Promise.race([processingTask, timeoutTask]);
 
-  await completeProcessing(userId, threadId, {
+  await completePrediction(userId, threadId, {
     sender: 'Assistant',
     message: fullResponse
   });
 
   return res;
-}
-
-function getCompleteSentence(text: string): {
-  sentence: string;
-  remainingText: string;
-  isComplete: boolean;
-} {
-  const sentenceEndIndex = text.search(/[\.\?\!]/);
-  if (sentenceEndIndex === -1) {
-    return { sentence: text, remainingText: '', isComplete: false };
-  }
-  const sentence = text.substring(0, sentenceEndIndex + 1);
-  const remainingText = text.substring(sentenceEndIndex + 2);
-  return { sentence, remainingText, isComplete: true };
 }
 
 /**
@@ -210,17 +176,11 @@ export async function handler(event: SQSEvent, context: Context) {
   const processingTasks = event.Records.map(async (record) => {
     const eventData = JSON.parse(record.body);
 
-    const history = (eventData.prev.result.data || [])
-      .map((message: { sender: string; text: string }) => {
-        return `${message.sender}: ${message.text}`;
-      })
-      .join('\n\n');
-
     console.log(`Received Event: ${JSON.stringify(eventData)}`);
-    return processEvent({
+    return processSingleEvent({
       userId: eventData.identity.sub,
       threadId: eventData.arguments.input.threadId,
-      history,
+      history: eventData.prev.result.data || [],
       query: eventData.arguments.input.prompt,
       eventTimeout: eventTimeout,
       persona: eventData.prev.result.persona,

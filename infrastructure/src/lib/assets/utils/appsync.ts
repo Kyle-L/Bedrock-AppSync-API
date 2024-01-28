@@ -46,7 +46,7 @@ export const AppSyncRequestIAM = async (params: RequestParams) => {
 
   const signedRequest = await signer.sign(requestToBeSigned);
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     const httpRequest = https.request(
       { ...signedRequest, host: endpoint.hostname },
       (result) => {

@@ -1,7 +1,7 @@
 export interface EventType {
   userId: string;
   threadId: string;
-  history: string;
+  history: { sender: string; text: string }[];
   query: string;
   eventTimeout: number;
   persona: {

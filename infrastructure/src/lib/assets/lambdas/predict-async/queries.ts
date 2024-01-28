@@ -30,29 +30,22 @@ export async function sendChunk({
   userId,
   threadId,
   status,
-
-  chunkOrder,
   chunkType,
   chunk
 }: {
   userId: string;
   threadId: string;
   status?: MessageSystemStatus;
-
-  chunkOrder?: number;
   chunkType?: 'text' | 'audio';
   chunk: string;
 }) {
   status = status || MessageSystemStatus.PROCESSING;
-  chunkOrder = chunkOrder || 0;
   chunkType = chunkType || 'text';
 
   const result = (await sendRequest(sendMessageChunkMutation, {
     userId,
     threadId,
     status,
-
-    chunkOrder,
     chunkType,
     chunk
   })) as { errors?: any[]; data?: any };
@@ -119,13 +112,11 @@ export const addMessageSystemMutation = `mutation Mutation($userId: ID!, $thread
 /**
  * Sends a chunk to the all subscribers of the thread providing the thread's status, the chunk's order, type, and content.
  */
-export const sendMessageChunkMutation = `mutation Mutation($userId: ID!, $threadId: ID!, $status: ThreadStatus!, $chunkOrder: Int, $chunkType: String!, $chunk: String!) {
-  systemSendMessageChunk(input: {userId: $userId, threadId: $threadId, status: $status, chunkOrder: $chunkOrder, chunkType: $chunkType, chunk: $chunk}) {
+export const sendMessageChunkMutation = `mutation Mutation($userId: ID!, $threadId: ID!, $status: ThreadStatus!, $chunkType: String!, $chunk: String!) {
+  systemSendMessageChunk(input: {userId: $userId, threadId: $threadId, status: $status, chunkType: $chunkType, chunk: $chunk}) {
         status
         userId
         threadId
-
-        chunkOrder
         chunkType
         chunk
   }
