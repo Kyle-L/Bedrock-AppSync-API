@@ -1,56 +1,19 @@
-import { SQSEvent } from 'aws-lambda';
-import { processAsynchronously } from 'lib/assets/utils/ai';
-import { addMessageSystemMutation, sendMessageChunkMutation, sendRequest } from './queries';
+import { Context, SQSEvent } from 'aws-lambda';
+import { processAsynchronously } from 'lib/assets/utils/ai/bedrock-utils';
+import { getSecret, synthesizeAndUploadAudio } from 'lib/assets/utils/voice';
+import { SpeechConfig } from 'microsoft-cognitiveservices-speech-sdk';
 import { EventResult, EventType, MessageSystemStatus } from '../../utils/types';
+import { sendChunk, updateMessageSystemStatus } from './queries';
+import {
+  createTimeoutTask,
+  getCompleteSentence
+} from 'lib/assets/utils/functions';
 
-const EVENT_TIMEOUT = 25000;
+// Constants
+const EVENT_TIMEOUT_BUFFER = 5000; // 5 second
 
-/**
- * A timeout task that resolves after a specified timeout.
- * @param timeout The timeout in milliseconds.
- * @returns The result of the timeout task.
- */
-async function createTimeoutTask(timeout: number): Promise<{ statusCode: number; message: string }> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve({ statusCode: 504, message: 'Task timed out!' }), timeout);
-  });
-}
-
-async function processChunk(
-  userId: string,
-  threadId: string,
-  chunk: string,
-  status: MessageSystemStatus = MessageSystemStatus.PENDING
-) {
-  return await sendRequest(sendMessageChunkMutation, {
-    userId,
-    threadId,
-    status,
-    chunk
-  });
-}
-
-/**
- * Sends a request to update the thread's status and add the AI's response to the thread's message history.
- * @param userId {string} The user ID.
- * @param threadId {string} The thread ID.
- * @param status {string} The thread's status.
- * @param message {string} The AI's response.
- * @returns {Promise<unknown>} The result of the request from the GraphQL API.
- */
-async function updateMessageSystemStatus(
-  userId: string,
-  threadId: string,
-  status: MessageSystemStatus,
-  message: { sender: string; message: string }
-) {
-  return await sendRequest(addMessageSystemMutation, {
-    userId,
-    threadId,
-    status,
-    message
-  });
-}
+// Environment variables
+const { S3_BUCKET = '', AZURE_SPEECH_SECRET = '' } = process.env;
 
 /**
  * Completes the processing of an event by updating the thread's status to COMPLETE and adding the AI's response to the thread's message history.
@@ -58,13 +21,27 @@ async function updateMessageSystemStatus(
  * @param threadId The thread ID.
  * @param eventResult The AI's response.
  */
-async function completeProcessing(userId: string, threadId: string, eventResult: EventResult) {
+async function completePrediction(
+  userId: string,
+  threadId: string,
+  eventResult: EventResult
+) {
   const result = await Promise.all([
     // Update the thread's status to COMPLETE and add the AI's response to the thread's message history.
-    updateMessageSystemStatus(userId, threadId, MessageSystemStatus.COMPLETE, eventResult),
+    updateMessageSystemStatus(
+      userId,
+      threadId,
+      MessageSystemStatus.COMPLETE,
+      eventResult
+    ),
 
     // Send an empty chunk to indicate that the processing is complete.
-    processChunk(userId, threadId, '', MessageSystemStatus.COMPLETE)
+    sendChunk({
+      userId,
+      threadId,
+      chunk: '',
+      status: MessageSystemStatus.COMPLETE
+    })
   ]);
 
   console.log('Result:', JSON.stringify(result));
@@ -78,46 +55,93 @@ async function completeProcessing(userId: string, threadId: string, eventResult:
  * @param eventTimeout {number} The timeout for the event.
  * @returns {Promise<{ statusCode: number; message: string }>} The result of the event.
  */
-async function processEvent({
+async function processSingleEvent({
   userId,
   threadId,
   history,
   query,
-  promptTemplate,
   eventTimeout,
-  model,
-  knowledgeBaseId
+  persona,
+  responseOptions
 }: EventType) {
-  const fullQuery = `${history}\n\nUser: ${query}\n\Assistant: `;
-  let eventResult = '';
+  const formattedHistory = history
+    .map((message) => {
+      return `${message.sender}: ${message.text}`;
+    })
+    .join('\n\n');
+
+  const fullQuery = `${formattedHistory}\n\nUser: ${query}\n\Assistant: `;
+  let fullResponse = '';
+  let lastSentenceResponse = '';
 
   const timeoutTask = createTimeoutTask(eventTimeout);
+
+  // Sets up Azure Speech Config
+  const { speechKey, speechRegion } = await getSecret(AZURE_SPEECH_SECRET);
+  const speechConfig = SpeechConfig.fromSubscription(speechKey, speechRegion);
 
   const processingTask = new Promise(async (resolve) => {
     console.log(`Processing prompt: ${fullQuery}`);
 
     try {
       await Promise.all([
-        await updateMessageSystemStatus(userId, threadId, MessageSystemStatus.PROCESSING, {
-          sender: 'User',
-          message: query
-        }),
+        // Adds the user's prompt to the thread's message history and updates the thread's status to PROCESSING.
+        await updateMessageSystemStatus(
+          userId,
+          threadId,
+          MessageSystemStatus.PROCESSING,
+          {
+            sender: 'User',
+            message: query
+          }
+        ),
 
+        // Kicks off the asynchronous processing of the prompt.
         await processAsynchronously({
           query: fullQuery,
-          promptTemplate,
+          promptTemplate: persona.prompt,
           callback: async (chunk) => {
-            console.log(`Received Chunk: ${chunk}`);
-            await processChunk(userId, threadId, chunk);
-            eventResult += chunk;
+            console.log(`Received Text Chunk: ${chunk}`);
+            await sendChunk({
+              userId,
+              threadId,
+              chunk: chunk,
+              chunkType: 'text'
+            });
+
+            fullResponse += chunk;
+            lastSentenceResponse += chunk;
+
+            if (responseOptions.includeAudio && lastSentenceResponse.trim()) {
+              const { sentence, remainingText, containsComplete } =
+                getCompleteSentence(lastSentenceResponse);
+              if (containsComplete) {
+                lastSentenceResponse = remainingText;
+
+                console.log(`Received Audio Chunk: ${lastSentenceResponse}`);
+                const audio = await synthesizeAndUploadAudio({
+                  voice: persona.voice,
+                  audioText: sentence,
+                  bucket: S3_BUCKET,
+                  speechConfig
+                });
+
+                await sendChunk({
+                  userId,
+                  threadId,
+                  chunk: audio,
+                  chunkType: 'audio'
+                });
+              }
+            }
           },
-          model,
-          knowledgeBaseId
+          model: persona.model,
+          knowledgeBaseId: persona.knowledgeBaseId
         })
       ]);
     } catch (err) {
       console.error(err);
-      eventResult = 'An error occurred while processing the prompt.';
+      fullResponse = 'An error occurred while processing the prompt.';
     }
 
     resolve({ statusCode: 200, message: 'Success!' });
@@ -125,7 +149,10 @@ async function processEvent({
 
   const res = await Promise.race([processingTask, timeoutTask]);
 
-  await completeProcessing(userId, threadId, { sender: 'Assistant', message: eventResult });
+  await completePrediction(userId, threadId, {
+    sender: 'Assistant',
+    message: fullResponse
+  });
 
   return res;
 }
@@ -135,39 +162,31 @@ async function processEvent({
  * @param event SQS event containing the batch of events to process.
  * @returns The results of the events.
  */
-export async function handler(event: SQSEvent) {
+export async function handler(event: SQSEvent, context: Context) {
   if (!event.Records || event.Records.length === 0) {
     throw new Error('No records found in the event. Aborting operation.');
   }
 
-  const numberOfEvents = event.Records.length;
-  const adjustedTimeout = EVENT_TIMEOUT / numberOfEvents;
+  // Each event gets a timeout of the remaining time divided by the number of events, this way
+  // we can ensure that we don't exceed the timeout for the lambda.
+  const eventTimeout =
+    (context.getRemainingTimeInMillis() - EVENT_TIMEOUT_BUFFER) /
+    event.Records.length;
 
   const processingTasks = event.Records.map(async (record) => {
     const eventData = JSON.parse(record.body);
 
-    const userId = eventData.identity.sub;
-    const threadId = eventData.arguments.input.threadId;
-    const promptTemplate = eventData.prev.result.persona.prompt;
-    const knowledgeBaseId = eventData.prev.result.persona.knowledgeBaseId;
-    const personaModel = eventData.prev.result.persona.model;
-    const history = (eventData.prev.result.data || [])
-      .map((message: { sender: string; text: string }) => {
-        return `${message.sender}: ${message.text}`;
-      })
-      .join('\n\n');
-    const query = eventData.arguments.input.prompt;
-
     console.log(`Received Event: ${JSON.stringify(eventData)}`);
-    return processEvent({
-      userId,
-      threadId,
-      history,
-      query,
-      promptTemplate,
-      eventTimeout: adjustedTimeout,
-      model: personaModel,
-      knowledgeBaseId
+    return processSingleEvent({
+      userId: eventData.identity.sub,
+      threadId: eventData.arguments.input.threadId,
+      history: eventData.prev.result.data || [],
+      query: eventData.arguments.input.prompt,
+      eventTimeout: eventTimeout,
+      persona: eventData.prev.result.persona,
+      responseOptions: {
+        includeAudio: eventData.arguments.input.includeAudio
+      }
     });
   });
 

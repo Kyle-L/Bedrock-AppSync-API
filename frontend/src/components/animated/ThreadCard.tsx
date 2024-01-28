@@ -32,23 +32,23 @@ export default function ThreadCard({
       ].join(' ')}
     >
       <button
-        className="flex items-center hover:brightness-100 transition-filter"
+        className="flex items-center hover:brightness-100 transition-filter w-full"
         onClick={() => onClickCallBack()}
       >
         <img
           className="w-10 h-10 rounded-full mr-4"
           src={getAvatarURL({ avatar: persona.avatar, name: persona.name })}
         />
-        <div className="flex flex-col items-start drop-shadow-lg">
+        <div className="flex flex-col items-start drop-shadow-lg min-w-36">
           <p>{persona.name}</p>
           <p className="font-normal text-xs -mt-1">{persona.subtitle}</p>
         </div>
+        <p className="w-full text-center text-xs font-normal ml-auto">
+          <span className="font-bold">{thread.messages?.length ?? 0}</span> messages
+          <span className="font-bold"> · </span>
+          {new Date(thread.createdAt!).toLocaleDateString()}
+        </p>
       </button>
-      <p className="ml-auto pr-2 text-sm font-normal">
-        <span className="font-bold">{thread.messages?.length ?? 0}</span> messages
-        <span className="font-bold"> · </span>
-        {new Date(thread.createdAt!).toLocaleDateString()}
-      </p>
       <button className="ml-auto pr-2 text-sm font-normal" onClick={() => onDeleteCallBack()}>
         Delete
       </button>

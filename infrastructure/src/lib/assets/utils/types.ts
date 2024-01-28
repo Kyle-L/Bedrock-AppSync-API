@@ -1,12 +1,19 @@
 export interface EventType {
   userId: string;
   threadId: string;
-  history: string;
+  history: { sender: string; text: string }[];
   query: string;
-  promptTemplate: string;
   eventTimeout: number;
-  model: string;
-  knowledgeBaseId: string;
+  persona: {
+    voice: { name: string; style?: string };
+    voiceStyle: string;
+    model: string;
+    knowledgeBaseId: string;
+    prompt: string;
+  };
+  responseOptions: {
+    includeAudio: boolean;
+  };
 }
 
 export interface EventResult {
