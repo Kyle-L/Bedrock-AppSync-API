@@ -28,7 +28,7 @@ export default function Personas() {
    */
   const createThread = async (personaId: string) => {
     const result = await client.graphql({
-      query: mutations.addThread,
+      query: mutations.createThread,
       variables: {
         input: {
           personaId: personaId
@@ -36,7 +36,7 @@ export default function Personas() {
       }
     });
 
-    navigate(`/thread/${result.data.addThread.thread?.threadId}`);
+    navigate(`/thread/${result.data.createThread.thread?.threadId}`);
   };
 
   /**

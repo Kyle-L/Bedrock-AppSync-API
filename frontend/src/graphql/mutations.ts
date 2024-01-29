@@ -2,14 +2,14 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-import * as APITypes from "../API";
+import * as APITypes from '../API';
 type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationInput: InputType;
   __generatedMutationOutput: OutputType;
 };
 
-export const addThread = /* GraphQL */ `mutation AddThread($input: AddThreadInput!) {
-  addThread(input: $input) {
+export const createThread = /* GraphQL */ `mutation CreateThread($input: CreateThreadInput!) {
+  createThread(input: $input) {
     thread {
       threadId
       userId
@@ -20,12 +20,10 @@ export const addThread = /* GraphQL */ `mutation AddThread($input: AddThreadInpu
     __typename
   }
 }
-` as GeneratedMutation<
-  APITypes.AddThreadMutationVariables,
-  APITypes.AddThreadMutation
->;
-export const addMessageAsync = /* GraphQL */ `mutation AddMessageAsync($input: AddMessageInput!) {
-  addMessageAsync(input: $input) {
+` as GeneratedMutation<APITypes.CreateThreadMutationVariables, APITypes.CreateThreadMutation>;
+export const createMessageAsync =
+  /* GraphQL */ `mutation CreateMessageAsync($input: CreateMessageInput!) {
+  createMessageAsync(input: $input) {
     message {
       sender
       message
@@ -36,19 +34,52 @@ export const addMessageAsync = /* GraphQL */ `mutation AddMessageAsync($input: A
   }
 }
 ` as GeneratedMutation<
-  APITypes.AddMessageAsyncMutationVariables,
-  APITypes.AddMessageAsyncMutation
->;
-export const addVoice = /* GraphQL */ `mutation AddVoice($input: AddVoiceInput!) {
-  addVoice(input: $input) {
+    APITypes.CreateMessageAsyncMutationVariables,
+    APITypes.CreateMessageAsyncMutation
+  >;
+export const createVoice = /* GraphQL */ `mutation CreateVoice($input: CreateVoiceInput!) {
+  createVoice(input: $input) {
     result
     __typename
   }
 }
-` as GeneratedMutation<
-  APITypes.AddVoiceMutationVariables,
-  APITypes.AddVoiceMutation
->;
+` as GeneratedMutation<APITypes.CreateVoiceMutationVariables, APITypes.CreateVoiceMutation>;
+export const createPersona = /* GraphQL */ `mutation CreatePersona($input: CreatePersonaInput!) {
+  createPersona(input: $input) {
+    persona {
+      personaId
+      name
+      avatar
+      prompt
+      subtitle
+      description
+      color
+      model
+      knowledgeBaseId
+      __typename
+    }
+    __typename
+  }
+}
+` as GeneratedMutation<APITypes.CreatePersonaMutationVariables, APITypes.CreatePersonaMutation>;
+export const updatePersona = /* GraphQL */ `mutation UpdatePersona($input: UpdatePersonaInput!) {
+  updatePersona(input: $input) {
+    persona {
+      personaId
+      name
+      avatar
+      prompt
+      subtitle
+      description
+      color
+      model
+      knowledgeBaseId
+      __typename
+    }
+    __typename
+  }
+}
+` as GeneratedMutation<APITypes.UpdatePersonaMutationVariables, APITypes.UpdatePersonaMutation>;
 export const deleteThread = /* GraphQL */ `mutation DeleteThread($input: DeleteThreadInput!) {
   deleteThread(input: $input) {
     thread {
@@ -61,11 +92,27 @@ export const deleteThread = /* GraphQL */ `mutation DeleteThread($input: DeleteT
     __typename
   }
 }
-` as GeneratedMutation<
-  APITypes.DeleteThreadMutationVariables,
-  APITypes.DeleteThreadMutation
->;
-export const systemSendMessageChunk = /* GraphQL */ `mutation SystemSendMessageChunk($input: SystemSendMessageChunkInput!) {
+` as GeneratedMutation<APITypes.DeleteThreadMutationVariables, APITypes.DeleteThreadMutation>;
+export const deletePersona = /* GraphQL */ `mutation DeletePersona($input: DeletePersonaInput!) {
+  deletePersona(input: $input) {
+    persona {
+      personaId
+      name
+      avatar
+      prompt
+      subtitle
+      description
+      color
+      model
+      knowledgeBaseId
+      __typename
+    }
+    __typename
+  }
+}
+` as GeneratedMutation<APITypes.DeletePersonaMutationVariables, APITypes.DeletePersonaMutation>;
+export const systemSendMessageChunk =
+  /* GraphQL */ `mutation SystemSendMessageChunk($input: SystemSendMessageChunkInput!) {
   systemSendMessageChunk(input: $input) {
     userId
     threadId
@@ -76,11 +123,12 @@ export const systemSendMessageChunk = /* GraphQL */ `mutation SystemSendMessageC
   }
 }
 ` as GeneratedMutation<
-  APITypes.SystemSendMessageChunkMutationVariables,
-  APITypes.SystemSendMessageChunkMutation
->;
-export const systemAddMessage = /* GraphQL */ `mutation SystemAddMessage($input: SystemAddMessageInput!) {
-  systemAddMessage(input: $input) {
+    APITypes.SystemSendMessageChunkMutationVariables,
+    APITypes.SystemSendMessageChunkMutation
+  >;
+export const systemCreateMessage =
+  /* GraphQL */ `mutation SystemCreateMessage($input: SystemCreateMessageInput!) {
+  systemCreateMessage(input: $input) {
     message {
       sender
       message
@@ -91,6 +139,6 @@ export const systemAddMessage = /* GraphQL */ `mutation SystemAddMessage($input:
   }
 }
 ` as GeneratedMutation<
-  APITypes.SystemAddMessageMutationVariables,
-  APITypes.SystemAddMessageMutation
->;
+    APITypes.SystemCreateMessageMutationVariables,
+    APITypes.SystemCreateMessageMutation
+  >;
