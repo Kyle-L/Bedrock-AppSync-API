@@ -2,7 +2,7 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-import * as APITypes from "../API";
+import * as APITypes from '../API';
 type GeneratedQuery<InputType, OutputType> = string & {
   __generatedQueryInput: InputType;
   __generatedQueryOutput: OutputType;
@@ -27,10 +27,7 @@ export const getPersona = /* GraphQL */ `query GetPersona($input: GetPersonaInpu
     __typename
   }
 }
-` as GeneratedQuery<
-  APITypes.GetPersonaQueryVariables,
-  APITypes.GetPersonaQuery
->;
+` as GeneratedQuery<APITypes.GetPersonaQueryVariables, APITypes.GetPersonaQuery>;
 export const getAllPersonas = /* GraphQL */ `query GetAllPersonas {
   getAllPersonas {
     personaId
@@ -50,10 +47,7 @@ export const getAllPersonas = /* GraphQL */ `query GetAllPersonas {
     __typename
   }
 }
-` as GeneratedQuery<
-  APITypes.GetAllPersonasQueryVariables,
-  APITypes.GetAllPersonasQuery
->;
+` as GeneratedQuery<APITypes.GetAllPersonasQueryVariables, APITypes.GetAllPersonasQuery>;
 export const getThread = /* GraphQL */ `query GetThread($input: GetThreadInput!) {
   getThread(input: $input) {
     threadId
@@ -109,7 +103,4 @@ export const getAllThreads = /* GraphQL */ `query GetAllThreads {
     __typename
   }
 }
-` as GeneratedQuery<
-  APITypes.GetAllThreadsQueryVariables,
-  APITypes.GetAllThreadsQuery
->;
+` as GeneratedQuery<APITypes.GetAllThreadsQueryVariables, APITypes.GetAllThreadsQuery>;

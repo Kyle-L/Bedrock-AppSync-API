@@ -11,8 +11,13 @@ new ApplicationStage(app, 'GenAI', {
   acmCertificateArn:
     'arn:aws:acm:us-east-1:248134257233:certificate/d8ff1d7a-934f-4859-993d-e818abc24ff6',
   domains: ['appsync-bedrock.kylelierer.com'],
-  pineconeConnectionString:
-    'https://bedrock-698x9ew.svc.gcp-starter.pinecone.io'
+  pinecone: {
+    connectionString: 'https://bedrock-698x9ew.svc.gcp-starter.pinecone.io',
+    secretArn:
+      'arn:aws:secretsmanager:us-east-1:248134257233:secret:GenAI/Backend/Pinecone-kBK9L6'
+  },
+  azureCognitiveServicesTTSSecretArn:
+    'arn:aws:secretsmanager:us-east-1:248134257233:secret:GenAI/Backend/AzureTTS-jWNmLI'
 });
 
 app.synth();

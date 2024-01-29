@@ -6,7 +6,7 @@ import { util } from '@aws-appsync/utils';
 export function request(ctx) {
   const query = JSON.parse(
     util.transform.toDynamoDBConditionExpression({
-      pk: { eq: `PERSONA` }
+      pk: { eq: 'PERSONA' }
     })
   );
   return { operation: 'Query', query };
