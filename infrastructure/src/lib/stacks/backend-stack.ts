@@ -12,7 +12,13 @@ import { KnowledgeBaseConstruct } from '../constructs/knowledge-base';
 
 interface BackendStackProps extends cdk.StackProps {
   domains?: string[];
-  pineconeConnectionString?: string;
+
+  pinecone?: {
+    connectionString: string;
+    secretArn: string;
+  };
+
+  azureCognitiveServicesTTSSecretArn?: string;
   acmCertificateArn?: string;
   removalPolicy?: cdk.RemovalPolicy;
 }
@@ -35,11 +41,12 @@ export class BackendStack extends cdk.Stack {
 
     // Knowledge Base - Handles integration with Pinecone
     let knowledgeBase: KnowledgeBaseConstruct | undefined;
-    // if (props.pineconeConnectionString) {
-    //   knowledgeBase = new KnowledgeBaseConstruct(this, 'KnowledgeBase', {
-    //     pineconeConnectionString: props.pineconeConnectionString
-    //   });
-    // }
+    if (props.pinecone) {
+      knowledgeBase = new KnowledgeBaseConstruct(this, 'KnowledgeBase', {
+        pineconeConnectionString: props.pinecone.connectionString,
+        pineConeSecretArn: props.pinecone.secretArn
+      });
+    }
 
     // DynamoDB Table - Stores personas and conversation threads/messages.
     const conversationHistoryConstruct = new ConversationHistoryConstruct(
@@ -55,7 +62,9 @@ export class BackendStack extends cdk.Stack {
     const predictConstruct = new PredictConstruct(this, 'Predict', {
       api: apiConstruct.appsync,
       table: conversationHistoryConstruct.table,
-      bucket: conversationHistoryConstruct.bucket
+      bucket: conversationHistoryConstruct.bucket,
+      azureCognitiveServicesTTSSecretArn:
+        props.azureCognitiveServicesTTSSecretArn
     });
 
     /*================================= Data Sources =================================*/
@@ -120,45 +129,73 @@ export class BackendStack extends cdk.Stack {
       });
     };
 
+    // Personas
+    const createPersonaFunction = createResolverFunction(
+      'createPersona',
+      conversationHistoryDataSource,
+      '../resolvers/personas/create-persona.js'
+    );
+    const updatePersonaFunction = createResolverFunction(
+      'updatePersona',
+      conversationHistoryDataSource,
+      '../resolvers/personas/update-persona.js'
+    );
+    const deletePersonaFunction = createResolverFunction(
+      'deletePersona',
+      conversationHistoryDataSource,
+      '../resolvers/personas/delete-persona.js'
+    );
     const getPersonaFunction = createResolverFunction(
       'getPersona',
       conversationHistoryDataSource,
-      '../resolvers/get-persona.js'
+      '../resolvers/personas/get-persona.js'
     );
     const getAllPersonasFunction = createResolverFunction(
       'getAllPersonas',
       conversationHistoryDataSource,
-      '../resolvers/get-personas.js'
+      '../resolvers/personas/get-personas.js'
     );
-    const getThreadFunction = createResolverFunction(
-      'getThread',
+
+    // Threads
+
+    const createThreadFunction = createResolverFunction(
+      'createThread',
       conversationHistoryDataSource,
-      '../resolvers/get-thread.js'
-    );
-    const getAllThreadsFunction = createResolverFunction(
-      'getAllThreads',
-      conversationHistoryDataSource,
-      '../resolvers/get-threads.js'
-    );
-    const addThreadFunction = createResolverFunction(
-      'addThread',
-      conversationHistoryDataSource,
-      '../resolvers/add-thread.js'
+      '../resolvers/threads/create-thread.js'
     );
     const deleteThreadFunction = createResolverFunction(
       'deleteThread',
       conversationHistoryDataSource,
-      '../resolvers/delete-thread.js'
+      '../resolvers/threads/delete-thread.js'
     );
-    const systemAddMessageFunction = createResolverFunction(
-      'systemAddMessage',
+    const getThreadFunction = createResolverFunction(
+      'getThread',
       conversationHistoryDataSource,
-      '../resolvers/add-message.js'
+      '../resolvers/threads/get-thread.js'
     );
+    const getAllThreadsFunction = createResolverFunction(
+      'getAllThreads',
+      conversationHistoryDataSource,
+      '../resolvers/threads/get-threads.js'
+    );
+
+    // Messages
+
+    const systemCreateMessageFunction = createResolverFunction(
+      'systemCreateMessage',
+      conversationHistoryDataSource,
+      '../resolvers/messages/create-message.js'
+    );
+
+    // Predict
+
     const predictAsyncFunction = createLambdaFunction(
       'PredictAsync',
       predictAsyncDataSource
     );
+
+    // Voice
+
     const getVoiceFunction = createLambdaFunction(
       'getVoice',
       getVoiceDataSource
@@ -167,6 +204,22 @@ export class BackendStack extends cdk.Stack {
     /*================================= Resolvers =================================*/
 
     const resolverConfigs = [
+      // Personas
+      {
+        typeName: 'Mutation',
+        fieldName: 'createPersona',
+        pipelineConfig: [createPersonaFunction]
+      },
+      {
+        typeName: 'Mutation',
+        fieldName: 'updatePersona',
+        pipelineConfig: [updatePersonaFunction]
+      },
+      {
+        typeName: 'Mutation',
+        fieldName: 'deletePersona',
+        pipelineConfig: [deletePersonaFunction]
+      },
       {
         typeName: 'Query',
         fieldName: 'getPersona',
@@ -177,6 +230,8 @@ export class BackendStack extends cdk.Stack {
         fieldName: 'getAllPersonas',
         pipelineConfig: [getAllPersonasFunction]
       },
+
+      // Threads
       {
         typeName: 'Query',
         fieldName: 'getThread',
@@ -189,29 +244,35 @@ export class BackendStack extends cdk.Stack {
       },
       {
         typeName: 'Mutation',
-        fieldName: 'addThread',
-        pipelineConfig: [getPersonaFunction, addThreadFunction]
+        fieldName: 'createThread',
+        pipelineConfig: [getPersonaFunction, createThreadFunction]
       },
       {
         typeName: 'Mutation',
         fieldName: 'deleteThread',
         pipelineConfig: [deleteThreadFunction]
       },
+
+      // Messages
       {
         typeName: 'Mutation',
-        fieldName: 'systemAddMessage',
-        pipelineConfig: [systemAddMessageFunction]
+        fieldName: 'systemCreateMessage',
+        pipelineConfig: [systemCreateMessageFunction]
       },
       {
         typeName: 'Mutation',
-        fieldName: 'addMessageAsync',
+        fieldName: 'createMessageAsync',
         pipelineConfig: [getThreadFunction, predictAsyncFunction]
       },
+
+      // Voice
       {
         typeName: 'Mutation',
-        fieldName: 'addVoice',
+        fieldName: 'createVoice',
         pipelineConfig: [getThreadFunction, getVoiceFunction]
       },
+
+      // System
       {
         typeName: 'Mutation',
         fieldName: 'systemSendMessageChunk',

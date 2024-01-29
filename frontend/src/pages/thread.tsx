@@ -173,7 +173,7 @@ export default function ThreadPage() {
     // We will recieve the messages from the chatbot via a subscription.
     client
       .graphql({
-        query: mutations.addMessageAsync,
+        query: mutations.createMessageAsync,
         variables: {
           input: {
             prompt: input,

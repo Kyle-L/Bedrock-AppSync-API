@@ -13,6 +13,7 @@ interface PredictConstructProps extends cdk.StackProps {
   api: appsync.GraphqlApi;
   table: dynamodb.Table;
   bucket: s3.Bucket;
+  azureCognitiveServicesTTSSecretArn?: string;
 }
 
 export class PredictConstruct extends Construct {
@@ -75,7 +76,7 @@ export class PredictConstruct extends Construct {
       entry: path.join(__dirname, '../assets/lambdas/predict-async/index.ts'),
       environment: {
         GRAPHQL_URL: props.api.graphqlUrl,
-        AZURE_SPEECH_SECRET: speechSecret.secretArn,
+        AZURE_SPEECH_SECRET: props.azureCognitiveServicesTTSSecretArn || '',
         S3_BUCKET: props.bucket.bucketName
       },
       bundling: {
