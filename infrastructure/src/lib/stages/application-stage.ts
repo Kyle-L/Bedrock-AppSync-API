@@ -16,11 +16,24 @@ interface ApplicationStageProps extends StageProps {
    */
   domains?: string[];
 
+  pinecone: {
+    /**
+     * The Pinecone connection string. Pinecone is used to store the knowledge base,
+     * a vector database.
+     */
+    connectionString: string;
+
+    /**
+     * The Pinecone secret ARN. Pinecone is used to store the knowledge base,
+     * a vector database.
+     */
+    secretArn: string;
+  };
+
   /**
-   * The Pinecone connection string. Pinecone is used to store the knowledge base,
-   * a vector database.
+   * The Azure Cognitive Services Text-to-Speech secret ARN.
    */
-  pineconeConnectionString?: string;
+  azureCognitiveServicesTTSSecretArn?: string;
 }
 
 /**

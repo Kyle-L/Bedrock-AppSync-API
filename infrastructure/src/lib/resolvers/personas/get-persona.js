@@ -6,7 +6,7 @@ import { get } from '@aws-appsync/utils/dynamodb';
 export function request(ctx) {
   return get({
     key: {
-      pk: `PERSONA`,
+      pk: 'PERSONA',
       sk: `PERSONA#${ctx.args.input.personaId}`
     }
   });

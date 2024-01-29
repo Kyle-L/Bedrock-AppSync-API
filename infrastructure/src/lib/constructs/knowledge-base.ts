@@ -7,6 +7,7 @@ import { Construct } from 'constructs';
 
 export interface KnowledgeBaseConstructProps extends cdk.StackProps {
   pineconeConnectionString: string;
+  pineConeSecretArn: string;
 }
 
 export class KnowledgeBaseConstruct extends Construct {
@@ -43,15 +44,6 @@ export class KnowledgeBaseConstruct extends Construct {
       ]
     }).roleArn;
 
-    // Create a secret for the Pinecone credentials
-    // See https://www.pinecone.io/blog/amazon-bedrock-integration/ for more details.
-    const pineconeSecret = new secretsmanager.Secret(this, 'PineconeSecret', {
-      generateSecretString: {
-        secretStringTemplate: JSON.stringify({ apiKey: 'value' }),
-        generateStringKey: 'apiKey'
-      }
-    });
-
     this.knowledgeBase = new bedrockAgentCDK.BedrockKnowledgeBase(
       this,
       'KnowledgeBase',
@@ -60,7 +52,7 @@ export class KnowledgeBaseConstruct extends Construct {
         roleArn: knowledgeBaseRoleArn,
         storageConfiguration: {
           pineconeConfiguration: {
-            credentialsSecretArn: pineconeSecret.secretArn,
+            credentialsSecretArn: props.pineConeSecretArn,
             connectionString: pineconeConnectionString,
             fieldMapping: {
               metadataField: metadataField,
