@@ -9,6 +9,7 @@ import Login from './pages/auth/login';
 import RequestResetPassword from './pages/auth/request-reset';
 import ResetPassword from './pages/auth/reset';
 import SignUp from './pages/auth/sign-up';
+import CreateEditDeletePersona from './pages/persona/create-update-delete';
 import Personas from './pages/personas';
 import App from './pages/thread';
 import Welcome from './pages/welcome';
@@ -17,8 +18,6 @@ import { AuthProvider } from './providers/AuthProvider';
 import { BackgroundProvider } from './providers/BackgroundProvider';
 import { Protected } from './providers/Protected';
 import './styles/index.css';
-import CreatePersona from './pages/persona/create';
-import EditPersona from './pages/persona/edit';
 
 Amplify.configure({
   Auth: {
@@ -57,8 +56,8 @@ const AuthRoutes = [
 const AppRoutes = [
   { path: '/', element: <Welcome /> },
   { path: '/personas', element: <Personas /> },
-  { path: '/personas/create', element: <CreatePersona /> },
-  { path: '/personas/edit/:personaId', element: <EditPersona /> },
+  { path: '/personas/create', element: <CreateEditDeletePersona /> },
+  { path: '/personas/update/:personaId', element: <CreateEditDeletePersona /> },
   { path: '/thread/:threadId', element: <App /> }
 ];
 

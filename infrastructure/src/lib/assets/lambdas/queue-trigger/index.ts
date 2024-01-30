@@ -1,14 +1,12 @@
 import { DynamoDBClient, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { AppSyncIdentityCognito, AppSyncResolverEvent } from 'aws-lambda';
+import * as AWSXRay from 'aws-xray-sdk';
+import { dynamodbClient, sqsClient } from 'lib/assets/utils/clients';
 import { MessageSystemStatus } from 'lib/assets/utils/types';
 
 // Environment variables
 const { QUEUE_URL = '', TABLE_NAME = '' } = process.env;
-
-// Clients
-const sqsClient = new SQSClient();
-const dynamodb = new DynamoDBClient();
 
 export async function handler(
   event: AppSyncResolverEvent<{
@@ -59,7 +57,7 @@ export async function handler(
 
     // Inserts the user's request into the queue, and peforms the DynamoDB update in parallel.
     await Promise.all([
-      dynamodb.send(new UpdateItemCommand(dynamoParams)),
+      dynamodbClient.send(new UpdateItemCommand(dynamoParams)),
       sqsClient.send(
         new SendMessageCommand({
           QueueUrl: QUEUE_URL,

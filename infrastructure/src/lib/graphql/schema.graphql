@@ -64,6 +64,11 @@ input CreateVoiceInput {
   message: String!
 }
 
+input VoiceInput {
+  name: String!
+  style: String
+}
+
 input CreatePersonaInput {
   name: String!
   avatar: String
@@ -73,15 +78,13 @@ input CreatePersonaInput {
   color: String
   model: String
   knowledgeBaseId: String
-
-  voiceName: String
-  voiceStyle: String
+  voice: VoiceInput
 }
 
 input UpdatePersonaInput {
   personaId: ID!
 
-  name: String
+  name: String!
   avatar: String
   prompt: String
   subtitle: String
@@ -89,7 +92,7 @@ input UpdatePersonaInput {
   color: String
   model: String
   knowledgeBaseId: String
-  voice: String
+  voice: VoiceInput
 }
 
 input DeletePersonaInput {

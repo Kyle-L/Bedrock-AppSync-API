@@ -24,7 +24,8 @@ const { S3_BUCKET = '', AZURE_SPEECH_SECRET = '' } = process.env;
 async function completePrediction(
   userId: string,
   threadId: string,
-  eventResult: EventResult
+  eventResult: EventResult,
+  xrayTraceId?: string
 ) {
   const result = await Promise.all([
     // Update the thread's status to COMPLETE and add the AI's response to the thread's message history.
@@ -62,7 +63,8 @@ async function processSingleEvent({
   query,
   eventTimeout,
   persona,
-  responseOptions
+  responseOptions,
+  xrayTraceId
 }: EventType) {
   const formattedHistory = history
     .map((message) => {
@@ -149,10 +151,15 @@ async function processSingleEvent({
 
   const res = await Promise.race([processingTask, timeoutTask]);
 
-  await completePrediction(userId, threadId, {
-    sender: 'Assistant',
-    message: fullResponse
-  });
+  await completePrediction(
+    userId,
+    threadId,
+    {
+      sender: 'Assistant',
+      message: fullResponse
+    },
+    xrayTraceId
+  );
 
   return res;
 }
@@ -176,6 +183,8 @@ export async function handler(event: SQSEvent, context: Context) {
   const processingTasks = event.Records.map(async (record) => {
     const eventData = JSON.parse(record.body);
 
+    console.log(record.attributes.AWSTraceHeader);
+
     console.log(`Received Event: ${JSON.stringify(eventData)}`);
     return processSingleEvent({
       userId: eventData.identity.sub,
@@ -186,7 +195,8 @@ export async function handler(event: SQSEvent, context: Context) {
       persona: eventData.prev.result.persona,
       responseOptions: {
         includeAudio: eventData.arguments.input.includeAudio
-      }
+      },
+      xrayTraceId: record.attributes.AWSTraceHeader
     });
   });
 

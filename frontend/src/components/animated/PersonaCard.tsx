@@ -4,6 +4,7 @@ import { gradientColorMap } from '../gradient-dict';
 import { getAvatarURL } from '../../utils/avatar';
 
 import type { ComponentPropsWithoutRef } from 'react';
+import { Link } from 'react-router-dom';
 
 interface PersonaCardProps extends ComponentPropsWithoutRef<React.ElementType> {
   persona: Persona;
@@ -37,6 +38,9 @@ export default function PersonaCard({ persona, onClickCallBack, ...props }: Pers
           <p className="font-normal text-xs -mt-1">{persona.subtitle}</p>
         </div>
       </button>
+        <Link className="ml-auto pr-2 text-sm font-normal" to={`/personas/update/${persona.personaId}`}>
+          Update
+        </Link>
     </motion.li>
   );
 }

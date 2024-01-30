@@ -54,7 +54,7 @@ export default function ChatBubble({
 
       let promises = sentences.map((sentence) => {
         const result = client.graphql({
-          query: mutations.addVoice,
+          query: mutations.createVoice,
           variables: {
             input: {
               message: sentence,
@@ -70,7 +70,7 @@ export default function ChatBubble({
         console.log('Waiting for promise to resolve...');
         const result = await promise;
 
-        await playAudio(result.data.addVoice.result!).catch((error) => {
+        await playAudio(result.data.createVoice.result!).catch((error) => {
           console.error('Failed to play audio after multiple retries:', error);
         });
       }
@@ -97,7 +97,7 @@ export default function ChatBubble({
         transition={{ duration: 0.25 }}
         className="relative w-full shadow-md rounded-xl p-2 bg-white flex"
       >
-        {id && (
+        {/* {id && (
           <button
             disabled={loadingAudio}
             aria-label="Play audio"
@@ -106,7 +106,7 @@ export default function ChatBubble({
           >
             <FontAwesomeIcon icon={loadingAudio ? faSpinner : faVolumeUp} spin={loadingAudio} />
           </button>
-        )}
+        )} */}
         <img src={picture} className="rounded-full mr-4 w-10 h-10 shrink-0" />
         <div className="overflow-auto flex flex-col w-full justify-center">
           <p className="mt-[6pt] font-bold">{name}</p>

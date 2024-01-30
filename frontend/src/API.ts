@@ -3,456 +3,463 @@
 //  This file was automatically generated and should not be edited.
 
 export type CreateThreadInput = {
-  personaId: string;
+  personaId: string,
 };
 
 export type CreateThreadPayload = {
-  __typename: 'CreateThreadPayload';
-  thread?: Thread | null;
+  __typename: "CreateThreadPayload",
+  thread?: Thread | null,
 };
 
 export type Thread = {
-  __typename: 'Thread';
-  threadId: string;
-  userId: string;
-  persona: Persona;
-  messages?: Array<Message> | null;
-  status: ThreadStatus;
-  createdAt: string;
+  __typename: "Thread",
+  threadId: string,
+  userId: string,
+  persona: Persona,
+  messages?:  Array<Message > | null,
+  status: ThreadStatus,
+  createdAt: string,
 };
 
 export type Persona = {
-  __typename: 'Persona';
-  personaId: string;
-  name: string;
-  avatar?: string | null;
-  prompt?: string | null;
-  subtitle?: string | null;
-  description?: string | null;
-  color?: string | null;
-  model?: string | null;
-  knowledgeBaseId?: string | null;
-  voice: Voice;
+  __typename: "Persona",
+  personaId: string,
+  name: string,
+  avatar?: string | null,
+  prompt?: string | null,
+  subtitle?: string | null,
+  description?: string | null,
+  color?: string | null,
+  model?: string | null,
+  knowledgeBaseId?: string | null,
+  voice?: Voice | null,
 };
 
 export type Voice = {
-  __typename: 'Voice';
-  name: string;
-  style?: string | null;
+  __typename: "Voice",
+  name: string,
+  style?: string | null,
 };
 
 export type Message = {
-  __typename: 'Message';
-  sender: string;
-  message: string;
-  createdAt: string;
+  __typename: "Message",
+  sender: string,
+  message: string,
+  createdAt: string,
 };
 
 export enum ThreadStatus {
-  NEW = 'NEW',
-  PENDING = 'PENDING',
-  PROCESSING = 'PROCESSING',
-  COMPLETE = 'COMPLETE'
+  NEW = "NEW",
+  PENDING = "PENDING",
+  PROCESSING = "PROCESSING",
+  COMPLETE = "COMPLETE",
 }
 
+
 export type CreateMessageInput = {
-  threadId: string;
-  prompt: string;
-  includeAudio?: boolean | null;
+  threadId: string,
+  prompt: string,
+  includeAudio?: boolean | null,
 };
 
 export type CreateMessagePayload = {
-  __typename: 'CreateMessagePayload';
-  message?: Message | null;
+  __typename: "CreateMessagePayload",
+  message?: Message | null,
 };
 
 export type CreateVoiceInput = {
-  threadId: string;
-  message: string;
+  threadId: string,
+  message: string,
 };
 
 export type CreateVoicePayload = {
-  __typename: 'CreateVoicePayload';
-  result?: string | null;
+  __typename: "CreateVoicePayload",
+  result?: string | null,
 };
 
 export type CreatePersonaInput = {
-  name: string;
-  avatar?: string | null;
-  prompt?: string | null;
-  subtitle?: string | null;
-  description?: string | null;
-  color?: string | null;
-  model?: string | null;
-  knowledgeBaseId?: string | null;
-  voiceName?: string | null;
-  voiceStyle?: string | null;
+  name: string,
+  avatar?: string | null,
+  prompt?: string | null,
+  subtitle?: string | null,
+  description?: string | null,
+  color?: string | null,
+  model?: string | null,
+  knowledgeBaseId?: string | null,
+  voice?: VoiceInput | null,
+};
+
+export type VoiceInput = {
+  name: string,
+  style?: string | null,
 };
 
 export type CreatePersonaPayload = {
-  __typename: 'CreatePersonaPayload';
-  persona?: Persona | null;
+  __typename: "CreatePersonaPayload",
+  persona?: Persona | null,
 };
 
 export type UpdatePersonaInput = {
-  personaId: string;
-  name?: string | null;
-  avatar?: string | null;
-  prompt?: string | null;
-  subtitle?: string | null;
-  description?: string | null;
-  color?: string | null;
-  model?: string | null;
-  knowledgeBaseId?: string | null;
-  voice?: string | null;
+  personaId: string,
+  name: string,
+  avatar?: string | null,
+  prompt?: string | null,
+  subtitle?: string | null,
+  description?: string | null,
+  color?: string | null,
+  model?: string | null,
+  knowledgeBaseId?: string | null,
+  voice?: VoiceInput | null,
 };
 
 export type UpdatePersonaPayload = {
-  __typename: 'UpdatePersonaPayload';
-  persona?: Persona | null;
+  __typename: "UpdatePersonaPayload",
+  persona?: Persona | null,
 };
 
 export type DeleteThreadInput = {
-  threadId: string;
+  threadId: string,
 };
 
 export type DeleteThreadPayload = {
-  __typename: 'DeleteThreadPayload';
-  thread?: Thread | null;
+  __typename: "DeleteThreadPayload",
+  thread?: Thread | null,
 };
 
 export type DeletePersonaInput = {
-  personaId: string;
+  personaId: string,
 };
 
 export type DeletePersonaPayload = {
-  __typename: 'DeletePersonaPayload';
-  persona?: Persona | null;
+  __typename: "DeletePersonaPayload",
+  persona?: Persona | null,
 };
 
 export type SystemSendMessageChunkInput = {
-  userId: string;
-  threadId: string;
-  status: ThreadStatus;
-  chunkType: string;
-  chunk: string;
+  userId: string,
+  threadId: string,
+  status: ThreadStatus,
+  chunkType: string,
+  chunk: string,
 };
 
 export type MessageChunk = {
-  __typename: 'MessageChunk';
-  userId: string;
-  threadId: string;
-  status: ThreadStatus;
-  chunkType: string;
-  chunk: string;
+  __typename: "MessageChunk",
+  userId: string,
+  threadId: string,
+  status: ThreadStatus,
+  chunkType: string,
+  chunk: string,
 };
 
 export type SystemCreateMessageInput = {
-  userId: string;
-  threadId: string;
-  status: ThreadStatus;
-  message: MessageInput;
+  userId: string,
+  threadId: string,
+  status: ThreadStatus,
+  message: MessageInput,
 };
 
 export type MessageInput = {
-  sender: string;
-  message: string;
+  sender: string,
+  message: string,
 };
 
 export type SystemCreateMessagePayload = {
-  __typename: 'SystemCreateMessagePayload';
-  message?: Message | null;
+  __typename: "SystemCreateMessagePayload",
+  message?: Message | null,
 };
 
 export type GetPersonaInput = {
-  personaId: string;
+  personaId: string,
 };
 
 export type GetThreadInput = {
-  threadId: string;
+  threadId: string,
 };
 
 export type RecieveMessageChunkAsyncInput = {
-  threadId: string;
+  threadId: string,
 };
 
 export type CreateThreadMutationVariables = {
-  input: CreateThreadInput;
+  input: CreateThreadInput,
 };
 
 export type CreateThreadMutation = {
-  createThread?: {
-    __typename: 'CreateThreadPayload';
-    thread?: {
-      __typename: 'Thread';
-      threadId: string;
-      userId: string;
-      status: ThreadStatus;
-      createdAt: string;
-    } | null;
-  } | null;
+  createThread?:  {
+    __typename: "CreateThreadPayload",
+    thread?:  {
+      __typename: "Thread",
+      threadId: string,
+      userId: string,
+      status: ThreadStatus,
+      createdAt: string,
+    } | null,
+  } | null,
 };
 
 export type CreateMessageAsyncMutationVariables = {
-  input: CreateMessageInput;
+  input: CreateMessageInput,
 };
 
 export type CreateMessageAsyncMutation = {
-  createMessageAsync?: {
-    __typename: 'CreateMessagePayload';
-    message?: {
-      __typename: 'Message';
-      sender: string;
-      message: string;
-      createdAt: string;
-    } | null;
-  } | null;
+  createMessageAsync?:  {
+    __typename: "CreateMessagePayload",
+    message?:  {
+      __typename: "Message",
+      sender: string,
+      message: string,
+      createdAt: string,
+    } | null,
+  } | null,
 };
 
 export type CreateVoiceMutationVariables = {
-  input: CreateVoiceInput;
+  input: CreateVoiceInput,
 };
 
 export type CreateVoiceMutation = {
-  createVoice?: {
-    __typename: 'CreateVoicePayload';
-    result?: string | null;
-  } | null;
+  createVoice?:  {
+    __typename: "CreateVoicePayload",
+    result?: string | null,
+  } | null,
 };
 
 export type CreatePersonaMutationVariables = {
-  input: CreatePersonaInput;
+  input: CreatePersonaInput,
 };
 
 export type CreatePersonaMutation = {
-  createPersona?: {
-    __typename: 'CreatePersonaPayload';
-    persona?: {
-      __typename: 'Persona';
-      personaId: string;
-      name: string;
-      avatar?: string | null;
-      prompt?: string | null;
-      subtitle?: string | null;
-      description?: string | null;
-      color?: string | null;
-      model?: string | null;
-      knowledgeBaseId?: string | null;
-    } | null;
-  } | null;
+  createPersona?:  {
+    __typename: "CreatePersonaPayload",
+    persona?:  {
+      __typename: "Persona",
+      personaId: string,
+      name: string,
+      avatar?: string | null,
+      prompt?: string | null,
+      subtitle?: string | null,
+      description?: string | null,
+      color?: string | null,
+      model?: string | null,
+      knowledgeBaseId?: string | null,
+    } | null,
+  } | null,
 };
 
 export type UpdatePersonaMutationVariables = {
-  input: UpdatePersonaInput;
+  input: UpdatePersonaInput,
 };
 
 export type UpdatePersonaMutation = {
-  updatePersona?: {
-    __typename: 'UpdatePersonaPayload';
-    persona?: {
-      __typename: 'Persona';
-      personaId: string;
-      name: string;
-      avatar?: string | null;
-      prompt?: string | null;
-      subtitle?: string | null;
-      description?: string | null;
-      color?: string | null;
-      model?: string | null;
-      knowledgeBaseId?: string | null;
-    } | null;
-  } | null;
+  updatePersona?:  {
+    __typename: "UpdatePersonaPayload",
+    persona?:  {
+      __typename: "Persona",
+      personaId: string,
+      name: string,
+      avatar?: string | null,
+      prompt?: string | null,
+      subtitle?: string | null,
+      description?: string | null,
+      color?: string | null,
+      model?: string | null,
+      knowledgeBaseId?: string | null,
+    } | null,
+  } | null,
 };
 
 export type DeleteThreadMutationVariables = {
-  input: DeleteThreadInput;
+  input: DeleteThreadInput,
 };
 
 export type DeleteThreadMutation = {
-  deleteThread?: {
-    __typename: 'DeleteThreadPayload';
-    thread?: {
-      __typename: 'Thread';
-      threadId: string;
-      userId: string;
-      status: ThreadStatus;
-      createdAt: string;
-    } | null;
-  } | null;
+  deleteThread?:  {
+    __typename: "DeleteThreadPayload",
+    thread?:  {
+      __typename: "Thread",
+      threadId: string,
+      userId: string,
+      status: ThreadStatus,
+      createdAt: string,
+    } | null,
+  } | null,
 };
 
 export type DeletePersonaMutationVariables = {
-  input: DeletePersonaInput;
+  input: DeletePersonaInput,
 };
 
 export type DeletePersonaMutation = {
-  deletePersona?: {
-    __typename: 'DeletePersonaPayload';
-    persona?: {
-      __typename: 'Persona';
-      personaId: string;
-      name: string;
-      avatar?: string | null;
-      prompt?: string | null;
-      subtitle?: string | null;
-      description?: string | null;
-      color?: string | null;
-      model?: string | null;
-      knowledgeBaseId?: string | null;
-    } | null;
-  } | null;
+  deletePersona?:  {
+    __typename: "DeletePersonaPayload",
+    persona?:  {
+      __typename: "Persona",
+      personaId: string,
+      name: string,
+      avatar?: string | null,
+      prompt?: string | null,
+      subtitle?: string | null,
+      description?: string | null,
+      color?: string | null,
+      model?: string | null,
+      knowledgeBaseId?: string | null,
+    } | null,
+  } | null,
 };
 
 export type SystemSendMessageChunkMutationVariables = {
-  input: SystemSendMessageChunkInput;
+  input: SystemSendMessageChunkInput,
 };
 
 export type SystemSendMessageChunkMutation = {
-  systemSendMessageChunk?: {
-    __typename: 'MessageChunk';
-    userId: string;
-    threadId: string;
-    status: ThreadStatus;
-    chunkType: string;
-    chunk: string;
-  } | null;
+  systemSendMessageChunk?:  {
+    __typename: "MessageChunk",
+    userId: string,
+    threadId: string,
+    status: ThreadStatus,
+    chunkType: string,
+    chunk: string,
+  } | null,
 };
 
 export type SystemCreateMessageMutationVariables = {
-  input: SystemCreateMessageInput;
+  input: SystemCreateMessageInput,
 };
 
 export type SystemCreateMessageMutation = {
-  systemCreateMessage?: {
-    __typename: 'SystemCreateMessagePayload';
-    message?: {
-      __typename: 'Message';
-      sender: string;
-      message: string;
-      createdAt: string;
-    } | null;
-  } | null;
+  systemCreateMessage?:  {
+    __typename: "SystemCreateMessagePayload",
+    message?:  {
+      __typename: "Message",
+      sender: string,
+      message: string,
+      createdAt: string,
+    } | null,
+  } | null,
 };
 
 export type GetPersonaQueryVariables = {
-  input: GetPersonaInput;
+  input: GetPersonaInput,
 };
 
 export type GetPersonaQuery = {
-  getPersona?: {
-    __typename: 'Persona';
-    personaId: string;
-    name: string;
-    avatar?: string | null;
-    prompt?: string | null;
-    subtitle?: string | null;
-    description?: string | null;
-    color?: string | null;
-    model?: string | null;
-    knowledgeBaseId?: string | null;
-    voice: {
-      __typename: 'Voice';
-      name: string;
-      style?: string | null;
-    };
-  } | null;
+  getPersona?:  {
+    __typename: "Persona",
+    personaId: string,
+    name: string,
+    avatar?: string | null,
+    prompt?: string | null,
+    subtitle?: string | null,
+    description?: string | null,
+    color?: string | null,
+    model?: string | null,
+    knowledgeBaseId?: string | null,
+    voice?:  {
+      __typename: "Voice",
+      name: string,
+      style?: string | null,
+    } | null,
+  } | null,
 };
 
-export type GetAllPersonasQueryVariables = {};
+export type GetAllPersonasQueryVariables = {
+};
 
 export type GetAllPersonasQuery = {
-  getAllPersonas?: Array<{
-    __typename: 'Persona';
-    personaId: string;
-    name: string;
-    avatar?: string | null;
-    prompt?: string | null;
-    subtitle?: string | null;
-    description?: string | null;
-    color?: string | null;
-    model?: string | null;
-    knowledgeBaseId?: string | null;
-    voice: {
-      __typename: 'Voice';
-      name: string;
-      style?: string | null;
-    };
-  }> | null;
+  getAllPersonas?:  Array< {
+    __typename: "Persona",
+    personaId: string,
+    name: string,
+    avatar?: string | null,
+    prompt?: string | null,
+    subtitle?: string | null,
+    description?: string | null,
+    color?: string | null,
+    model?: string | null,
+    knowledgeBaseId?: string | null,
+    voice?:  {
+      __typename: "Voice",
+      name: string,
+      style?: string | null,
+    } | null,
+  } > | null,
 };
 
 export type GetThreadQueryVariables = {
-  input: GetThreadInput;
+  input: GetThreadInput,
 };
 
 export type GetThreadQuery = {
-  getThread?: {
-    __typename: 'Thread';
-    threadId: string;
-    userId: string;
-    persona: {
-      __typename: 'Persona';
-      personaId: string;
-      name: string;
-      avatar?: string | null;
-      prompt?: string | null;
-      subtitle?: string | null;
-      description?: string | null;
-      color?: string | null;
-      model?: string | null;
-      knowledgeBaseId?: string | null;
-    };
-    messages?: Array<{
-      __typename: 'Message';
-      sender: string;
-      message: string;
-      createdAt: string;
-    }> | null;
-    status: ThreadStatus;
-    createdAt: string;
-  } | null;
+  getThread?:  {
+    __typename: "Thread",
+    threadId: string,
+    userId: string,
+    persona:  {
+      __typename: "Persona",
+      personaId: string,
+      name: string,
+      avatar?: string | null,
+      prompt?: string | null,
+      subtitle?: string | null,
+      description?: string | null,
+      color?: string | null,
+      model?: string | null,
+      knowledgeBaseId?: string | null,
+    },
+    messages?:  Array< {
+      __typename: "Message",
+      sender: string,
+      message: string,
+      createdAt: string,
+    } > | null,
+    status: ThreadStatus,
+    createdAt: string,
+  } | null,
 };
 
-export type GetAllThreadsQueryVariables = {};
+export type GetAllThreadsQueryVariables = {
+};
 
 export type GetAllThreadsQuery = {
-  getAllThreads?: Array<{
-    __typename: 'Thread';
-    threadId: string;
-    userId: string;
-    persona: {
-      __typename: 'Persona';
-      personaId: string;
-      name: string;
-      avatar?: string | null;
-      prompt?: string | null;
-      subtitle?: string | null;
-      description?: string | null;
-      color?: string | null;
-      model?: string | null;
-      knowledgeBaseId?: string | null;
-    };
-    messages?: Array<{
-      __typename: 'Message';
-      sender: string;
-      message: string;
-      createdAt: string;
-    }> | null;
-    status: ThreadStatus;
-    createdAt: string;
-  }> | null;
+  getAllThreads?:  Array< {
+    __typename: "Thread",
+    threadId: string,
+    userId: string,
+    persona:  {
+      __typename: "Persona",
+      personaId: string,
+      name: string,
+      avatar?: string | null,
+      prompt?: string | null,
+      subtitle?: string | null,
+      description?: string | null,
+      color?: string | null,
+      model?: string | null,
+      knowledgeBaseId?: string | null,
+    },
+    messages?:  Array< {
+      __typename: "Message",
+      sender: string,
+      message: string,
+      createdAt: string,
+    } > | null,
+    status: ThreadStatus,
+    createdAt: string,
+  } > | null,
 };
 
 export type RecieveMessageChunkAsyncSubscriptionVariables = {
-  input: RecieveMessageChunkAsyncInput;
+  input: RecieveMessageChunkAsyncInput,
 };
 
 export type RecieveMessageChunkAsyncSubscription = {
-  recieveMessageChunkAsync?: {
-    __typename: 'MessageChunk';
-    userId: string;
-    threadId: string;
-    status: ThreadStatus;
-    chunkType: string;
-    chunk: string;
-  } | null;
+  recieveMessageChunkAsync?:  {
+    __typename: "MessageChunk",
+    userId: string,
+    threadId: string,
+    status: ThreadStatus,
+    chunkType: string,
+    chunk: string,
+  } | null,
 };

@@ -9,14 +9,12 @@ import {
 } from '@aws-sdk/client-secrets-manager';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import * as azureSpeechSDK from 'microsoft-cognitiveservices-speech-sdk';
+import { s3Client } from './clients';
 
 // Static variables
 const AUDIO_FORMAT = 'mp3';
 const AUDIO_NAME_TEMPLATE = `%s.${AUDIO_FORMAT}`;
 const AUDIO_UPLOAD_DIR = 'audio';
-
-// Clients
-const s3Client = new S3Client();
 
 /**
  * Gets the Azure Speech secret from Secrets Manager.
@@ -67,7 +65,7 @@ export async function synthesizeAudio({
   <speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="en-US">
     <voice name='${voice.name}'>
       <mstts:express-as ${
-        voice.style ? `style='${voice.style}' styledegree='2'` : ''
+        voice.style ? `style='${voice.style}' styledegree='1.25'` : ''
       }>
         ${message || ''}
       </mstts:express-as>

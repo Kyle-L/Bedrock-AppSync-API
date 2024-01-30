@@ -8,6 +8,7 @@ import * as path from 'path';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import { Tracing } from 'aws-cdk-lib/aws-lambda';
 
 interface PredictConstructProps extends cdk.StackProps {
   api: appsync.GraphqlApi;
@@ -40,12 +41,11 @@ export class PredictConstruct extends Construct {
     });
 
     // Create azure speech secret with region and key.
-    const speechSecret = new secretsmanager.Secret(this, 'AzureSpeechSecret', {
-      generateSecretString: {
-        secretStringTemplate: JSON.stringify({ region: 'value', key: 'value' }),
-        generateStringKey: 'key'
-      }
-    });
+    const speechSecret = secretsmanager.Secret.fromSecretCompleteArn(
+      this,
+      'AzureSpeechSecret',
+      props.azureCognitiveServicesTTSSecretArn || ''
+    );
 
     // Queue Lambda
     this.queueLambda = new NodejsFunction(this, 'PredictAsyncQueueLambda', {
@@ -67,8 +67,21 @@ export class PredictConstruct extends Construct {
           effect: iam.Effect.ALLOW,
           actions: ['sqs:*'],
           resources: [this.queue.queueArn]
+        }),
+        // Allow X-Ray tracing
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: [
+            'xray:PutTraceSegments',
+            'xray:PutTelemetryRecords',
+            'xray:GetSamplingRules',
+            'xray:GetSamplingTargets',
+            'xray:GetSamplingStatisticSummaries'
+          ],
+          resources: ['*']
         })
-      ]
+      ],
+      tracing: Tracing.ACTIVE
     });
 
     this.predictAsyncLambda = new NodejsFunction(this, 'PredictAsyncLambda', {
@@ -98,8 +111,22 @@ export class PredictConstruct extends Construct {
         new iam.PolicyStatement({
           resources: [`${props.api.arn}/*`],
           actions: ['appsync:GraphQL']
+        }),
+
+        // Allow X-Ray tracing
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: [
+            'xray:PutTraceSegments',
+            'xray:PutTelemetryRecords',
+            'xray:GetSamplingRules',
+            'xray:GetSamplingTargets',
+            'xray:GetSamplingStatisticSummaries'
+          ],
+          resources: ['*']
         })
-      ]
+      ],
+      tracing: Tracing.ACTIVE
     });
 
     // Voice Lambda

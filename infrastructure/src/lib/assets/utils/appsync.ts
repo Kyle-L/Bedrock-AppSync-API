@@ -3,6 +3,9 @@ import { Sha256 } from '@aws-crypto/sha256-js';
 import { defaultProvider } from '@aws-sdk/credential-provider-node';
 import { HttpRequest } from '@aws-sdk/protocol-http';
 import * as https from 'https';
+import * as AWSXRay from 'aws-xray-sdk';
+
+AWSXRay.captureHTTPsGlobal(require('https'));
 
 export interface RequestParams {
   config: {

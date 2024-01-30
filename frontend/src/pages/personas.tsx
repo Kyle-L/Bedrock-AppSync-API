@@ -1,7 +1,7 @@
 import { generateClient } from 'aws-amplify/api';
 import { AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Persona, Thread } from '../API';
 import PersonaCard from '../components/animated/PersonaCard';
 import ThreadCard from '../components/animated/ThreadCard';
@@ -84,6 +84,10 @@ export default function Personas() {
 
   return (
     <>
+      <Link className="btn" to="/personas/create">
+        Create Persona
+      </Link>
+
       <div className="w-full mt-4 mb-8">
         <h1 className="text-2xl font-extrabold w-full">Start a Conversation</h1>
         <ul className="w-full">

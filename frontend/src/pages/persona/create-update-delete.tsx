@@ -1,20 +1,21 @@
 import { generateClient } from 'aws-amplify/api';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CreatePersonaInput, Persona, Thread } from '../../API';
+import { useNavigate, useParams } from 'react-router-dom';
+import { CreatePersonaInput, Persona, UpdatePersonaInput } from '../../API';
 import * as mutations from '../../graphql/mutations';
+import * as queries from '../../graphql/queries';
 import useAlert from '../../hooks/AlertHook';
 import { useBackground } from '../../providers/BackgroundProvider';
 
 const client = generateClient();
 
-export default function CreatePersona() {
+export default function CreateEditDeletePersona() {
   // State
-  const [persona, setPersona] = useState<CreatePersonaInput>({
+  const [persona, setPersona] = useState<CreatePersonaInput | UpdatePersonaInput>({
     name: '',
     avatar: '',
     description: '',
-    knowledgeBaseId: 'a1b2c3d4-5e6f-7g8h-9i0j-a1b2c3d4e5f6',
+    knowledgeBaseId: null,
     prompt: [
       "System: You are Theseus, 'the great king of Athens,' a hot-headed, stubborn, and childish ex-hero.",
       'Known for youthful exploits, earning an immortal soul, boasting for eternity in Elysium.',
@@ -43,39 +44,123 @@ export default function CreatePersona() {
   });
 
   // Hooks
+  const { personaId } = useParams();
   const navigate = useNavigate();
   const { setBackground } = useBackground();
   const { addAlert } = useAlert();
 
   /**
-   * Create a new thread with the given persona.
-   * @param personaId {string} The persona to create a thread with.
+   * Create a new persona with the given persona.
+   * @param persona {UpdatePersonaInput}
+   * @returns {Promise<void>}
    */
-  const createPersona = async () => {
-    const result = await client.graphql({
-      query: mutations.createPersona,
-      variables: {
-        input: persona
-      }
-    });
+  const createPersona = async (persona: CreatePersonaInput) => {
+    try {
+      const result = await client.graphql({
+        query: mutations.createPersona,
+        variables: {
+          input: persona
+        }
+      });
+  
+      addAlert('Persona created', 'success');
+      navigate(`/personas/update/${result.data.createPersona.persona?.personaId}`);
+    } catch (err: any) {
+      addAlert(err?.message ?? 'Something went wrong', 'error');
+    }
+  }
 
-    navigate(`/personas`);
+  /**
+   * Update a persona with the given persona.
+   * @param persona {UpdatePersonaInput}
+   * @returns {Promise<void>}
+   */
+  const updatePersona = async (persona: UpdatePersonaInput) => {
+    try {
+      const result = await client.graphql({
+        query: mutations.updatePersona,
+        variables: {
+          input: persona
+        }
+      });
+
+      addAlert('Persona updated', 'success');
+    } catch (err: any) {
+      addAlert(err?.message ?? 'Something went wrong', 'error');
+    }
+  }
+
+  /**
+   * Delete a persona with the given personaId.
+   * @param personaId {string} The personaId to delete.
+   */
+  const deletePersona = async () => {
+    if (!personaId) {
+      addAlert('Persona not found', 'error');
+      return;
+    }
+
+    try {
+      const result = await client.graphql({
+        query: mutations.deletePersona,
+        variables: {
+          input: {
+            personaId: personaId
+          }
+        }
+      });
+  
+      addAlert('Persona deleted', 'success');
+      navigate(`/personas`);
+    } catch (err: any) {
+      addAlert(err?.message ?? 'Something went wrong', 'error');
+    }
   };
 
   useEffect(() => {
     setBackground('red');
   }, []);
 
+  useEffect(() => {
+    if (!personaId) {
+      return;
+    }
+
+    // Load Persona data
+    client
+      .graphql({ query: queries.getPersona, variables: { input: { personaId } } })
+      .then(({ data }) => {
+        if (!data.getPersona) {
+          addAlert('Persona not found', 'error');
+          return;
+        }
+
+        setPersona({
+          name: data.getPersona.name,
+          avatar: data.getPersona.avatar,
+          description: data.getPersona.description,
+          knowledgeBaseId: data.getPersona.knowledgeBaseId,
+          prompt: data.getPersona.prompt,
+          subtitle: data.getPersona.subtitle,
+          voice: data.getPersona.voice ? {
+            name: data.getPersona.voice.name,
+            style: data.getPersona.voice.style
+          } : undefined,
+          color: data.getPersona.color,
+          model: data.getPersona.model,
+          personaId: data.getPersona.personaId 
+        });
+        console.log('data: ', data.getPersona);
+      })
+      .catch((err) => {
+        addAlert(err?.message ?? 'Something went wrong', 'error');
+      });
+  }, [personaId]);
+
   return (
-    <>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          createPersona();
-        }}
-        className="flex flex-col justify-center w-full h-full"
-      >
-        <div className="flex flex-col justify-center w-full">
+    <div className="flex flex-col justify-center w-full">
+      {persona && (
+        <div className="flex flex-col justify-center w-full h-full">
           <div className="w-full mt-4 mb-8">
             <h1 className="text-2xl font-extrabold w-full">Create Persona</h1>
             <p className="text-gray-500">Please enter your persona details</p>
@@ -122,16 +207,20 @@ export default function CreatePersona() {
               <input
                 className="w-full shadow-md rounded-xl p-2 my-2"
                 type="text"
-                value={persona.voiceName ?? ''}
-                onChange={(e) => setPersona({ ...persona, voiceName: e.target.value })}
+                value={persona.voice?.name ?? ''}
+                onChange={(e) =>
+                  setPersona({ ...persona, voice: { ...persona.voice, name: e.target.value } })
+                }
               />
             </div>
             <div className="flex flex-col justify-center w-full">
               <label className="text-slate-500">Voice Style</label>
               <select
                 className="w-full shadow-md rounded-xl p-2 my-2"
-                value={persona.voiceStyle ?? ''}
-                onChange={(e) => setPersona({ ...persona, voiceStyle: e.target.value })}
+                value={persona.voice?.style ?? ''}
+                onChange={(e) =>
+                  setPersona({ ...persona, voice: { ...persona.voice!, style: e.target.value } })
+                }
               >
                 <option value="neutral">Neutral</option>
                 <option value="happy">Happy</option>
@@ -171,13 +260,24 @@ export default function CreatePersona() {
               />
             </div>
           </div>
-          <div className="flex flex-col justify-center w-full">
-            <button className="btn" type="submit">
-              Create
-            </button>
+          <div className="flex flex-row ml-auto space-x-2">
+            {personaId ? (<>
+              <button className="btn-secondary" onClick={deletePersona}>
+                Delete
+              </button>
+              <button className="btn" onClick={() => updatePersona(persona as UpdatePersonaInput)}>
+                Update
+              </button>
+            </>
+            ) : (
+
+              <button className="btn" onClick={() => createPersona(persona as CreatePersonaInput)}>
+                Create
+              </button>
+            )}
           </div>
         </div>
-      </form>
-    </>
+      )}
+    </div>
   );
 }

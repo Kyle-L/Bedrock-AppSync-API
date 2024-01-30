@@ -14,6 +14,7 @@ export interface EventType {
   responseOptions: {
     includeAudio: boolean;
   };
+  xrayTraceId?: string;
 }
 
 export interface EventResult {

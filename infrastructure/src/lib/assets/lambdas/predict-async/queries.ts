@@ -64,7 +64,7 @@ export async function sendChunk({
 }
 
 /**
- * Sends a request to update the thread's status and add the AI's response to the thread's message history.
+ * Sends a request to update the thread's status and create the AI's response to the thread's message history.
  * @param userId {string} The user ID.
  * @param threadId {string} The thread ID.
  * @param status {string} The thread's status.
@@ -77,7 +77,7 @@ export async function updateMessageSystemStatus(
   status: MessageSystemStatus,
   message: { sender: string; message: string }
 ) {
-  const result = (await sendRequest(addMessageSystemMutation, {
+  const result = (await sendRequest(createMessageSystemMutation, {
     userId,
     threadId,
     status,
@@ -98,10 +98,10 @@ export async function updateMessageSystemStatus(
 }
 
 /**
- * Sends a request to update the thread's status and add the AI's response to the thread's message history.
+ * Sends a request to update the thread's status and create the AI's response to the thread's message history.
  */
-export const addMessageSystemMutation = `mutation Mutation($userId: ID!, $threadId: ID!, $status: ThreadStatus!, $message: MessageInput!) {
-  systemAddMessage(input: {userId: $userId, threadId: $threadId, status: $status, message: $message}) {
+export const createMessageSystemMutation = `mutation Mutation($userId: ID!, $threadId: ID!, $status: ThreadStatus!, $message: MessageInput!) {
+  systemCreateMessage(input: {userId: $userId, threadId: $threadId, status: $status, message: $message}) {
       message {
           sender
           message

@@ -4,43 +4,48 @@ import { util } from '@aws-appsync/utils';
  * Puts an item into the DynamoDB table using an auto-generated ID.
  */
 export function request(ctx) {
+  const input = ctx.args.input;
+  const id = input.personaId;
+  const keys = Object.keys(input).filter(
+    (key) => input[key] !== null && input[key] !== undefined
+  );
+
+  const expression =
+    'SET ' +
+    keys.map((key) => `#${key} = :${key}`).join(', ') +
+    ', #createdAt = :createdAt';
+  const expressionNames = keys.reduce(
+    (obj, key) => ({ ...obj, [`#${key}`]: key }),
+    {
+      '#createdAt': 'createdAt'
+    }
+  );
+  const expressionValues = keys.reduce((obj, key) => {
+    return {
+      ...obj,
+      [`:${key}`]:
+        typeof input[key] === 'object'
+          ? util.dynamodb.toMapValues(input[key])
+          : { S: input[key] }
+    };
+  }, {});
+
   return {
     operation: 'UpdateItem',
     key: util.dynamodb.toMapValues({
       pk: `PERSONA`,
-      sk: `PERSONA#${ctx.arguments.input.personaId}`
+      sk: `PERSONA#${id}`
+    }),
+    condition: util.transform.toDynamoDBConditionExpression({
+      pk: { attributeExists: true },
+      sk: { attributExists: true }
     }),
     update: {
-      expression:
-        'SET #name = :name, #avatar = :avatar, #prompt = :prompt, #subtitle = :subtitle, #description = :description, #color = :color, #model = :model, #knowledgeBaseId = :knowledgeBaseId, #voice = :voice, #status = :status, #createdAt = :createdAt, #persona = :persona, #messages = :messages, #updatedAt = :updatedAt',
-      expressionNames: {
-        '#name': 'name',
-        '#avatar': 'avatar',
-        '#prompt': 'prompt',
-        '#subtitle': 'subtitle',
-        '#description': 'description',
-        '#color': 'color',
-        '#model': 'model',
-        '#knowledgeBaseId': 'knowledgeBaseId',
-        '#voice': 'voice',
-        '#updatedAt': 'updatedAt'
-      },
+      expression,
+      expressionNames,
       expressionValues: {
-        ':name': { S: ctx.args.input.name },
-        ':avatar': { S: ctx.args.input.avatar ?? null },
-        ':prompt': { S: ctx.args.input.prompt ?? null },
-        ':subtitle': { S: ctx.args.input.subtitle ?? null },
-        ':description': { S: ctx.args.input.description ?? null },
-        ':color': { S: ctx.args.input.color ?? null },
-        ':model': { S: ctx.args.input.model ?? null },
-        ':knowledgeBaseId': { S: ctx.args.input.knowledgeBaseId ?? null },
-        ':voice': {
-          M: util.dynamodb.toMapValues({
-            name: ctx.args.input.voiceName,
-            style: ctx.args.input.voiceStyle
-          })
-        },
-        ':updatedAt': { S: `${util.time.nowISO8601()}` }
+        ...expressionValues,
+        ':createdAt': { S: `${util.time.nowISO8601()}` }
       }
     }
   };
