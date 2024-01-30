@@ -6,6 +6,7 @@ import * as mutations from '../../graphql/mutations';
 import * as queries from '../../graphql/queries';
 import useAlert from '../../hooks/AlertHook';
 import { useBackground } from '../../providers/BackgroundProvider';
+import { gradientColorMap } from '../../components/gradient-dict';
 
 const client = generateClient();
 
@@ -117,9 +118,10 @@ export default function CreateEditDeletePersona() {
     }
   };
 
+  // Sets the background color to selected persona color.
   useEffect(() => {
-    setBackground('red');
-  }, []);
+    setBackground(persona.color ?? 'rose');
+  }, [persona]);
 
   useEffect(() => {
     if (!personaId) {
@@ -162,7 +164,7 @@ export default function CreateEditDeletePersona() {
       {persona && (
         <div className="flex flex-col justify-center w-full h-full">
           <div className="w-full mt-4 mb-8">
-            <h1 className="text-2xl font-extrabold w-full">Create Persona</h1>
+            <h1 className="text-2xl font-extrabold w-full">{personaId ? 'Update' : 'Create'} Persona</h1>
             <p className="text-gray-500">Please enter your persona details</p>
           </div>
           <div className="flex flex-col justify-center w-full">
@@ -173,6 +175,15 @@ export default function CreateEditDeletePersona() {
                 type="text"
                 value={persona.name}
                 onChange={(e) => setPersona({ ...persona, name: e.target.value })}
+              />
+            </div>
+            <div className="flex flex-col justify-center w-full">
+              <label className="text-slate-500">Knowledge Base ID</label>
+              <input
+                className="w-full shadow-md rounded-xl p-2 my-2"
+                type="text"
+                value={persona.knowledgeBaseId ?? ''}
+                onChange={(e) => setPersona({ ...persona, knowledgeBaseId: e.target.value ?? null })}
               />
             </div>
             <div className="flex flex-col justify-center w-full">
@@ -223,23 +234,28 @@ export default function CreateEditDeletePersona() {
                 }
               >
                 <option value="neutral">Neutral</option>
-                <option value="happy">Happy</option>
                 <option value="sad">Sad</option>
                 <option value="angry">Angry</option>
                 <option value="fearful">Fearful</option>
                 <option value="disgusted">Disgusted</option>
                 <option value="surprised">Surprised</option>
+                <option value="whispering">Whispering</option>
+                <option value="shouting">Shouting</option>
+                <option value="cheerful">Cheerful</option>
+                <option value="friendly">Friendly</option>
               </select>
             </div>
             <div className="flex flex-col justify-center w-full">
               <label className="text-slate-500">Color</label>
-              <input
+              <select 
                 className="w-full shadow-md rounded-xl p-2 my-2"
-                type="text"
-                placeholder="#"
                 value={persona.color ?? ''}
                 onChange={(e) => setPersona({ ...persona, color: e.target.value })}
-              />
+              >
+                {gradientColorMap && Object.keys(gradientColorMap).sort().map((color) => (
+                  <option key={color} value={color}>{color.charAt(0).toUpperCase() + color.slice(1)}</option>
+                ))}
+              </select>
             </div>
             <div className="flex flex-col justify-center w-full">
               <label className="text-slate-500">Model</label>

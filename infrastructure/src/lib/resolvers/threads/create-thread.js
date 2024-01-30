@@ -1,7 +1,7 @@
 import { util } from '@aws-appsync/utils';
 
 /**
- * Puts an item into the DynamoDB table using an auto-generated ID.
+ * Create an item in the DynamoDB table using an auto-generated ID.
  */
 export function request(ctx) {
   // Generates a random ID for the thread item

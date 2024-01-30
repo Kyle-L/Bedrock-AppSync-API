@@ -1,7 +1,7 @@
 import { util } from '@aws-appsync/utils';
 
 /**
- * Puts an item into the DynamoDB table using an auto-generated ID.
+ * Updates an item in the DynamoDB table.
  */
 export function request(ctx) {
   const input = ctx.args.input;
@@ -25,7 +25,7 @@ export function request(ctx) {
       ...obj,
       [`:${key}`]:
         typeof input[key] === 'object'
-          ? util.dynamodb.toMapValues(input[key])
+          ? { M: util.dynamodb.toMapValues(input[key]) }
           : { S: input[key] }
     };
   }, {});

@@ -1,11 +1,11 @@
 import { util } from '@aws-appsync/utils';
 
 /**
- * Puts an item into the DynamoDB table using an auto-generated ID.
+ * Updates an item in the DynamoDB table.
  */
 export function request(ctx) {
-  const id = util.autoId();
   const input = ctx.args.input;
+  const id = util.autoId();
   const keys = Object.keys(input).filter(
     (key) => input[key] !== null && input[key] !== undefined
   );
@@ -25,8 +25,8 @@ export function request(ctx) {
       ...obj,
       [`:${key}`]:
         typeof input[key] === 'object'
-          ? util.dynamodb.toMapValues(input[key])
-          : { S: input[key] }
+        ? { M: util.dynamodb.toMapValues(input[key]) }
+        : { S: input[key] }
     };
   }, {});
 

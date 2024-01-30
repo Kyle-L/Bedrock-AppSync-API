@@ -1,7 +1,7 @@
 import { util } from '@aws-appsync/utils';
 
 /**
- * Queries a DynamoDB table and returns items created `today`
+ * Queries a DynamoDB table and returns all items.
  */
 export function request(ctx) {
   const query = JSON.parse(

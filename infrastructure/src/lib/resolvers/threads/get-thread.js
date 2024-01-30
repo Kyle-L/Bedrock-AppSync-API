@@ -2,7 +2,7 @@ import { get } from '@aws-appsync/utils/dynamodb';
 import { util } from '@aws-appsync/utils';
 
 /**
- * Queries a DynamoDB table and returns items created `today`
+ * Queries a DynamoDB table and returns a single item
  */
 export function request(ctx) {
   return get({
