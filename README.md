@@ -142,7 +142,7 @@ aws secretsmanager create-secret --name <MY_SECRET_NAME> --secret-string '{"regi
 ![Work-in-Progress](docs/wip.png)
 
 ## Frontend
-![Work-in-Progress](docs/wip.jpg)
+![Work-in-Progress](docs/wip.png)
 
 ## License
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg?style=for-the-badge)](./LICENSE)
