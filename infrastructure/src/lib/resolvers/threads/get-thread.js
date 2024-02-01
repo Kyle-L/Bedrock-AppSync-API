@@ -6,7 +6,7 @@ import { util } from '@aws-appsync/utils';
  */
 export function request(ctx) {
   const userId = ctx.identity.sub;
-  const id = ctx.arguments.input.threadId;
+  const id = ctx.args.input.threadId;
 
   return get({
     key: {

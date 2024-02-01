@@ -111,10 +111,11 @@ export class BackendStack extends cdk.Stack {
       path.join(__dirname, '../resolvers/util/pass-through.js')
     );
 
-    // Payload Pass Through Code - Used to pass through the payload to the next function in the pipeline.
-    // This is neccessary for some subscriptions where the payload is not modified.
+    // Input Pass Through Code - Same as passThroughCode, but specifically passes only the input
+    // property to the payload. This is useful for subscriptions where the input is the only thing
+    // that needs to be passed through.
     const payloadPassThroughCode = appsync.Code.fromAsset(
-      path.join(__dirname, '../resolvers/util/payload-pass-through.js')
+      path.join(__dirname, '../resolvers/util/input-pass-through.js')
     );
 
     /*================================= Functions =================================*/
