@@ -1,21 +1,23 @@
 import { util } from '@aws-appsync/utils';
 
 /**
- * Deletes an item with id `ctx.args.id` from the DynamoDB table
+ * Deletes a thread that belongs to the user from the DynamoDB table.
  */
 export function request(ctx) {
+  const userId = ctx.identity.sub;
+  const id = ctx.arguments.input.threadId;
+
   return {
     operation: 'DeleteItem',
     key: util.dynamodb.toMapValues({
-      pk: `USER#${ctx.identity.sub}`,
-      sk: `THREAD#${ctx.arguments.input.threadId}`
+      pk: `USER#${userId}`,
+      sk: `THREAD#${id}`
     })
   };
 }
 
 /**
  * Returns the deleted item. Throws an error if the operation failed
- * @returns {*} the deleted item
  */
 export function response(ctx) {
   if (ctx.error) {

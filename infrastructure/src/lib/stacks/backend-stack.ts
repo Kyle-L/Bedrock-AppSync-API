@@ -1,7 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
 import * as appsync from 'aws-cdk-lib/aws-appsync';
 import { Construct } from 'constructs';
+import { BackendStackProps } from 'lib/types/application';
 import * as path from 'path';
+import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import {
   ApiConstruct,
   AuthConstruct,
@@ -10,41 +12,52 @@ import {
 } from '../constructs';
 import { KnowledgeBaseConstruct } from '../constructs/knowledge-base';
 
-interface BackendStackProps extends cdk.StackProps {
-  domains?: string[];
-
-  pinecone?: {
-    connectionString: string;
-    secretArn: string;
-  };
-
-  azureCognitiveServicesTTSSecretArn?: string;
-  acmCertificateArn?: string;
-  removalPolicy?: cdk.RemovalPolicy;
-}
-
 export class BackendStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: BackendStackProps) {
     super(scope, id, props);
 
+    const {
+      customDomain,
+      pinecone,
+      removalPolicy,
+      azureCognitiveServicesTTSSecretArn
+    } = props;
+
+    // An ACM certificate for the custom domain.
+    let certificate: acm.ICertificate | undefined;
+    if (customDomain) {
+      certificate = acm.Certificate.fromCertificateArn(
+        this,
+        'Certificate',
+        customDomain.acmCertificateArn
+      );
+    }
+
     // Cognito User Pool
     const authConstruct = new AuthConstruct(this, 'Auth', {
       userPoolDomainPrefix: 'gen-ai-appsync',
-      removalPolicy: props?.removalPolicy
+      removalPolicy: removalPolicy
     });
 
-    // API Gateway
+    // API handled by AppSync
     const apiConstruct = new ApiConstruct(this, 'Api', {
+      domainName:
+        customDomain && certificate
+          ? {
+              domainName: customDomain.domain,
+              certificate
+            }
+          : undefined,
       userPool: authConstruct.userPool,
       userPoolClient: authConstruct.userPoolClient
     });
 
     // Knowledge Base - Handles integration with Pinecone
     let knowledgeBase: KnowledgeBaseConstruct | undefined;
-    if (props.pinecone) {
+    if (pinecone) {
       knowledgeBase = new KnowledgeBaseConstruct(this, 'KnowledgeBase', {
-        pineconeConnectionString: props.pinecone.connectionString,
-        pineConeSecretArn: props.pinecone.secretArn
+        pineconeConnectionString: pinecone.connectionString,
+        pineConeSecretArn: pinecone.secretArn
       });
     }
 
@@ -53,7 +66,7 @@ export class BackendStack extends cdk.Stack {
       this,
       'ConversationHistory',
       {
-        removalPolicy: props?.removalPolicy,
+        removalPolicy: removalPolicy,
         knowledgeBaseId: knowledgeBase?.knowledgeBase?.knowledgeBaseId
       }
     );
@@ -63,8 +76,7 @@ export class BackendStack extends cdk.Stack {
       api: apiConstruct.appsync,
       table: conversationHistoryConstruct.table,
       bucket: conversationHistoryConstruct.bucket,
-      azureCognitiveServicesTTSSecretArn:
-        props.azureCognitiveServicesTTSSecretArn
+      azureCognitiveServicesTTSSecretArn
     });
 
     /*================================= Data Sources =================================*/
@@ -90,18 +102,23 @@ export class BackendStack extends cdk.Stack {
     const noneDataSource =
       apiConstruct.appsync.addNoneDataSource('NoneDataSource');
 
-    // Code
-    const passthroughCode = appsync.Code.fromAsset(
-      path.join(__dirname, '../resolvers/pass-through.js')
+    /*================================= Generic Functions =================================*/
+    // These are used to create the resolver functions.
+
+    // Pass Through Code - Used when no custom code is needed.
+    // This is necessary for some pipelines resolvers where the first step is a lambda function.
+    const passThroughCode = appsync.Code.fromAsset(
+      path.join(__dirname, '../resolvers/util/pass-through.js')
     );
-    const noneCode = appsync.Code.fromAsset(
-      path.join(__dirname, '../resolvers/none.js')
-    );
-    const recieveAsyncCode = appsync.Code.fromAsset(
-      path.join(__dirname, '../resolvers/recieve-async.js')
+
+    // Payload Pass Through Code - Used to pass through the payload to the next function in the pipeline.
+    // This is neccessary for some subscriptions where the payload is not modified.
+    const payloadPassThroughCode = appsync.Code.fromAsset(
+      path.join(__dirname, '../resolvers/util/payload-pass-through.js')
     );
 
     /*================================= Functions =================================*/
+    // These are the resolver functions that are type and field specific. e.g., createPersona, getThread, etc.
 
     const createResolverFunction = (
       name: string,
@@ -177,6 +194,9 @@ export class BackendStack extends cdk.Stack {
       'getAllThreads',
       conversationHistoryDataSource,
       '../resolvers/threads/get-threads.js'
+    );
+    const threadSubscriptionFilter = appsync.Code.fromAsset(
+      path.join(__dirname, '../resolvers/threads/thread-filter.js')
     );
 
     // Messages
@@ -277,14 +297,14 @@ export class BackendStack extends cdk.Stack {
         typeName: 'Mutation',
         fieldName: 'systemSendMessageChunk',
         runtime: appsync.FunctionRuntime.JS_1_0_0,
-        code: noneCode,
+        code: payloadPassThroughCode,
         dataSource: noneDataSource
       },
       {
         typeName: 'Subscription',
         fieldName: 'recieveMessageChunkAsync',
         runtime: appsync.FunctionRuntime.JS_1_0_0,
-        code: recieveAsyncCode,
+        code: threadSubscriptionFilter,
         dataSource: noneDataSource
       }
     ];
@@ -299,7 +319,7 @@ export class BackendStack extends cdk.Stack {
           fieldName: config.fieldName,
           pipelineConfig: config.pipelineConfig,
           runtime: appsync.FunctionRuntime.JS_1_0_0,
-          code: config.code || passthroughCode,
+          code: config.code || passThroughCode,
           dataSource: config.dataSource
         }
       );

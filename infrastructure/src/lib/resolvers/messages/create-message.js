@@ -1,7 +1,7 @@
 import { util } from '@aws-appsync/utils';
 
 /**
- * Puts an item into the DynamoDB table using an auto-generated ID.
+ * Appends a message to a thread in the DynamoDB table.
  */
 export function request(ctx) {
   return {
@@ -40,7 +40,7 @@ export function request(ctx) {
 }
 
 /**
- * Returns the item or throws an error if the operation failed
+ * Gets all the messages in a thread.
  */
 export function response(ctx) {
   if (ctx.error) {

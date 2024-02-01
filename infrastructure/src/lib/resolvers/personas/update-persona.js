@@ -1,7 +1,7 @@
 import { util } from '@aws-appsync/utils';
 
 /**
- * Updates an item in the DynamoDB table.
+ * Updates a persona in the DynamoDB table.
  */
 export function request(ctx) {
   const input = ctx.args.input;
@@ -52,7 +52,7 @@ export function request(ctx) {
 }
 
 /**
- * Returns the item or throws an error if the operation failed
+ * Returns the persona or throws an error if the operation failed
  */
 export function response(ctx) {
   if (ctx.error) {

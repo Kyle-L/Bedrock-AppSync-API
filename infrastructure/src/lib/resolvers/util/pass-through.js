@@ -1,5 +1,5 @@
 /**
- * Passes all arguments to the next step.
+ * Passes all arguments to the next step. This is useful when you want to pass the arguments to the next step, but let the next step handle the request and response.
  * @param {...any} args - All arguments passed to the function
  * @returns {Array} All arguments passed to the function
  */

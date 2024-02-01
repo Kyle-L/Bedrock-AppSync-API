@@ -2,19 +2,22 @@ import { get } from '@aws-appsync/utils/dynamodb';
 import { util } from '@aws-appsync/utils';
 
 /**
- * Queries a DynamoDB table and returns a single item
+ * Gets a thread from the DynamoDB table given a threadId.
  */
 export function request(ctx) {
+  const userId = ctx.identity.sub;
+  const id = ctx.arguments.input.threadId;
+
   return get({
     key: {
-      pk: `USER#${ctx.identity.sub}`,
-      sk: `THREAD#${ctx.args.input.threadId}`
+      pk: `USER#${userId}`,
+      sk: `THREAD#${id}`
     }
   });
 }
 
 /**
- * Returns the fetched DynamoDB item
+ * Returns the fetched thread or throws an error if the operation failed.
  */
 export function response(ctx) {
   if (ctx.error) {

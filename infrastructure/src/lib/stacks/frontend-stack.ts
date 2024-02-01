@@ -1,29 +1,27 @@
 import * as cdk from 'aws-cdk-lib';
+import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import { Construct } from 'constructs';
-
-interface FrontendStackProps extends cdk.StackProps {
-  acmCertificateArn?: string;
-  domains?: string[];
-}
+import { FrontendStackProps } from 'lib/types/application';
 
 /**
  * The frontend stack is responsible for the web application.
  */
 export class FrontendStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: FrontendStackProps) {
+  constructor(scope: Construct, id: string, props: FrontendStackProps) {
     super(scope, id, props);
+
+    const { customDomain } = props;
 
     // An ACM certificate for the custom domain.
     let certificate: acm.ICertificate | undefined;
-    if (props?.acmCertificateArn) {
+    if (customDomain) {
       certificate = acm.Certificate.fromCertificateArn(
         this,
         'Certificate',
-        props.acmCertificateArn
+        customDomain.acmCertificateArn
       );
     }
 
@@ -38,7 +36,7 @@ export class FrontendStack extends cdk.Stack {
         origin: new origins.S3Origin(bucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS
       },
-      domainNames: props?.domains,
+      domainNames: customDomain ? [customDomain?.domain] : undefined,
       certificate: certificate,
       defaultRootObject: 'index.html',
 

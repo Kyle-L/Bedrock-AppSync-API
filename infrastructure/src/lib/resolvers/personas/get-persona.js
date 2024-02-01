@@ -1,7 +1,7 @@
 import { get } from '@aws-appsync/utils/dynamodb';
 
 /**
- * Queries a DynamoDB table and returns items created `today`
+ * Gets a persona from the DynamoDB table given a personaId.
  */
 export function request(ctx) {
   return get({
@@ -13,7 +13,7 @@ export function request(ctx) {
 }
 
 /**
- * Returns the fetched DynamoDB item
+ * Returns the fetched persona or throws an error if the operation failed.
  */
 export function response(ctx) {
   if (ctx.error) {

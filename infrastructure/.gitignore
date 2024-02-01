@@ -7,5 +7,8 @@ node_modules
 .cdk.staging
 cdk.out
 
+# Type files
+!src/lib/types/**/*.d.ts
+
 # CDK Resolvers
 !src/lib/resolvers/**/*.js

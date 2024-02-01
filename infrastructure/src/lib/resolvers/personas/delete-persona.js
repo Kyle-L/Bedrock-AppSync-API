@@ -1,7 +1,7 @@
 import { util } from '@aws-appsync/utils';
 
 /**
- * Deletes an item from the DynamoDB table
+ * Deletes a persona from the DynamoDB table
  */
 export function request(ctx) {
   return {
@@ -14,7 +14,7 @@ export function request(ctx) {
 }
 
 /**
- * Returns the deleted item. Throws an error if the operation failed
+ * Returns the deleted persona. Throws an error if the operation failed
  * @returns {*} the deleted item
  */
 export function response(ctx) {

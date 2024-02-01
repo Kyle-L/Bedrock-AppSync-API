@@ -1,12 +1,14 @@
 import { util } from '@aws-appsync/utils';
 
 /**
- * Queries a DynamoDB table and returns all items.
+ * Gets all threads from the DynamoDB table that belong to the user.
  */
 export function request(ctx) {
+  const id = ctx.identity.sub;
+
   const query = JSON.parse(
     util.transform.toDynamoDBConditionExpression({
-      pk: { eq: `USER#${ctx.identity.sub}` }
+      pk: { eq: `USER#${id}` }
     })
   );
   return { operation: 'Query', query };

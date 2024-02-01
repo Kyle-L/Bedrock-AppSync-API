@@ -1,7 +1,7 @@
 import { util } from '@aws-appsync/utils';
 
 /**
- * Updates an item in the DynamoDB table.
+ * Creates a new persona in the DynamoDB table.
  */
 export function request(ctx) {
   const input = ctx.args.input;
@@ -25,8 +25,8 @@ export function request(ctx) {
       ...obj,
       [`:${key}`]:
         typeof input[key] === 'object'
-        ? { M: util.dynamodb.toMapValues(input[key]) }
-        : { S: input[key] }
+          ? { M: util.dynamodb.toMapValues(input[key]) }
+          : { S: input[key] }
     };
   }, {});
 
@@ -48,7 +48,7 @@ export function request(ctx) {
 }
 
 /**
- * Returns the item or throws an error if the operation failed
+ * Returns the persona or throws an error if the operation failed
  */
 export function response(ctx) {
   if (ctx.error) {

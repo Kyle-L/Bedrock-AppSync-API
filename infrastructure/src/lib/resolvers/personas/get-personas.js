@@ -1,7 +1,7 @@
 import { util } from '@aws-appsync/utils';
 
 /**
- * Queries a DynamoDB table and returns items created `today`
+ * Gets all personas from the DynamoDB table.
  */
 export function request(ctx) {
   const query = JSON.parse(
@@ -13,7 +13,7 @@ export function request(ctx) {
 }
 
 /**
- * Returns the query items
+ * Returns the fetched personas or throws an error if the operation failed.
  */
 export function response(ctx) {
   if (ctx.error) {
