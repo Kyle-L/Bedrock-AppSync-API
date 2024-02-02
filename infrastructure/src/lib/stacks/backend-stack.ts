@@ -16,12 +16,7 @@ export class BackendStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: BackendStackProps) {
     super(scope, id, props);
 
-    const {
-      customDomain,
-      pinecone,
-      removalPolicy,
-      azureCognitiveServicesTTSSecretArn
-    } = props;
+    const { customDomain, pinecone, removalPolicy, speedSecretArn } = props;
 
     // An ACM certificate for the custom domain.
     let certificate: acm.ICertificate | undefined;
@@ -76,7 +71,7 @@ export class BackendStack extends cdk.Stack {
       api: apiConstruct.appsync,
       table: conversationHistoryConstruct.table,
       bucket: conversationHistoryConstruct.bucket,
-      azureCognitiveServicesTTSSecretArn
+      speedSecretArn
     });
 
     /*================================= Data Sources =================================*/

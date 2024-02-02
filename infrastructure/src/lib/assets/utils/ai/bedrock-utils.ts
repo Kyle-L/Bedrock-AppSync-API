@@ -41,7 +41,7 @@ export async function processAsynchronously({
     JSON.stringify(MODEL_TUNINGS[modelTyped].params)
   );
 
-  let documentContext;
+  let documentContext = '';
   if (knowledgeBaseId) {
     documentContext = await getContext(query, knowledgeBaseId);
     console.log(`Document context: ${documentContext}`);
@@ -64,6 +64,8 @@ export async function processAsynchronously({
     query,
     search_results: documentContext
   });
+
+  console.log(`Formatted prompt: ${formattedPrompt}`);
 
   const stream = chat.pipe(new StringOutputParser()).stream(formattedPrompt);
 

@@ -14,7 +14,7 @@ interface PredictConstructProps extends cdk.StackProps {
   api: appsync.GraphqlApi;
   table: dynamodb.Table;
   bucket: s3.Bucket;
-  azureCognitiveServicesTTSSecretArn?: string;
+  speedSecretArn?: string;
 }
 
 export class PredictConstruct extends Construct {
@@ -25,6 +25,8 @@ export class PredictConstruct extends Construct {
 
   constructor(scope: Construct, id: string, props: PredictConstructProps) {
     super(scope, id);
+
+    const { bucket, table, api, speedSecretArn } = props;
 
     // Deadletter queue - For keeping track of failed messages.
     const deadLetterQueue = new sqs.Queue(this, 'DeadLetterQueue', {
@@ -40,11 +42,11 @@ export class PredictConstruct extends Construct {
       }
     });
 
-    // Create azure speech secret with region and key.
+    // Gets Secret from Secrets Manager
     const speechSecret = secretsmanager.Secret.fromSecretCompleteArn(
       this,
-      'AzureSpeechSecret',
-      props.azureCognitiveServicesTTSSecretArn || ''
+      'SpeechSecret',
+      speedSecretArn || ''
     );
 
     // Queue Lambda
@@ -53,7 +55,7 @@ export class PredictConstruct extends Construct {
       entry: path.join(__dirname, '../assets/lambdas/queue-trigger/index.ts'),
       environment: {
         QUEUE_URL: this.queue.queueUrl,
-        TABLE_NAME: props.table.tableName
+        TABLE_NAME: table.tableName
       },
       bundling: {
         minify: true,
@@ -61,26 +63,6 @@ export class PredictConstruct extends Construct {
       },
       timeout: cdk.Duration.seconds(60),
       memorySize: 256,
-      initialPolicy: [
-        // Allow the lambda to call SQS
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
-          actions: ['sqs:*'],
-          resources: [this.queue.queueArn]
-        }),
-        // Allow X-Ray tracing
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
-          actions: [
-            'xray:PutTraceSegments',
-            'xray:PutTelemetryRecords',
-            'xray:GetSamplingRules',
-            'xray:GetSamplingTargets',
-            'xray:GetSamplingStatisticSummaries'
-          ],
-          resources: ['*']
-        })
-      ],
       tracing: Tracing.ACTIVE
     });
 
@@ -88,9 +70,9 @@ export class PredictConstruct extends Construct {
       runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '../assets/lambdas/predict-async/index.ts'),
       environment: {
-        GRAPHQL_URL: props.api.graphqlUrl,
-        AZURE_SPEECH_SECRET: props.azureCognitiveServicesTTSSecretArn || '',
-        S3_BUCKET: props.bucket.bucketName
+        GRAPHQL_URL: api.graphqlUrl,
+        SPEECH_SECRET: speedSecretArn || '',
+        S3_BUCKET: bucket.bucketName
       },
       bundling: {
         nodeModules: ['langchain'],
@@ -100,30 +82,10 @@ export class PredictConstruct extends Construct {
       memorySize: 756,
       timeout: cdk.Duration.seconds(30),
       initialPolicy: [
-        // Allow the lambda to call Bedrock
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
-          actions: ['bedrock:*'],
-          resources: [`*`]
-        }),
-
         // Allow the lambda to call AppSync
         new iam.PolicyStatement({
-          resources: [`${props.api.arn}/*`],
+          resources: [`${api.arn}/*`],
           actions: ['appsync:GraphQL']
-        }),
-
-        // Allow X-Ray tracing
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
-          actions: [
-            'xray:PutTraceSegments',
-            'xray:PutTelemetryRecords',
-            'xray:GetSamplingRules',
-            'xray:GetSamplingTargets',
-            'xray:GetSamplingStatisticSummaries'
-          ],
-          resources: ['*']
         })
       ],
       tracing: Tracing.ACTIVE
@@ -134,28 +96,37 @@ export class PredictConstruct extends Construct {
       runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
       entry: path.join(__dirname, '../assets/lambdas/voice/index.ts'),
       environment: {
-        S3_BUCKET: props.bucket.bucketName,
-        AZURE_SPEECH_SECRET: speechSecret.secretArn
+        S3_BUCKET: bucket.bucketName,
+        SPEECH_SECRET: speechSecret.secretArn
       },
       bundling: {
         minify: true,
         sourceMap: true
       },
-      timeout: cdk.Duration.seconds(30)
+      timeout: cdk.Duration.seconds(30),
+      tracing: Tracing.ACTIVE
     });
 
-    props.table.grantReadWriteData(this.queueLambda);
-    speechSecret.grantRead(this.predictAsyncLambda);
+    // Add additional permissions to the predictAsyncLambda
+    this.predictAsyncLambda.role?.addManagedPolicy(
+      iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonBedrockFullAccess')
+    );
 
-    // Grants the lambda permission to get the Azure speech secret.
+    // Add SQS permission to the queue lambda
+    this.queue.grantSendMessages(this.queueLambda);
+
+    // Grant read/write data access to the DynamoDB table for the queueLambda
+    table.grantReadWriteData(this.queueLambda);
+
+    // Grant read access to the speech secret for the predictAsyncLambda and voiceLambda
+    speechSecret.grantRead(this.predictAsyncLambda);
     speechSecret.grantRead(this.voiceLambda);
 
-    // Grants the lambda permission to write/read to/from the S3 bucket.
-    // This is limited to the audio prefix.
-    props.bucket.grantReadWrite(this.voiceLambda, 'audio/*');
-    props.bucket.grantReadWrite(this.predictAsyncLambda, 'audio/*');
+    // Grant read/write access to the S3 bucket for the voiceLambda and predictAsyncLambda
+    bucket.grantReadWrite(this.voiceLambda, 'audio/*');
+    bucket.grantReadWrite(this.predictAsyncLambda, 'audio/*');
 
-    // Trigger the AI Lambda when a message is sent to the SQS queue.
+    // Trigger the predictAsyncLambda when a message is sent to the SQS queue
     this.predictAsyncLambda.addEventSource(
       new cdk.aws_lambda_event_sources.SqsEventSource(this.queue)
     );

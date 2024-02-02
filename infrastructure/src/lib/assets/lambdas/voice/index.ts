@@ -1,9 +1,8 @@
 import { AppSyncResolverEvent } from 'aws-lambda';
-import { getSecret, synthesizeAndUploadAudio } from 'lib/assets/utils/voice';
-import * as azureSpeechSDK from 'microsoft-cognitiveservices-speech-sdk';
+import { synthesizeSpeechAndUploadAudio } from 'lib/assets/utils/voice';
 
 // Environment variables
-const { S3_BUCKET = '', AZURE_SPEECH_SECRET = '' } = process.env;
+const { S3_BUCKET = '', SPEECH_SECRET = '' } = process.env;
 
 /**
  * Lambda function handler for speech synthesis and upload to S3.
@@ -17,17 +16,11 @@ export async function handler(
     };
   }>
 ): Promise<{ result: string }> {
-  const { speechKey, speechRegion } = await getSecret(AZURE_SPEECH_SECRET);
-  const speechConfig = azureSpeechSDK.SpeechConfig.fromSubscription(
-    speechKey,
-    speechRegion
-  );
-
-  const signedUrl = await synthesizeAndUploadAudio({
+  const signedUrl = await synthesizeSpeechAndUploadAudio({
     audioText: event.arguments.input.message,
     bucket: S3_BUCKET,
-    speechConfig,
-    voice: event?.prev?.result?.persona.voice
+    voice: event?.prev?.result?.persona.voice,
+    speechSecretArn: SPEECH_SECRET
   });
 
   return { result: signedUrl };

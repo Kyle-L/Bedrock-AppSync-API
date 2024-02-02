@@ -53,7 +53,7 @@ export interface BackendProps {
   /**
    * The Azure Cognitive Services Text-to-Speech secret ARN.
    */
-  azureCognitiveServicesTTSSecretArn?: string;
+  speedSecretArn?: string;
 
   /**
    * The removal policy for the stack.

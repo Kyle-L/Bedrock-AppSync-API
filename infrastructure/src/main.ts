@@ -26,7 +26,7 @@ new ApplicationStage(app, 'GenAI', {
       secretArn:
         'arn:aws:secretsmanager:us-east-1:248134257233:secret:GenAI/Backend/Pinecone-kBK9L6'
     },
-    azureCognitiveServicesTTSSecretArn:
+    speedSecretArn:
       'arn:aws:secretsmanager:us-east-1:248134257233:secret:GenAI/Backend/AzureTTS-jWNmLI'
   }
 });

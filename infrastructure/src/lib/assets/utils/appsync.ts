@@ -1,11 +1,8 @@
-import { SignatureV4 } from '@aws-sdk/signature-v4';
 import { Sha256 } from '@aws-crypto/sha256-js';
 import { defaultProvider } from '@aws-sdk/credential-provider-node';
 import { HttpRequest } from '@aws-sdk/protocol-http';
-import * as https from 'https';
-import * as AWSXRay from 'aws-xray-sdk';
-
-AWSXRay.captureHTTPsGlobal(require('https'));
+import { SignatureV4 } from '@aws-sdk/signature-v4';
+import { httpsClient } from './clients';
 
 export interface RequestParams {
   config: {
@@ -50,7 +47,7 @@ export const AppSyncRequestIAM = async (params: RequestParams) => {
   const signedRequest = await signer.sign(requestToBeSigned);
 
   return new Promise((resolve, _reject) => {
-    const httpRequest = https.request(
+    const httpRequest = httpsClient.request(
       { ...signedRequest, host: endpoint.hostname },
       (result) => {
         result.on('data', (data) => {

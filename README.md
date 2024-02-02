@@ -18,9 +18,10 @@
 - [Zero to Hero](#zero-to-hero)
   - [Setup](#setup)
   - [Pinecone Setup (Optional)](#pinecone-setup-optional)
-  - [Azure AI Services Speech Service Setup (Optional)](#azure-ai-services-speech-service-setup-optional)
+  - [ElevenLabs API Access Setup (Optional)](#elevenlabs-api-access-setup-optional)
   - [Backend](#backend)
   - [Frontend](#frontend)
+  - [License](#license)
 
 
 # Overview
@@ -115,26 +116,18 @@ npm install -g aws-cdk
 aws secretsmanager create-secret --name <MY_SECRET_NAME> --secret-string '{"apiKey":"<MY_API_KEY>"}'
 ```
 
-## Azure AI Services Speech Service Setup (Optional)
-> If you are not familiar with Azure Cognitive Services, Azure Cognitive Services is a collection of APIs that allow you to add AI capabilities to your applications. We are using it for its text-to-speech capabilities to allow our chatbot to speak to the user. AWS Polly was not used due to its limited support for custom voices.
+## ElevenLabs API Access Setup (Optional)
+> If you are not familiar with ElevenLabs, ElevenLabs is a company that provides a variety of AI services, including speech-to-text and text-to-speech. It is used in this project to provide the text-to-speech functionality for the chatbot.
 
-1. Create an Azure account at [https://azure.microsoft.com/en-us/](https://azure.microsoft.com/en-us/).
+1. Create an ElevenLabs account at [https://www.elevenlabs.io/](https://www.elevenlabs.io/).
 
-2. Create a new Azure Speech resource.
-  - There are additional configurations that you must provide when creating an Azure Speech resource:
-    - Name – The name of the resource. Choose any valid name of your choice.
-    - Subscription – The subscription to use for the resource. Choose the subscription you want to use.
-    - Resource group – The resource group to use for the resource. Choose the resource group you want to use.
-    - Location – The location to use for the resource. Choose the location you want to use.
-    - Pricing tier – The pricing tier to use for the resource. Choose the pricing tier you want to use. For this example, choose the `F0` pricing tier to use the free tier.
-    - Azure Speech resource name – The name of the Azure Speech resource. Choose any valid name of your choice.
+2. Get the ElevenLabs API key.
+  - You can find the API key in the ElevenLabs in the upper right corner click on your profile picture -> profile.
+  - Documentation for the ElevenLabs API Query can be found [here](https://elevenlabs.io/docs/api-reference/text-to-speech#authentication).
 
-3. Get the Azure Speech resource key and the Azure Speech region.
-  - You can find the resource key and the region in the Azure Speech resource console under "Overview".
-
-4. Create a new AWS Secrets Manager secret for Azure. Save the ARN of the secret for later.
+3. Create a new AWS Secrets Manager secret for ElevenLabs. Save the ARN of the secret for later.
 ```sh 
-aws secretsmanager create-secret --name <MY_SECRET_NAME> --secret-string '{"region":"<MY_REGION>","key":"<MY_SUBSCRIPTION_KEY>"}'
+aws secretsmanager create-secret --name <MY_SECRET_NAME> --secret-string '{"apiKey":"<MY_API_KEY>"}'
 ```
 
 
