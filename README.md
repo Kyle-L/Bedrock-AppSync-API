@@ -16,12 +16,12 @@
   - [Infrastructure Services Used](#infrastructure-services-used)
   - [The Event Flow](#the-event-flow)
 - [Zero to Hero](#zero-to-hero)
-  - [Setup](#setup)
+  - [Pre-requisites](#pre-requisites)
   - [Pinecone Setup (Optional)](#pinecone-setup-optional)
   - [ElevenLabs API Access Setup (Optional)](#elevenlabs-api-access-setup-optional)
-  - [Backend](#backend)
-  - [Frontend](#frontend)
-  - [License](#license)
+  - [Infrastructure Deployment - Backend](#infrastructure-deployment---backend)
+  - [Infrastructure Deployment - Frontend](#infrastructure-deployment---frontend)
+- [License](#license)
 
 
 # Overview
@@ -72,29 +72,44 @@ A simple [Vite](https://vitejs.dev/) and [TypeScript](https://www.typescriptlang
 # Zero to Hero
 > This section guides you through the process of deploying the infrastructure.
 
-## Setup
+## Pre-requisites
+> This section guides you through the process of setting up the infrastructure.
+> The project is written in TypeScript and uses (AWS CDK)[https://aws.amazon.com/cdk/] to deploy the infrastructure. Before we dive into deploying the frontend and backend, we will need to get the pre-requisites out of the way.
 
 1. Pre-requisites:
   - [Node.js](https://nodejs.org/en/) version 14 or later.
   - [AWS CLI](https://aws.amazon.com/cli/) version 2 or later.
   - [AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html) version 2 or later.
-  - [Pinecone](https://www.pinecone.io/) account (optional).
+  - [Pinecone](https://www.pinecone.io/) account *(optional)*.
+  - [ElevenLabs](https://www.elevenlabs.io/) account *(optional)*.
 
-2. Clone the repository and navigate to the infrastructure directory.
+2. Configure your AWS CLI. If you have not already done so, you can configure your AWS CLI by running the following command and following the prompts. For more information, see [Configuring the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html).
+```bash
+aws configure
+```
+
+3. Clone the repository and navigate to the infrastructure directory.
 ```bash
 git@github.com:Kyle-L/Bedrock-AppSync-API.git 
 cd Bedrock-AppSync-API/infrastructure
 ```
 
-3. Install the dependencies.
+4. Install the dependencies.
 ```bash
 npm install
 ```
 
-4. Install AWS CDK
+5. Install AWS CDK
 ```bash
 npm install -g aws-cdk
 ```
+
+6. Bootstrap the AWS CDK environment.
+```bash
+cdk bootstrap
+```
+
+7. Congrats! You are now ready to deploy the infrastructure. See (Backend)[#backend] and (Frontend)[#frontend] for more information on deploying the frontend and the backend of the project.
 
 ## Pinecone Setup (Optional)
 > If you are not familiar with Pinecone, Pinecone is a vector database that allows you to store and query high-dimensional vectors. It is used in this project to store the embeddings of the messages and to query for similar messages.
@@ -130,12 +145,64 @@ aws secretsmanager create-secret --name <MY_SECRET_NAME> --secret-string '{"apiK
 aws secretsmanager create-secret --name <MY_SECRET_NAME> --secret-string '{"apiKey":"<MY_API_KEY>"}'
 ```
 
+## Infrastructure Deployment - Backend
+> This section guides you through the process of deploying the backend infrastructure.
+> This includes our AppSync API, DynamoDB tables, Lambda functions, and more.
 
-## Backend
-![Work-in-Progress](docs/wip.png)
+1. Check into the `infrastructure` directory.
+```bash
+cd Bedrock-AppSync-API/infrastructure
+```
 
-## Frontend
-![Work-in-Progress](docs/wip.png)
+2. Install the dependencies.
+```bash
+npm install
+```
 
-## License
+3. Update the `config.ts` file with your appropriate values. For this sectio of the deployment process, you can just focus on the `backend` section of the `config.ts` file. The `config.ts` file is located in the `infrastructure` directory. The following are the variables that you will need to update:
+
+| Variable | Description | Optional/Required |
+| --- | --- | --- |
+| `config.backend.customDomain.acmCertificateArn` | The Amazon Resource Name (ARN) of the AWS Certificate Manager (ACM) certificate for the backend's custom domain. | Optional |
+| `config.backend.customDomain.domain` | The custom domain name for the backend. | Optional |
+| `config.backend.pinecone.connectionString` | The connection string for the Pinecone service. | Optional |
+| `config.backend.pinecone.secretArn` | The ARN of the AWS Secrets Manager secret that stores the Pinecone credentials. | Optional |
+| `config.backend.speechSecretArn` | The ARN of the AWS Secrets Manager secret that stores the Azure Text-to-Speech credentials. | Optional |
+
+4. Deploy the backend infrastructure.
+```bash
+cdk deploy GenAI/Backend
+```
+
+5. Congrats! You have now deployed the backend infrastructure. See (Frontend)[#frontend] for more information on deploying the frontend.
+
+## Infrastructure Deployment - Frontend
+> This section guides you through the process of deploying the frontend infrastructure.
+> This includes our S3 bucket and CloudFront distribution.
+
+1. Check into the `infrastructure` directory.
+```bash
+cd Bedrock-AppSync-API/infrastructure
+```
+
+2. Install the dependencies.
+```bash
+npm install
+```
+
+3. Update the `config.ts` file with your appropriate values. For this sectio of the deployment process, you can just focus on the `frontend` section of the `config.ts` file. The `config.ts` file is located in the `infrastructure` directory. The following are the variables that you will need to update:
+
+| Variable | Description | Optional/Required |
+| --- | --- | --- |
+| `config.frontend.customDomain.acmCertificateArn` | The Amazon Resource Name (ARN) of the AWS Certificate Manager (ACM) certificate for the frontend's custom domain. | Optional |
+| `config.frontend.customDomain.domain` | The custom domain name for the frontend. | Optional |
+
+4. Deploy the frontend infrastructure.
+```bash
+cdk deploy GenAI/Frontend
+```
+
+5. Congrats! You have now deployed the frontend infrastructure. You can now access the frontend by navigating to the CloudFront distribution URL.
+
+# License
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg?style=for-the-badge)](./LICENSE)

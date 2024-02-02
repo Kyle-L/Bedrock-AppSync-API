@@ -36,7 +36,7 @@ export interface BackendProps {
     domain: string;
   };
 
-  pinecone: {
+  pinecone?: {
     /**
      * The Pinecone connection string. Pinecone is used to store the knowledge base,
      * a vector database.
@@ -53,7 +53,7 @@ export interface BackendProps {
   /**
    * The Azure Cognitive Services Text-to-Speech secret ARN.
    */
-  speedSecretArn?: string;
+  speechSecretArn?: string;
 
   /**
    * The removal policy for the stack.

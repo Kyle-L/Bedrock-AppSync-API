@@ -14,7 +14,7 @@ interface PredictConstructProps extends cdk.StackProps {
   api: appsync.GraphqlApi;
   table: dynamodb.Table;
   bucket: s3.Bucket;
-  speedSecretArn?: string;
+  speechSecretArn?: string;
 }
 
 export class PredictConstruct extends Construct {
@@ -26,7 +26,7 @@ export class PredictConstruct extends Construct {
   constructor(scope: Construct, id: string, props: PredictConstructProps) {
     super(scope, id);
 
-    const { bucket, table, api, speedSecretArn } = props;
+    const { bucket, table, api, speechSecretArn } = props;
 
     // Deadletter queue - For keeping track of failed messages.
     const deadLetterQueue = new sqs.Queue(this, 'DeadLetterQueue', {
@@ -43,11 +43,14 @@ export class PredictConstruct extends Construct {
     });
 
     // Gets Secret from Secrets Manager
-    const speechSecret = secretsmanager.Secret.fromSecretCompleteArn(
-      this,
-      'SpeechSecret',
-      speedSecretArn || ''
-    );
+    let speechSecret;
+    if (speechSecretArn) {
+      speechSecret = secretsmanager.Secret.fromSecretCompleteArn(
+        this,
+        'SpeechSecret',
+        speechSecretArn
+      );
+    }
 
     // Queue Lambda
     this.queueLambda = new NodejsFunction(this, 'PredictAsyncQueueLambda', {
@@ -71,7 +74,7 @@ export class PredictConstruct extends Construct {
       entry: path.join(__dirname, '../assets/lambdas/predict-async/index.ts'),
       environment: {
         GRAPHQL_URL: api.graphqlUrl,
-        SPEECH_SECRET: speedSecretArn || '',
+        SPEECH_SECRET: speechSecretArn || '',
         S3_BUCKET: bucket.bucketName
       },
       bundling: {
@@ -97,7 +100,7 @@ export class PredictConstruct extends Construct {
       entry: path.join(__dirname, '../assets/lambdas/voice/index.ts'),
       environment: {
         S3_BUCKET: bucket.bucketName,
-        SPEECH_SECRET: speechSecret.secretArn
+        SPEECH_SECRET: speechSecret?.secretArn || ''
       },
       bundling: {
         minify: true,
@@ -119,8 +122,8 @@ export class PredictConstruct extends Construct {
     table.grantReadWriteData(this.queueLambda);
 
     // Grant read access to the speech secret for the predictAsyncLambda and voiceLambda
-    speechSecret.grantRead(this.predictAsyncLambda);
-    speechSecret.grantRead(this.voiceLambda);
+    speechSecret?.grantRead(this.predictAsyncLambda);
+    speechSecret?.grantRead(this.voiceLambda);
 
     // Grant read/write access to the S3 bucket for the voiceLambda and predictAsyncLambda
     bucket.grantReadWrite(this.voiceLambda, 'audio/*');
