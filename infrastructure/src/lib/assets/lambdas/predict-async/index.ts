@@ -65,7 +65,7 @@ async function processSingleEvent({
 }: EventType) {
   const formattedHistory = history
     .map((message) => {
-      return `${message.sender}: ${message.text}`;
+      return `${message.sender}: ${message.message}`;
     })
     .join('\n\n')
     .trim();
@@ -186,7 +186,7 @@ export async function handler(event: SQSEvent, context: Context) {
     return processSingleEvent({
       userId: eventData.identity.sub,
       threadId: eventData.arguments.input.threadId,
-      history: eventData.prev.result.data || [],
+      history: eventData.prev.result.messages || [],
       query: eventData.arguments.input.prompt,
       eventTimeout: eventTimeout,
       persona: eventData.prev.result.persona,
