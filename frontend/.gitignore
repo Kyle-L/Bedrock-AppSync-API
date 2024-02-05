@@ -25,3 +25,4 @@ dist-ssr
 
 # Environmental variables
 *.env*
+!.env.example

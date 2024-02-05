@@ -5,8 +5,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as path from 'path';
 
 export interface CognitoConstructProps {
-  userPoolDomainPrefix: string;
-  removalPolicy?: cdk.RemovalPolicy;
+  customDomain?: cdk.aws_cognito.CustomDomainOptions;
 }
 
 export class AuthConstruct extends Construct {
@@ -47,7 +46,6 @@ export class AuthConstruct extends Construct {
       lambdaTriggers: {
         preSignUp: this.presignupLambda
       },
-      removalPolicy: props.removalPolicy
     });
 
     // A Cognito User Pool Client
@@ -57,12 +55,12 @@ export class AuthConstruct extends Construct {
     });
 
     // A Cognito User Pool Domain
-    this.userPoolDomain = new cognito.UserPoolDomain(this, 'UserPoolDomain', {
-      userPool: this.userPool,
-      cognitoDomain: {
-        domainPrefix: props.userPoolDomainPrefix
-      }
-    });
+    if (props.customDomain) {
+      this.userPoolDomain = new cognito.UserPoolDomain(this, 'UserPoolDomain', {
+        userPool: this.userPool,
+        customDomain: props.customDomain
+      });
+    }
 
     // Output the Cognito User Pool Id
     new cdk.CfnOutput(this, 'UserPoolId', {

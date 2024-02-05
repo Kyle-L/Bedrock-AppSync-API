@@ -30,13 +30,18 @@ export class BackendStack extends cdk.Stack {
 
     // Cognito User Pool
     const authConstruct = new AuthConstruct(this, 'Auth', {
-      userPoolDomainPrefix: 'gen-ai-appsync',
-      removalPolicy: removalPolicy
+      customDomain:
+        customDomain && certificate
+          ? {
+                domainName: customDomain.domain,
+                certificate
+            }
+          : undefined,
     });
 
     // API handled by AppSync
     const apiConstruct = new ApiConstruct(this, 'Api', {
-      domainName:
+      customDomain:
         customDomain && certificate
           ? {
               domainName: customDomain.domain,

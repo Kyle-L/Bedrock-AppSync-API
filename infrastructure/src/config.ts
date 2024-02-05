@@ -1,29 +1,18 @@
 import { ApplicationStageProps } from './lib/types/application';
 
+const { env } = process;
+
 export const config: ApplicationStageProps = {
   env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION
+    account: env.CDK_DEFAULT_ACCOUNT,
+    region: env.CDK_DEFAULT_REGION
   },
   frontend: {
-    customDomain: {
-      acmCertificateArn:
-        'arn:aws:acm:us-east-1:248134257233:certificate/867d061c-669c-4147-abb2-dd8658ff3817',
-      domain: 'behavior.kylelierer.com'
-    }
+    customDomain: env.FRONTEND_ACM_CERTIFICATE_ARN && env.FRONTEND_DOMAIN ? { acmCertificateArn: env.FRONTEND_ACM_CERTIFICATE_ARN, domain: env.FRONTEND_DOMAIN } : undefined
   },
   backend: {
-    customDomain: {
-      acmCertificateArn:
-        'arn:aws:acm:us-east-1:248134257233:certificate/867d061c-669c-4147-abb2-dd8658ff3817',
-      domain: 'api.behavior.kylelierer.com'
-    },
-    pinecone: {
-      connectionString: 'https://bedrock-698x9ew.svc.gcp-starter.pinecone.io',
-      secretArn:
-        'arn:aws:secretsmanager:us-east-1:248134257233:secret:GenAI/Backend/Pinecone-kBK9L6'
-    },
-    speechSecretArn:
-      'arn:aws:secretsmanager:us-east-1:248134257233:secret:GenAI/Backend/AzureTTS-jWNmLI'
+    customDomain: env.BACKEND_ACM_CERTIFICATE_ARN && env.BACKEND_DOMAIN ? { acmCertificateArn: env.BACKEND_ACM_CERTIFICATE_ARN, domain: env.BACKEND_DOMAIN } : undefined,
+    pinecone: env.PINECONE_CONNECTION_STRING && env.PINECONE_SECRET_ARN ? { connectionString: env.PINECONE_CONNECTION_STRING, secretArn: env.PINECONE_SECRET_ARN } : undefined,
+    speechSecretArn: env.SPEECH_SECRET_ARN
   }
 };

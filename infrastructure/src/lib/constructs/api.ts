@@ -5,7 +5,7 @@ import { Construct } from 'constructs';
 import path = require('path');
 
 export interface AppSyncConstructProps {
-  domainName?: cdk.aws_appsync.DomainOptions;
+  customDomain?: cdk.aws_appsync.DomainOptions;
   userPool: cognito.UserPool;
   userPoolClient: cognito.UserPoolClient;
 }
@@ -16,7 +16,7 @@ export class ApiConstruct extends Construct {
   constructor(scope: Construct, id: string, props: AppSyncConstructProps) {
     super(scope, id);
 
-    const { domainName, userPool, userPoolClient } = props;
+    const { customDomain: domainName, userPool, userPoolClient } = props;
 
     // Create an AppSync GraphQL API
     this.appsync = new appsync.GraphqlApi(this, 'AppSyncApi', {

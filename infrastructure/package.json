@@ -34,7 +34,6 @@
     "aws-xray-sdk": "^3.5.3",
     "bedrock-agents-cdk": "^0.0.7",
     "constructs": "^10.3.0",
-    "elevenlabs-js": "^1.2.6",
     "esbuild": "^0.20.0",
     "langchain": "^0.1.12",
     "source-map-support": "^0.5.21"

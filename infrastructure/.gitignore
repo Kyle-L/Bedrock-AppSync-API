@@ -12,3 +12,7 @@ cdk.out
 
 # CDK Resolvers
 !src/lib/resolvers/**/*.js
+
+# Environmental variables
+*.env*
+!.env.example
