@@ -14,12 +14,14 @@ const runtime = new BedrockAgentRuntime();
  */
 export async function processAsynchronously({
   query,
+  fullQuery,
   promptTemplate,
   model,
   knowledgeBaseId,
   callback
 }: {
   query: string;
+  fullQuery: string;
   promptTemplate?: string;
   model?: string;
   knowledgeBaseId?: string;
@@ -61,7 +63,7 @@ export async function processAsynchronously({
     ? PromptTemplate.fromTemplate(promptTemplate)
     : defaultTemplate;
   const formattedPrompt = await template.format({
-    query,
+    query: fullQuery,
     search_results: documentContext
   });
 
@@ -94,9 +96,13 @@ async function getContext(
     })
     .promise();
 
+  console.log(`Retrieval results: ${JSON.stringify(result)}`);
+
   return (
     result?.retrievalResults
-      .map((result) => result.content.text)
+      .map((result) => {
+        `Document: ${result.location?.s3Location}\n${result.content.text}`;
+      })
       .join('\n\n') || ''
   );
 }

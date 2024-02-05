@@ -122,7 +122,7 @@ export async function synthesizeSpeechAndUploadAudio({
 }: {
   audioText: string;
   speechSecretArn: string;
-  voice: { name: string; style?: string };
+  voice: { id: string };
   bucket: string;
 }): Promise<string> {
   const audioFileName = AUDIO_NAME_TEMPLATE.replace(
@@ -132,7 +132,7 @@ export async function synthesizeSpeechAndUploadAudio({
 
   const result = await synthesizeSpeechAudio({
     audioText: audioText,
-    voiceId: voice.name,
+    voiceId: voice.id,
     speechSecretArn: speechSecretArn
   });
 

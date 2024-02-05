@@ -7,7 +7,7 @@ import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import {
   ApiConstruct,
   AuthConstruct,
-  ConversationHistoryConstruct,
+  DataStoreConstruct,
   PredictConstruct
 } from '../constructs';
 import { KnowledgeBaseConstruct } from '../constructs/knowledge-base';
@@ -16,12 +16,7 @@ export class BackendStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: BackendStackProps) {
     super(scope, id, props);
 
-    const {
-      apiCustomDomain: customDomain,
-      pinecone,
-      removalPolicy,
-      speechSecretArn
-    } = props;
+    const { apiCustomDomain: customDomain, pinecone, speechSecretArn } = props;
 
     // An ACM certificate for the custom domain.
     let certificate: acm.ICertificate | undefined;
@@ -67,20 +62,15 @@ export class BackendStack extends cdk.Stack {
     }
 
     // DynamoDB Table - Stores personas and conversation threads/messages.
-    const conversationHistoryConstruct = new ConversationHistoryConstruct(
-      this,
-      'ConversationHistory',
-      {
-        removalPolicy: removalPolicy,
-        knowledgeBaseId: knowledgeBase?.knowledgeBase?.knowledgeBaseId
-      }
-    );
+    const dataStoreConstruct = new DataStoreConstruct(this, 'DataStore', {
+      knowledgeBaseId: knowledgeBase?.knowledgeBase?.knowledgeBaseId
+    });
 
     // Prediction lambdas - Handles integration with Bedrock.
     const predictConstruct = new PredictConstruct(this, 'Predict', {
       api: apiConstruct.appsync,
-      table: conversationHistoryConstruct.table,
-      bucket: conversationHistoryConstruct.bucket,
+      table: dataStoreConstruct.table,
+      bucket: dataStoreConstruct.bucket,
       speechSecretArn
     });
 
@@ -100,7 +90,7 @@ export class BackendStack extends cdk.Stack {
     const conversationHistoryDataSource =
       apiConstruct.appsync.addDynamoDbDataSource(
         'ConversationHistoryDataSource',
-        conversationHistoryConstruct.table
+        dataStoreConstruct.table
       );
 
     // None Data Sources

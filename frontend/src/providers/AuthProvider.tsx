@@ -14,6 +14,7 @@ interface AuthState {
   loaded: boolean;
   user: AuthUser | undefined;
   userAttributes: Auth.FetchUserAttributesOutput | undefined;
+  groups: string[];
   signUp(input: SignUpInput): Promise<Auth.SignUpOutput | undefined>;
   confirmSignUp(input: ConfirmSignUpInput): Promise<Auth.ConfirmSignUpOutput | undefined>;
   signIn(input: SignInInput): Promise<Auth.SignInOutput | undefined>;
@@ -34,6 +35,7 @@ interface AuthProps {
 export const AuthProvider = ({ children }: AuthProps) => {
   const [loaded, setLoaded] = useState(false);
   const [user, setUser] = useState<Auth.AuthUser | undefined>(undefined);
+  const [groups, setGroups] = useState<string[]>([]);
   const [userAttributes, setUserAttributes] = useState<Auth.FetchUserAttributesOutput | undefined>(
     undefined
   );
@@ -76,8 +78,13 @@ export const AuthProvider = ({ children }: AuthProps) => {
       const user = await Auth.getCurrentUser();
       if (user) {
         const userAttributes = await Auth.fetchUserAttributes();
+        const groups =
+          ((await Auth.fetchAuthSession()).tokens?.accessToken.payload[
+            'cognito:groups'
+          ] as string[]) ?? [];
         setUser(user);
         setUserAttributes(userAttributes);
+        setGroups(groups);
       } else {
         clearUser();
       }
@@ -107,6 +114,7 @@ export const AuthProvider = ({ children }: AuthProps) => {
         loaded,
         user,
         userAttributes,
+        groups,
         signUp,
         confirmSignUp,
         signIn,

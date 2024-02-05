@@ -54,12 +54,6 @@ export interface BackendProps {
    * The Azure Cognitive Services Text-to-Speech secret ARN.
    */
   speechSecretArn?: string;
-
-  /**
-   * The removal policy for the stack.
-   * @default - Delete on destroy.
-   */
-  removalPolicy?: RemovalPolicy;
 }
 
 export type FrontendStackProps = StackProps & FrontendProps;

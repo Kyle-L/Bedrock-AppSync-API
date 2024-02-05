@@ -94,7 +94,8 @@ async function processSingleEvent({
 
         // Kicks off the asynchronous processing of the prompt.
         await processAsynchronously({
-          query: fullQuery,
+          query,
+          fullQuery,
           promptTemplate: persona.prompt,
           callback: async (chunk) => {
             try {

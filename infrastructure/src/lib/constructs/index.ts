@@ -3,9 +3,4 @@ import { PredictConstruct } from './predict';
 import { ApiConstruct } from './api';
 import { AuthConstruct } from './auth';
 
-export {
-  DataStoreConstruct as ConversationHistoryConstruct,
-  PredictConstruct,
-  ApiConstruct,
-  AuthConstruct
-};
+export { DataStoreConstruct, PredictConstruct, ApiConstruct, AuthConstruct };

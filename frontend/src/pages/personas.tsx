@@ -9,6 +9,7 @@ import * as mutations from '../graphql/mutations';
 import * as queries from '../graphql/queries';
 import { useBackground } from '../providers/BackgroundProvider';
 import useAlert from '../hooks/AlertHook';
+import { useAuth } from '../providers/AuthProvider';
 
 const client = generateClient();
 
@@ -18,6 +19,7 @@ export default function Personas() {
   const [threads, setThreads] = useState<Thread[]>([]);
 
   // Hooks
+  const auth = useAuth();
   const navigate = useNavigate();
   const { setBackground } = useBackground();
   const { addAlert } = useAlert();
@@ -57,7 +59,7 @@ export default function Personas() {
   };
 
   useEffect(() => {
-    setBackground('rose');
+    setBackground('slate');
   }, []);
 
   useEffect(() => {
@@ -84,9 +86,11 @@ export default function Personas() {
 
   return (
     <>
-      <Link className="btn" to="/personas/create">
-        Create Persona
-      </Link>
+      {auth.groups.includes('admin') && (
+        <Link className="btn" to="/personas/create">
+          Create Persona
+        </Link>
+      )}
 
       <div className="w-full mt-4 mb-8">
         <h1 className="text-2xl font-extrabold w-full">Start a Conversation</h1>

@@ -1,11 +1,11 @@
 export interface EventType {
   userId: string;
   threadId: string;
-  history: { sender: string; text: string }[];
+  history: { sender: string; message: string }[];
   query: string;
   eventTimeout: number;
   persona: {
-    voice: { name: string; style?: string };
+    voice: { id: string };
     voiceStyle: string;
     model: string;
     knowledgeBaseId: string;

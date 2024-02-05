@@ -65,8 +65,7 @@ input CreateVoiceInput {
 }
 
 input VoiceInput {
-  name: String!
-  style: String
+  id: String!
 }
 
 input CreatePersonaInput {
@@ -106,8 +105,7 @@ input RecieveMessageChunkAsyncInput {
 ############## TYPES #####################
 
 type Voice @aws_cognito_user_pools @aws_iam {
-  name: String!
-  style: String
+  id: String!
 }
 
 type Persona @aws_cognito_user_pools @aws_iam {
@@ -205,12 +203,12 @@ type Mutation {
     @aws_cognito_user_pools
     @aws_iam
   createPersona(input: CreatePersonaInput!): CreatePersonaPayload
-    @aws_cognito_user_pools
+    @aws_cognito_user_pools(cognito_groups: ["admin"])
     @aws_iam
 
   # Update
   updatePersona(input: UpdatePersonaInput!): UpdatePersonaPayload
-    @aws_cognito_user_pools
+    @aws_cognito_user_pools(cognito_groups: ["admin"])
     @aws_iam
 
   # Deletion
@@ -218,7 +216,7 @@ type Mutation {
     @aws_cognito_user_pools
     @aws_iam
   deletePersona(input: DeletePersonaInput!): DeletePersonaPayload
-    @aws_cognito_user_pools
+    @aws_cognito_user_pools(cognito_groups: ["admin"])
     @aws_iam
 
   # System

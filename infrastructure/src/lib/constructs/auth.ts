@@ -48,6 +48,12 @@ export class AuthConstruct extends Construct {
       }
     });
 
+    // Create Admin User Group
+    new cognito.CfnUserPoolGroup(this, 'AdminGroup', {
+      userPoolId: this.userPool.userPoolId,
+      groupName: 'admin'
+    });
+
     // A Cognito User Pool Client
     this.userPoolClient = new cognito.UserPoolClient(this, 'UserPoolClient', {
       userPool: this.userPool,

@@ -1,4 +1,7 @@
 import { ApplicationStageProps } from './lib/types/application';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 const { env } = process;
 

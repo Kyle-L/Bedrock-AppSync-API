@@ -9,7 +9,6 @@ import getDefaultPersonas from '../assets/data/default-personas';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 
 export interface DataStoreProps {
-  removalPolicy?: cdk.RemovalPolicy;
   knowledgeBaseId?: string;
 }
 
@@ -29,7 +28,7 @@ export class DataStoreConstruct extends Construct {
     super(scope, id);
 
     // A conversation history table
-    this.table = new dynamodb.Table(this, 'ConversationHistory', {
+    this.table = new dynamodb.Table(this, 'Database', {
       partitionKey: {
         name: 'pk',
         type: dynamodb.AttributeType.STRING
@@ -38,8 +37,7 @@ export class DataStoreConstruct extends Construct {
         name: 'sk',
         type: dynamodb.AttributeType.STRING
       },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: props?.removalPolicy
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST
     });
 
     // Add the default items to the table using custom resources
@@ -68,7 +66,7 @@ export class DataStoreConstruct extends Construct {
     });
 
     // S3 bucket for storing audio files and other assets.
-    this.bucket = new s3.Bucket(this, 'PredictionBucket', {
+    this.bucket = new s3.Bucket(this, 'Assets', {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       lifecycleRules: [

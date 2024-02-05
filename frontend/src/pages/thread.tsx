@@ -17,19 +17,25 @@ import { Switch } from '@headlessui/react';
 const client = generateClient();
 
 export default function ThreadPage() {
-  // State
+  // Thread
+  const [thread, setThread] = useState<Thread | null>(null);
+
+  // Audio state
   const [generateAudio, setGenerateAudio] = useState(() => {
     const storedValue = localStorage.getItem('generateAudio');
     return storedValue ? JSON.parse(storedValue) : true;
-  }); // Whether or not to generate audio clips
+  });
   const [audioPlaying, setAudioPlaying] = useState(false); // Whether or not an audio clip is currently playing
   const [audioIndex, setAudioIndex] = useState(0); // Index of the audio clip to play next
   const [audioClips, setAudioClips] = useState<HTMLAudioElement[]>([]);
+
+  // Conversation state
   const [conversationHistory, setConversationHistory] = useState<Omit<Message, '__typename'>[]>([]);
   const [lastMessage, setLastMessage] = useState<Omit<Message, '__typename'> | null>();
+
+  // Loading state
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState('');
-  const [thread, setThread] = useState<Thread | null>(null);
 
   // Hooks
   const { threadId } = useParams();
@@ -245,7 +251,7 @@ export default function ThreadPage() {
           Send
         </button>
       </form>
-      {/* Generate audio checkbox */}
+      {/* Generate audio checkbox, if the persona has a voice */}
       <div className="flex items-center mb-4 ml-auto">
         <label className="mr-2 text-sm text-gray-500">Generate audio</label>
         <Switch

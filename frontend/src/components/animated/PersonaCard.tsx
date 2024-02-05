@@ -5,6 +5,7 @@ import { getAvatarURL } from '../../utils/avatar';
 
 import type { ComponentPropsWithoutRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../providers/AuthProvider';
 
 interface PersonaCardProps extends ComponentPropsWithoutRef<React.ElementType> {
   persona: Persona;
@@ -12,6 +13,8 @@ interface PersonaCardProps extends ComponentPropsWithoutRef<React.ElementType> {
 }
 
 export default function PersonaCard({ persona, onClickCallBack, ...props }: PersonaCardProps) {
+  const { groups } = useAuth();
+
   return (
     <motion.li
       initial={{ opacity: 0, x: -100 }}
@@ -38,9 +41,14 @@ export default function PersonaCard({ persona, onClickCallBack, ...props }: Pers
           <p className="font-normal text-xs -mt-1">{persona.subtitle}</p>
         </div>
       </button>
-        <Link className="ml-auto pr-2 text-sm font-normal" to={`/personas/update/${persona.personaId}`}>
+      {groups.includes('admin') && (
+        <Link
+          className="ml-auto pr-2 text-sm font-normal"
+          to={`/personas/update/${persona.personaId}`}
+        >
           Update
         </Link>
+      )}
     </motion.li>
   );
 }
