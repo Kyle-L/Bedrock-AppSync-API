@@ -22,7 +22,7 @@ export interface FrontendProps {
 }
 
 export interface BackendProps {
-  customDomain?: {
+  apiCustomDomain?: {
     /**
      * The ARN of the ACM certificate to use for the API.
      * @default - No custom domain.

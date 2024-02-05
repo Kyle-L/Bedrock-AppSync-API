@@ -45,7 +45,7 @@ export class AuthConstruct extends Construct {
       },
       lambdaTriggers: {
         preSignUp: this.presignupLambda
-      },
+      }
     });
 
     // A Cognito User Pool Client
@@ -53,14 +53,6 @@ export class AuthConstruct extends Construct {
       userPool: this.userPool,
       generateSecret: false
     });
-
-    // A Cognito User Pool Domain
-    if (props.customDomain) {
-      this.userPoolDomain = new cognito.UserPoolDomain(this, 'UserPoolDomain', {
-        userPool: this.userPool,
-        customDomain: props.customDomain
-      });
-    }
 
     // Output the Cognito User Pool Id
     new cdk.CfnOutput(this, 'UserPoolId', {

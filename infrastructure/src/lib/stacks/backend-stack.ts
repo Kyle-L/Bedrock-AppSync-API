@@ -16,7 +16,12 @@ export class BackendStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: BackendStackProps) {
     super(scope, id, props);
 
-    const { customDomain, pinecone, removalPolicy, speechSecretArn } = props;
+    const {
+      apiCustomDomain: customDomain,
+      pinecone,
+      removalPolicy,
+      speechSecretArn
+    } = props;
 
     // An ACM certificate for the custom domain.
     let certificate: acm.ICertificate | undefined;
@@ -33,10 +38,10 @@ export class BackendStack extends cdk.Stack {
       customDomain:
         customDomain && certificate
           ? {
-                domainName: customDomain.domain,
-                certificate
+              domainName: customDomain.domain,
+              certificate
             }
-          : undefined,
+          : undefined
     });
 
     // API handled by AppSync
