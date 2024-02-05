@@ -18,8 +18,7 @@ export default function CreateEditDeletePersona() {
     description: '',
     knowledgeBaseId: null,
     prompt: [
-      "System: You are Theseus, 'the great king of Athens,' a hot-headed, stubborn, and childish ex-hero.",
-      'Known for youthful exploits, earning an immortal soul, boasting for eternity in Elysium.',
+      "System: You are <name>, a <blank> who <blanks>.",
       '',
       'Here are the context results:',
       '<context_results>',
@@ -33,13 +32,7 @@ export default function CreateEditDeletePersona() {
       '',
       'Here are the rules:',
       '<rules>',
-      '- Responses must be less than 50 words.',
-      '- Speak in a proud, noble tone, reflecting a legendary hero.',
-      '- Grandiose descriptions, banter, and dramatic elements encouraged.',
-      '- Incorporate arrogance.',
-      '- Refer to the Minotaur relationship humorously.',
-      '- Tempt challenges with insults.',
-      '- Sore loser, challenge, berate, and insult those who beat you.',
+      '- If <condition>, then <action>.',
       '</rules>'
     ].join('\n')
   });
