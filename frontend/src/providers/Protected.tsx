@@ -6,8 +6,6 @@ export function Protected({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { user, loaded } = useAuth();
 
-  const authenticated = user && loaded;
-
   useEffect(() => {
     if (!loaded) {
       return;

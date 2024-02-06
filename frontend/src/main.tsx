@@ -18,6 +18,7 @@ import { AuthProvider } from './providers/AuthProvider';
 import { BackgroundProvider } from './providers/BackgroundProvider';
 import { Protected } from './providers/Protected';
 import './styles/index.css';
+import { AudioProvider } from './providers/AudioProvider';
 
 Amplify.configure({
   Auth: {
@@ -91,11 +92,13 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <BackgroundProvider>
       <Background />
       <AuthProvider>
-        <AlertProvider>
-          <AlertWrapper>
-            <RouterProvider router={router} />
-          </AlertWrapper>
-        </AlertProvider>
+        <AudioProvider>
+          <AlertProvider>
+            <AlertWrapper>
+              <RouterProvider router={router} />
+            </AlertWrapper>
+          </AlertProvider>
+        </AudioProvider>
       </AuthProvider>
     </BackgroundProvider>
   </React.StrictMode>
