@@ -10,15 +10,14 @@ export function AlertWrapper({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <div className="flex fixed bottom-0 left-0 right-0 z-50 p-4">
+      <div className="flex fixed bottom-0 left-0 z-50 p-4">
         <div className="grid grid-cols-1 gap-4">
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
             {alerts.alerts.map((alert) => (
               <motion.div
-                className={alert.id}
                 key={alert.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 100, rotate: 90 }}
+                animate={{ opacity: 1, y: 0, rotate: 0 }}
                 exit={{ opacity: 0, height: 0 }}
               >
                 <AlertComponent alert={alert} unmountSelf={() => remove(alert.id)} />

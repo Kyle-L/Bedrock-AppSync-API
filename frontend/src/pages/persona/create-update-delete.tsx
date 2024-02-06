@@ -1,6 +1,6 @@
 import { generateClient } from 'aws-amplify/api';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { CreatePersonaInput, Persona, UpdatePersonaInput } from '../../API';
 import * as mutations from '../../graphql/mutations';
 import * as queries from '../../graphql/queries';
@@ -57,10 +57,10 @@ export default function CreateEditDeletePersona() {
         }
       });
 
-      addAlert('Persona created', 'success');
+      addAlert('Persona created!', 'success');
       navigate(`/personas/update/${result.data.createPersona.persona?.personaId}`);
     } catch (err: any) {
-      addAlert(err?.message ?? 'Something went wrong', 'error');
+      addAlert(err?.message ?? 'Something went wrong!', 'error');
     }
   };
 
@@ -78,9 +78,9 @@ export default function CreateEditDeletePersona() {
         }
       });
 
-      addAlert('Persona updated', 'success');
+      addAlert('Persona updated!', 'success');
     } catch (err: any) {
-      addAlert(err?.message ?? 'Something went wrong', 'error');
+      addAlert(err?.message ?? 'Something went wrong!', 'error');
     }
   };
 
@@ -90,12 +90,12 @@ export default function CreateEditDeletePersona() {
    */
   const deletePersona = async () => {
     if (!personaId) {
-      addAlert('Persona not found', 'error');
+      addAlert('Persona not found!', 'error');
       return;
     }
 
     try {
-      const result = await client.graphql({
+      await client.graphql({
         query: mutations.deletePersona,
         variables: {
           input: {
@@ -104,10 +104,10 @@ export default function CreateEditDeletePersona() {
         }
       });
 
-      addAlert('Persona deleted', 'success');
+      addAlert('Persona deleted!', 'success');
       navigate(`/personas`);
     } catch (err: any) {
-      addAlert(err?.message ?? 'Something went wrong', 'error');
+      addAlert(err?.message ?? 'Something went wrong!', 'error');
     }
   };
 
@@ -126,7 +126,7 @@ export default function CreateEditDeletePersona() {
       .graphql({ query: queries.getPersona, variables: { input: { personaId } } })
       .then(({ data }) => {
         if (!data.getPersona) {
-          addAlert('Persona not found', 'error');
+          addAlert('Persona not found!', 'error');
           return;
         }
 
@@ -149,7 +149,7 @@ export default function CreateEditDeletePersona() {
         console.log('data: ', data.getPersona);
       })
       .catch((err) => {
-        addAlert(err?.message ?? 'Something went wrong', 'error');
+        addAlert(err?.message ?? 'Something went wrong!', 'error');
       });
   }, [personaId]);
 
@@ -258,18 +258,26 @@ export default function CreateEditDeletePersona() {
               />
             </div>
           </div>
-          <div className="flex flex-row ml-auto space-x-2">
+          <div className="flex flex-row">
             {personaId ? (
               <>
-                <button className="btn-secondary" onClick={deletePersona}>
+                <button
+                  className="text-red-600 hover:text-red-800 transition-colors"
+                  onClick={deletePersona}
+                >
                   Delete
                 </button>
-                <button
-                  className="btn"
-                  onClick={() => updatePersona(persona as UpdatePersonaInput)}
-                >
-                  Update
-                </button>
+                <div className="ml-auto flex flex-row space-x-4">
+                  <Link to="/personas" className="btn-secondary">
+                    Back
+                  </Link>
+                  <button
+                    className="btn"
+                    onClick={() => updatePersona(persona as UpdatePersonaInput)}
+                  >
+                    Update
+                  </button>
+                </div>
               </>
             ) : (
               <button className="btn" onClick={() => createPersona(persona as CreatePersonaInput)}>

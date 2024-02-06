@@ -99,7 +99,7 @@ export default function ThreadPage() {
       });
       setThread(data.getThread as Thread);
     } catch (err: any) {
-      addAlert(err?.message ?? 'Something went wrong', 'error');
+      addAlert(err?.message ?? 'Something went wrong!', 'error');
     }
   };
 
@@ -139,7 +139,7 @@ export default function ThreadPage() {
           }
         },
         error: (error) => {
-          addAlert(error?.message ?? 'Something went wrong', 'warning');
+          addAlert(error?.message ?? 'Something went wrong!', 'warning');
         }
       });
   };
@@ -189,7 +189,7 @@ export default function ThreadPage() {
         }
       })
       .catch((err: any) => {
-        addAlert(err?.message ?? 'Something went wrong', 'error');
+        addAlert(err?.message ?? 'Something went wrong!', 'error');
       });
   };
 

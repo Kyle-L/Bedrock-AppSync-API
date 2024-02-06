@@ -87,7 +87,7 @@ export default function Personas() {
   return (
     <>
       {auth.groups.includes('admin') && (
-        <Link className="btn" to="/personas/create">
+        <Link className="btn ml-auto" to="/personas/create">
           Create Persona
         </Link>
       )}

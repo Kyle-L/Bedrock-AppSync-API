@@ -1,4 +1,13 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Alert } from '../../providers/AlertProvider';
+import {
+  faTimes,
+  faCheckCircle,
+  faExclamation,
+  faInfoCircle,
+  faExclamationCircle,
+  faExclamationTriangle
+} from '@fortawesome/free-solid-svg-icons';
 
 interface AlertProps {
   alert: Alert;
@@ -7,37 +16,37 @@ interface AlertProps {
 
 export function AlertComponent({ alert, unmountSelf }: AlertProps) {
   let color = 'bg-green-50 text-green-700';
-  let icon = 'fas fa-check-circle';
+  let icon = faCheckCircle;
   switch (alert.type) {
     case 'success':
       color = 'bg-green-50 text-green-700';
-      icon = 'fas fa-check-circle';
+      icon = faCheckCircle;
       break;
     case 'error':
       color = 'bg-red-50 text-red-700';
-      icon = 'fas fa-exclamation-circle';
+      icon = faExclamationCircle;
       break;
     case 'warning':
       color = 'bg-yellow-50 text-yellow-700';
-      icon = 'fas fa-exclamation-triangle';
+      icon = faExclamationTriangle;
       break;
     case 'info':
       color = 'bg-blue-50 text-blue-700';
-      icon = 'fas fa-info-circle';
+      icon = faInfoCircle;
       break;
     default:
       break;
   }
 
   return (
-    <div className={`${color} shadow-md rounded-lg p-4`}>
+    <div className={`${color} shadow-xl rounded-lg p-4`}>
       <div className="flex items-center">
-        <i className={icon}></i>
+        <FontAwesomeIcon icon={icon} />
         <div className="ml-3">
-          <p className="text-sm leading-5 font-medium">{alert.message}</p>
+          <p className="leading-5 font-medium">{alert.message}</p>
         </div>
         <button onClick={unmountSelf} className="mx-2 focus:outline-none">
-          <i className="fas fa-close"></i>
+          <FontAwesomeIcon icon={faTimes} />
         </button>
       </div>
     </div>
