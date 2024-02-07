@@ -19,7 +19,7 @@ export function Navbar() {
           className="fixed top-0 left-0 w-full h-16 bg-slate-100 flex items-center justify-between px-4 sm:px-6 lg:px-8 drop-shadow-lg"
         >
           <Link className="font-display text-2xl font-bold text-slate-700" to="/">
-            Behaviour <span className="text-sm">by Kyle</span>
+            Behavior <span className="text-sm">by Kyle</span>
           </Link>
           <button
             className="btn"

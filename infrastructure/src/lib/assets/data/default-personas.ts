@@ -1,5 +1,9 @@
 import { marshall } from '@aws-sdk/util-dynamodb';
 
+/**
+ * Default personas for the chatbot.
+ * @param knowledgeBaseId - An optional knowledge base ID to associate with the persona. This is useful for context-based personas.
+ */
 export default function DefaultPersonas({
   knowledgeBaseId
 }: {
@@ -37,6 +41,7 @@ export default function DefaultPersonas({
       voice: {
         id: 'en-US-AriaNeural'
       },
+      model: 'anthropic.claude-v2:1',
       subtitle: 'Expert of Viticulture',
       knowledgeBaseId: knowledgeBaseId || ''
     }),
@@ -79,6 +84,7 @@ export default function DefaultPersonas({
       voice: {
         id: 'en-US-TonyNeural'
       },
+      model: 'anthropic.claude-v2:1',
       subtitle: 'Hero of Elysium',
       knowledgeBaseId: knowledgeBaseId || ''
     }),
@@ -92,7 +98,7 @@ export default function DefaultPersonas({
         "Santiago, the sea's senior citizen who refuses to retire."
       ].join('\n'),
       name: 'Santiago',
-      model: 'claudeInstant',
+      model: 'anthropic.claude-instant-v1',
       voice: {
         id: 'en-TZ-ElimuNeural'
       },

@@ -9,10 +9,12 @@ type ModelTunings<T extends string> = {
   };
 };
 
-export const MODEL_TUNINGS: ModelTunings<
-  'claude' | 'ai21' | 'titan' | 'claudeInstant'
-> = {
-  titan: {
+/**
+ * Model tunings for different AI models supported by Bedrock.
+ * This is used to help configure the AI models for different use cases.
+ */
+export const MODEL_TUNINGS: ModelTunings<string> = {
+  'amazon.titan-text-express-v1': {
     params: {
       model: 'amazon.titan-text-express-v1',
       maxTokens: 200,
@@ -26,7 +28,7 @@ export const MODEL_TUNINGS: ModelTunings<
       }
     }
   },
-  ai21: {
+  'ai21.j2-ultra-v1': {
     params: {
       model: 'ai21.j2-ultra-v1',
       maxTokens: 200,
@@ -44,7 +46,7 @@ export const MODEL_TUNINGS: ModelTunings<
       stop: ['User:']
     }
   },
-  claude: {
+  'anthropic.claude-v2:1': {
     params: {
       model: 'anthropic.claude-v2:1',
       maxTokens: 200,
@@ -54,7 +56,7 @@ export const MODEL_TUNINGS: ModelTunings<
       stop: ['\nUser:', '\nAssistant:']
     }
   },
-  claudeInstant: {
+  'anthropic.claude-instant-v1': {
     params: {
       model: 'anthropic.claude-instant-v1',
       maxTokens: 500,

@@ -11,12 +11,14 @@
 
 # Table of Content <!-- omit in toc -->
 - [Overview](#overview)
-- [Architecture](#architecture)
+  - [Architecture](#architecture)
   - [Terminology](#terminology)
+  - [Tools Used](#tools-used)
   - [Infrastructure Services Used](#infrastructure-services-used)
   - [The Event Flow](#the-event-flow)
 - [Zero to Hero](#zero-to-hero)
   - [Pre-requisites](#pre-requisites)
+  - [Bedrock Setup](#bedrock-setup)
   - [Pinecone Setup (Optional)](#pinecone-setup-optional)
   - [ElevenLabs API Access Setup (Optional)](#elevenlabs-api-access-setup-optional)
   - [Infrastructure Deployment - Custom Domain (Optional)](#infrastructure-deployment---custom-domain-optional)
@@ -32,12 +34,39 @@ This repository contains the AWS CDK Infrastructure-as-code for an AWS AppSync w
 
 A simple [Vite](https://vitejs.dev/) and [TypeScript](https://www.typescriptlang.org/) based frontend is provided to demonstrate the functionality of the API.
 
-# Architecture
+## Architecture
 ![Diagram](./docs/diagram.svg)
 
 ## Terminology
-- **Thread**: A thread is a conversation between a user and the chatbot. It is identified by a unique `threadId` and contains a list of `messages`.
-- **Message**: A message is a single message in a thread. It is identified by a unique `messageId` and contains the `content` of the message, the `sender` of the message, and the `timestamp` of the message.
+- **Model**: A model is a Gen AI model that is used to process user messages.
+- **Persona:** A persona is the identity of the chatbot and contains all information that is specific to a given chatbot, but most notably their system prompt and model that they use for processing user messages.
+- **Thread**: A thread is a conversation between a user and the chatbot.
+- **Message**: A message is a single message in a thread.
+
+## Tools Used
+Frontend and Backend Infrastructure Build Tools:
+- **AWS CDK**: AWS Cloud Development Kit (CDK) is an open-source software development framework to define cloud infrastructure in code and provision it through AWS CloudFormation.
+- **TypeScript**: TypeScript is a language that builds on JavaScript by adding static type definitions.
+- **Node.js**: Node.js is an open-source, cross-platform, back-end JavaScript runtime environment that runs on the V8 engine and executes JavaScript code outside a web browser.
+- AWS Tools and Services:
+  - **AWS AppSync**: AWS AppSync is a managed serverless GraphQL service that simplifies application development by letting you create a flexible API to securely access, manipulate, and combine data from one or more data sources.
+  - **AWS Bedrock**: AWS Bedrock is a service that provides access to Gen AI models like Anthropics Claude 2 or Jurassic-1.
+  - **AWS DynamoDB**: Amazon DynamoDB is a key-value and document database that delivers single-digit millisecond performance at any scale.
+  - **AWS Lambda**: AWS Lambda is a serverless compute service that lets you run code without provisioning or managing servers.
+  - **AWS Cognito**: Amazon Cognito lets you add user sign-up, sign-in, and access control to your web and mobile apps quickly and easily.
+  - **AWS S3**: Amazon Simple Storage Service (Amazon S3) is an object storage service that offers industry-leading scalability, data availability, security, and performance.
+  - **AWS CloudFront**: Amazon CloudFront is a fast content delivery network (CDN) service that securely delivers data, videos, applications, and APIs to customers globally with low latency, high transfer speeds, all within a developer-friendly environment.
+  - **AWS SQS**: Amazon Simple Queue Service (SQS) is a fully managed message queuing service that enables you to decouple and scale microservices, distributed systems, and serverless applications.
+- Third-Party Tools and Services:
+  - **Pinecone**: Pinecone is a vector database that allows you to store and query high-dimensional vectors.
+  - **ElevenLabs API**: ElevenLabs is a company that provides a variety of AI services, including speech-to-text and text-to-speech. Their API is used in this project to provide the text-to-speech functionality for the chatbot.
+
+Frontend App Build Tools:
+- **Vite**: Vite is a build tool that aims to provide a faster and leaner development experience for modern web projects.
+- **React**: React is a JavaScript library for building user interfaces.
+- **TypeScript**: TypeScript is a language that builds on JavaScript by adding static type definitions.
+- **Tailwind CSS**: Tailwind CSS is a utility-first CSS framework packed with classes like flex, pt-4, text-center and rotate-90 that can be composed to build any design, directly in your markup.
+- **AWS Amplify Library**: The AWS Amplify library is a collection 
 
 ## Infrastructure Services Used
 
@@ -79,8 +108,10 @@ A simple [Vite](https://vitejs.dev/) and [TypeScript](https://www.typescriptlang
 > This section guides you through the process of setting up the infrastructure.
 > The project is written in TypeScript and uses (AWS CDK)[https://aws.amazon.com/cdk/] to deploy the infrastructure. Before we dive into deploying the frontend and backend, we will need to get the pre-requisites out of the way.
 
+Before you start, it is highly encouraged to review the [AWS CDK Getting Started Guide](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html) to get a better understanding of the AWS CDK and how it works.
+
 1. Pre-requisites:
-  - [Node.js](https://nodejs.org/en/) version 14 or later.
+  - [Node.js](https://nodejs.org/en/) version 20 or later.
   - [AWS CLI](https://aws.amazon.com/cli/) version 2 or later.
   - [AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html) version 2 or later.
   - [Pinecone](https://www.pinecone.io/) account *(optional)*.
@@ -113,6 +144,17 @@ cdk bootstrap
 ```
 
 7. Congrats! You are now ready to deploy the infrastructure. See (Backend)[#backend] and (Frontend)[#frontend] for more information on deploying the frontend and the backend of the project.
+
+## Bedrock Setup
+> If you are not familiar with AWS Bedrock, AWS Bedrock is an API that grants access to GenAI models like Anthropics Claude 2 or Jurassic-1. It is used in this project to provide the GenAI capabilities of the chatbot.
+> While it is an AWS service that is largely setup by the infrastructure, you will need to have access to the service to use it.
+
+1. Go to the AWS Bedrock console at [https://console.aws.amazon.com/bedrock/](https://console.aws.amazon.com/bedrock/).
+
+2. Go to "Model Access" and request access to the model that you would like to use.
+   - The default models used in this project are `Anthropics Claude 2.1` and `Anthropics Claude 1 Instant`.
+
+3. Wait and check your email for the approval of your request. Should take only a few minutes, but I have had a few take several hours. Once approved, you are ready to deploy the infrastructure.
 
 ## Pinecone Setup (Optional)
 > If you are not familiar with Pinecone, Pinecone is a vector database that allows you to store and query high-dimensional vectors. It is used in this project to store the embeddings of the messages and to query for similar messages.
@@ -203,12 +245,14 @@ npm install
 | `config.backend.pinecone.secretArn` | The ARN of the AWS Secrets Manager secret that stores the Pinecone credentials. | Optional |
 | `config.backend.speechSecretArn` | The ARN of the AWS Secrets Manager secret that stores the Azure Text-to-Speech credentials. | Optional |
 
+- *Note: While you can deploy everything at once, it is highly encouraged to update `customDomain`, `pinecone`, and `speechSecretArn` after the an initial deployment of the backend infrastructure. This is to minimize deployment time should issues arise with the deployment.*
+
 4. Deploy the backend infrastructure.
 ```bash
 cdk deploy GenAI/Backend
 ```
 
-5. Congrats! You have now deployed the backend infrastructure. See (Frontend)[#frontend] for more information on deploying the frontend.
+1. Congrats! You have now deployed the backend infrastructure. See (Frontend)[#frontend] for more information on deploying the frontend.
 
 ## Frontend Deployment
 > This section guides you through deploying the front-end infrastructure and the corresponding Vite app.
