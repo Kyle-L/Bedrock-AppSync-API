@@ -5,7 +5,9 @@ import { BedrockAgentRuntime } from 'aws-sdk'; // Assuming AWS SDK has Bedrock c
 import { defaultTemplate } from './model-templates';
 import { PromptTemplate } from '@langchain/core/prompts';
 
-const runtime = new BedrockAgentRuntime();
+const runtime = new BedrockAgentRuntime({
+  region: 'us-east-1'
+});
 
 /**
  * Perform an asynchronous prediction given a prompt and returns the chunks of the prediction as they are generated.
