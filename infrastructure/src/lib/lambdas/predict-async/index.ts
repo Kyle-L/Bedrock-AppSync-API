@@ -2,7 +2,10 @@ import { Context, SQSEvent } from 'aws-lambda';
 import { processAsynchronously } from 'lib/utils/ai/bedrock-utils';
 import { synthesizeSpeechAndUploadAudio } from 'lib/utils/voice';
 import { EventResult, EventType, MessageSystemStatus } from '../../utils/types';
-import { sendChunk, updateMessageSystemStatus as createMessage } from './queries';
+import {
+  sendChunk,
+  updateMessageSystemStatus as createMessage
+} from './queries';
 import { createTimeoutTask } from 'lib/utils/time/timeout-task';
 import { getCompleteSentence } from 'lib/utils/text/sentence-extractor';
 
@@ -25,12 +28,7 @@ async function completePrediction(
 ) {
   await Promise.all([
     // Update the thread's status to COMPLETE and add the AI's response to the thread's message history.
-    createMessage(
-      userId,
-      threadId,
-      MessageSystemStatus.COMPLETE,
-      eventResult
-    ),
+    createMessage(userId, threadId, MessageSystemStatus.COMPLETE, eventResult),
 
     // Send an empty chunk to indicate that the processing is complete.
     sendChunk({
@@ -69,7 +67,7 @@ async function processSingleEvent({
   const fullQuery = `${formattedHistory}\nAssistant: `;
 
   let fullResponse = '';
-const audioClips: string[] = [];
+  const audioClips: string[] = [];
   let lastSentenceResponse = '';
 
   const timeoutTask = createTimeoutTask(eventTimeout);
@@ -80,15 +78,10 @@ const audioClips: string[] = [];
     try {
       await Promise.all([
         // Adds the user's prompt to the thread's message history and updates the thread's status to PROCESSING.
-        await createMessage(
-          userId,
-          threadId,
-          MessageSystemStatus.PROCESSING,
-          {
-            sender: 'User',
-            message: query
-          }
-        ),
+        await createMessage(userId, threadId, MessageSystemStatus.PROCESSING, {
+          sender: 'User',
+          message: query
+        }),
 
         // Kicks off the asynchronous processing of the prompt.
         await processAsynchronously({
@@ -103,7 +96,15 @@ const audioClips: string[] = [];
               lastSentenceResponse += chunk;
 
               const { sentence, remainingText, containsComplete } =
-                  getCompleteSentence(lastSentenceResponse);
+                getCompleteSentence(lastSentenceResponse);
+
+              console.log(
+                JSON.stringify({ sentence, remainingText, containsComplete })
+              );
+
+              lastSentenceResponse = containsComplete
+                ? remainingText
+                : sentence;
 
               console.log(`Received Text Chunk: ${chunk}`);
               await sendChunk({
@@ -113,29 +114,28 @@ const audioClips: string[] = [];
                 chunkType: 'text'
               });
 
-              if (responseOptions.includeAudio && lastSentenceResponse.trim()) {
-                if (containsComplete) {
-                  lastSentenceResponse = remainingText;
+              if (responseOptions.includeAudio && containsComplete) {
+                console.log(`Received Audio Chunk: ${sentence}`);
+                const audio = await synthesizeSpeechAndUploadAudio({
+                  voice: persona.voice,
+                  audioText: sentence,
+                  bucket: S3_BUCKET,
+                  speechSecretArn: SPEECH_SECRET
+                });
+                audioClips.push(audio);
 
-                  console.log(`Received Audio Chunk: ${lastSentenceResponse}`);
-                  const audio = await synthesizeSpeechAndUploadAudio({
-                    voice: persona.voice,
-                    audioText: sentence,
-                    bucket: S3_BUCKET,
-                    speechSecretArn: SPEECH_SECRET
-                  });
-                  audioClips.push(audio);
-
-                  await sendChunk({
-                    userId,
-                    threadId,
-                    chunk: audioClips.join(','),
-                    chunkType: 'audio'
-                  });
-                }
+                await sendChunk({
+                  userId,
+                  threadId,
+                  chunk: audioClips.join(','),
+                  chunkType: 'audio'
+                });
               }
             } catch (err) {
-              console.error('An error occurred while processing the chunk:', err);
+              console.error(
+                'An error occurred while processing the chunk:',
+                err
+              );
               await sendChunk({
                 userId,
                 threadId,
@@ -143,11 +143,9 @@ const audioClips: string[] = [];
                 chunkType: 'error'
               });
             }
-          },
+          }
         })
       ]);
-
-
     } catch (err) {
       console.error('An error occurred while processing the prompt:', err);
       fullResponse = 'An error occurred while processing the prompt.';

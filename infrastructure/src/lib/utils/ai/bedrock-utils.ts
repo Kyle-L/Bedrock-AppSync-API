@@ -1,13 +1,10 @@
+import { RetrieveCommand } from '@aws-sdk/client-bedrock-agent-runtime';
 import { BedrockChat } from '@langchain/community/chat_models/bedrock';
 import { StringOutputParser } from '@langchain/core/output_parsers';
-import { MODEL_TUNINGS } from './model-tuning';
-import { BedrockAgentRuntime } from 'aws-sdk'; // Assuming AWS SDK has Bedrock client
-import { defaultTemplate } from './model-templates';
 import { PromptTemplate } from '@langchain/core/prompts';
-
-const runtime = new BedrockAgentRuntime({
-  region: 'us-east-1',
-});
+import { bedrockAgentRuntimeClient } from '../clients';
+import { defaultTemplate } from './model-templates';
+import { MODEL_TUNINGS } from './model-tuning';
 
 /**
  * Perform an asynchronous prediction given a prompt and returns the chunks of the prediction as they are generated.
@@ -34,7 +31,7 @@ export async function processAsynchronously({
   }
 
   if (!model) {
-    model = 'anthropic.claude-v2:1'
+    model = 'anthropic.claude-v2:1';
   }
 
   // Default to Claude if no model is specified or if the string is not recognized
@@ -71,7 +68,7 @@ export async function processAsynchronously({
 
   console.log(`Formatted prompt: ${formattedPrompt}`);
 
-  const stream = chat.pipe(new StringOutputParser()).stream(formattedPrompt)
+  const stream = chat.pipe(new StringOutputParser()).stream(formattedPrompt);
 
   for await (const chunk of await stream) {
     await callback(chunk);
@@ -89,22 +86,14 @@ async function getContext(
   prompt: string,
   knowledgeBaseId: string
 ): Promise<string> {
-  const result = await runtime
-    .retrieve({
+  const result = await bedrockAgentRuntimeClient.send(
+    new RetrieveCommand({
       knowledgeBaseId,
       retrievalQuery: {
         text: prompt
       }
     })
-    .promise();
-
-  console.log(`Retrieval results: ${JSON.stringify(result)}`);
-
-  return (
-    result.retrievalResults
-      .map((result) => {
-        `Document: ${result.location?.s3Location?.uri}\n${result.content.text}`
-      })
-      .join('\n\n') || ''
   );
+
+  return JSON.stringify(result);
 }

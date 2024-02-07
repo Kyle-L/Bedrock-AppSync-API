@@ -24,7 +24,7 @@ export default function ThreadPage() {
   const [thread, setThread] = useState<Thread | null>(null);
 
   // Audio state
-  const [audioClips, setAudioClips] = useState<HTMLAudioElement[]>([]);
+  const [audioClips, setAudioClips] = useState<string[]>([]);
   const audio = useAudio();
 
   // Conversation state
@@ -91,11 +91,7 @@ export default function ThreadPage() {
             if (response.chunkType === 'audio') {
               const clipURLs = response.chunk.split(',');
               console.log('Recieved audio chunk:', response.chunk);
-
-              const clips = clipURLs.map((url: string) => { 
-                return new Audio(url);
-              });
-              setAudioClips(clips);
+              setAudioClips(clipURLs);
             }
 
             // Error chunk
@@ -241,7 +237,7 @@ export default function ThreadPage() {
             </div>
           </div>
         </div>
-        <AudioPlayer audioFiles={audioClips} />
+        <AudioPlayer audioClips={audioClips} />
       </Container>
     </>
 

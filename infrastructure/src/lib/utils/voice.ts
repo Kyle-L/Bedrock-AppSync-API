@@ -125,10 +125,7 @@ export async function synthesizeSpeechAndUploadAudio({
   voice: { id: string };
   bucket: string;
 }): Promise<string> {
-  const audioFileName = AUDIO_NAME_TEMPLATE.replace(
-    '%s',
-    `${generateRandomId()}.${AUDIO_FORMAT}`
-  );
+  const audioFileName = AUDIO_NAME_TEMPLATE.replace('%s', generateRandomId());
 
   const result = await synthesizeSpeechAudio({
     audioText: audioText,
