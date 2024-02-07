@@ -2,7 +2,7 @@ import { Context, SQSEvent } from 'aws-lambda';
 import { processAsynchronously } from 'lib/utils/ai/bedrock-utils';
 import { synthesizeSpeechAndUploadAudio } from 'lib/utils/voice';
 import { EventResult, EventType, MessageSystemStatus } from '../../utils/types';
-import { sendChunk, updateMessageSystemStatus } from './queries';
+import { sendChunk, updateMessageSystemStatus as createMessage } from './queries';
 import { createTimeoutTask } from 'lib/utils/time/timeout-task';
 import { getCompleteSentence } from 'lib/utils/text/sentence-extractor';
 
@@ -23,9 +23,9 @@ async function completePrediction(
   threadId: string,
   eventResult: EventResult
 ) {
-  const result = await Promise.all([
+  await Promise.all([
     // Update the thread's status to COMPLETE and add the AI's response to the thread's message history.
-    updateMessageSystemStatus(
+    createMessage(
       userId,
       threadId,
       MessageSystemStatus.COMPLETE,
@@ -36,12 +36,10 @@ async function completePrediction(
     sendChunk({
       userId,
       threadId,
-      chunk: '',
+      chunk: eventResult.message,
       status: MessageSystemStatus.COMPLETE
     })
   ]);
-
-  console.log('Result:', JSON.stringify(result));
 }
 
 /**
@@ -61,15 +59,17 @@ async function processSingleEvent({
   persona,
   responseOptions
 }: EventType) {
-  const formattedHistory = history
+  const formattedHistory = [...history, { sender: 'User', message: query }]
     .map((message) => {
       return `${message.sender}: ${message.message}`;
     })
     .join('\n\n')
     .trim();
 
-  const fullQuery = `${formattedHistory}\n\nUser: ${query}\n\Assistant: `;
+  const fullQuery = `${formattedHistory}\nAssistant: `;
+
   let fullResponse = '';
+const audioClips: string[] = [];
   let lastSentenceResponse = '';
 
   const timeoutTask = createTimeoutTask(eventTimeout);
@@ -80,7 +80,7 @@ async function processSingleEvent({
     try {
       await Promise.all([
         // Adds the user's prompt to the thread's message history and updates the thread's status to PROCESSING.
-        await updateMessageSystemStatus(
+        await createMessage(
           userId,
           threadId,
           MessageSystemStatus.PROCESSING,
@@ -95,22 +95,25 @@ async function processSingleEvent({
           query,
           fullQuery,
           promptTemplate: persona.prompt,
+          model: persona.model,
+          knowledgeBaseId: persona.knowledgeBaseId,
           callback: async (chunk) => {
             try {
+              fullResponse += chunk;
+              lastSentenceResponse += chunk;
+
+              const { sentence, remainingText, containsComplete } =
+                  getCompleteSentence(lastSentenceResponse);
+
               console.log(`Received Text Chunk: ${chunk}`);
               await sendChunk({
                 userId,
                 threadId,
-                chunk: chunk,
+                chunk: fullResponse,
                 chunkType: 'text'
               });
 
-              fullResponse += chunk;
-              lastSentenceResponse += chunk;
-
               if (responseOptions.includeAudio && lastSentenceResponse.trim()) {
-                const { sentence, remainingText, containsComplete } =
-                  getCompleteSentence(lastSentenceResponse);
                 if (containsComplete) {
                   lastSentenceResponse = remainingText;
 
@@ -121,17 +124,18 @@ async function processSingleEvent({
                     bucket: S3_BUCKET,
                     speechSecretArn: SPEECH_SECRET
                   });
+                  audioClips.push(audio);
 
                   await sendChunk({
                     userId,
                     threadId,
-                    chunk: audio,
+                    chunk: audioClips.join(','),
                     chunkType: 'audio'
                   });
                 }
               }
             } catch (err) {
-              console.error(err);
+              console.error('An error occurred while processing the chunk:', err);
               await sendChunk({
                 userId,
                 threadId,
@@ -140,12 +144,12 @@ async function processSingleEvent({
               });
             }
           },
-          model: persona.model,
-          knowledgeBaseId: persona.knowledgeBaseId
         })
       ]);
+
+
     } catch (err) {
-      console.error(err);
+      console.error('An error occurred while processing the prompt:', err);
       fullResponse = 'An error occurred while processing the prompt.';
     }
 

@@ -1,12 +1,12 @@
 import { BedrockChat } from '@langchain/community/chat_models/bedrock';
-import { StringOutputParser } from 'langchain/schema/output_parser';
+import { StringOutputParser } from '@langchain/core/output_parsers';
 import { MODEL_TUNINGS } from './model-tuning';
 import { BedrockAgentRuntime } from 'aws-sdk'; // Assuming AWS SDK has Bedrock client
 import { defaultTemplate } from './model-templates';
 import { PromptTemplate } from '@langchain/core/prompts';
 
 const runtime = new BedrockAgentRuntime({
-  region: 'us-east-1'
+  region: 'us-east-1',
 });
 
 /**
@@ -27,14 +27,14 @@ export async function processAsynchronously({
   promptTemplate?: string;
   model?: string;
   knowledgeBaseId?: string;
-  callback: (result: string) => void;
+  callback: (result: string) => Promise<void>;
 }) {
   if (model && !(model in MODEL_TUNINGS)) {
     throw new Error(`Model ${model} is not supported`);
   }
 
   if (!model) {
-    model = 'claude';
+    model = 'anthropic.claude-v2:1'
   }
 
   // Default to Claude if no model is specified or if the string is not recognized
@@ -71,10 +71,10 @@ export async function processAsynchronously({
 
   console.log(`Formatted prompt: ${formattedPrompt}`);
 
-  const stream = chat.pipe(new StringOutputParser()).stream(formattedPrompt);
+  const stream = chat.pipe(new StringOutputParser()).stream(formattedPrompt)
 
   for await (const chunk of await stream) {
-    callback(chunk);
+    await callback(chunk);
   }
 }
 
@@ -101,9 +101,9 @@ async function getContext(
   console.log(`Retrieval results: ${JSON.stringify(result)}`);
 
   return (
-    result?.retrievalResults
+    result.retrievalResults
       .map((result) => {
-        `Document: ${result.location?.s3Location}\n${result.content.text}`;
+        `Document: ${result.location?.s3Location?.uri}\n${result.content.text}`
       })
       .join('\n\n') || ''
   );

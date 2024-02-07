@@ -5,14 +5,6 @@ export default function Typewriter({ text, delay }: { text: string; delay: numbe
   const [currentText, setCurrentText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // When the text changes, if the currentText is not a substring of the text, reset the currentText and index
-  useEffect(() => {
-    if (!text.includes(currentText)) {
-      setCurrentText('');
-      setCurrentIndex(0);
-    }
-  }, [text, currentText]);
-
   useEffect(() => {
     if (currentIndex < text.length) {
       const timeout = setTimeout(() => {

@@ -5,6 +5,7 @@ import { SQSClient } from '@aws-sdk/client-sqs';
 import * as AWSXRay from 'aws-xray-sdk';
 import * as http from 'http';
 import * as https from 'https';
+import { BedrockAgentRuntime } from 'aws-sdk'; // Assuming AWS SDK has Bedrock client
 
 // Clients
 const s3Client = AWSXRay.captureAWSv3Client(new S3Client());
@@ -22,5 +23,5 @@ export {
   sqsClient,
   ssmClient,
   httpClient,
-  httpsClient
+  httpsClient,
 };

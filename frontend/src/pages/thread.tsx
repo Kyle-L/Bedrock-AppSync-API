@@ -1,6 +1,6 @@
 import { generateClient } from 'aws-amplify/api';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Message, Thread } from '../API';
 import Logo from '../components/Logo';
 import ChatConversation from '../components/animated/ChatConversation';
@@ -80,17 +80,28 @@ export default function ThreadPage() {
 
           if (response) {
             if (response.chunkType === 'text') {
-              setLastMessage((prevLastMessage) => ({
+              setLastMessage({
                 sender: 'Assistant',
-                message: `${prevLastMessage?.message ?? ''}${response.chunk}`,
+                message: response.chunk,
                 createdAt: new Date().toISOString()
-              }));
+              });
             }
 
             // Convert the response.chunk from base64 to an audio clip
             if (response.chunkType === 'audio') {
-              const audio = new Audio(response.chunk);
-              setAudioClips((prevAudioClips) => [...prevAudioClips, audio]);
+              const clipURLs = response.chunk.split(',');
+              console.log('Recieved audio chunk:', response.chunk);
+
+              const clips = clipURLs.map((url: string) => { 
+                return new Audio(url);
+              });
+              setAudioClips(clips);
+            }
+
+            // Error chunk
+            if (response.chunkType === 'error') {
+              addAlert(response.chunk, 'error');
+              setLoading(false);
             }
 
             if (response.status === 'COMPLETE') {
@@ -172,56 +183,67 @@ export default function ThreadPage() {
   if (!thread) return <div>Loading...</div>;
 
   return (
-    <Container>
-      <div className="w-full flex justify-center items-center lg:flex-row mb-6">
-        <Logo
-          title={`Meet ${thread.persona.name}`}
-          subtitle={thread.persona.subtitle}
-          description={thread.persona.description}
-          picture={getAvatarURL({ avatar: thread.persona.avatar, name: thread.persona.name })}
-        />
+    <>
+      <div className="mr-auto flex flex-row">
+        <Link to="/personas" className="text-white">
+          Back
+        </Link>
       </div>
 
-      <div className="w-full max-w-2xl">
-        <ChatConversation
-          conversationHistory={conversationHistory}
-          lastMessage={lastMessage}
-          thread={thread}
-          userAttributes={userAttributes}
-        />
+      <Container>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSubmit();
-          }}
-        >
-          {!loading ? (
-            <input
-              type="text"
-              className="w-full shadow-md rounded-xl p-2 my-2"
-              placeholder={`Message ${thread.persona.name}...`}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              autoFocus
-            />
-          ) : (
-            <div className="w-full pt-1 pb-2">
-              <LoadingDots />
+
+        <div className="w-full flex justify-center items-center lg:flex-row mb-6">
+          <Logo
+            title={`Meet ${thread.persona.name}`}
+            subtitle={thread.persona.subtitle}
+            description={thread.persona.description}
+            picture={getAvatarURL({ avatar: thread.persona.avatar, name: thread.persona.name })}
+          />
+        </div>
+
+        <div className="w-full max-w-2xl">
+          <ChatConversation
+            conversationHistory={conversationHistory}
+            lastMessage={lastMessage}
+            thread={thread}
+            userAttributes={userAttributes}
+          />
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              onSubmit();
+            }}
+          >
+            {!loading ? (
+              <input
+                type="text"
+                className="w-full shadow-md rounded-xl p-2 my-2"
+                placeholder={`Message ${thread.persona.name}...`}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                autoFocus
+              />
+            ) : (
+              <div className="w-full pt-1 pb-2">
+                <LoadingDots />
+              </div>
+            )}
+            <button disabled={loading} className="btn w-full">
+              Send
+            </button>
+          </form>
+
+          <div className="w-full flex flex-row">
+            <div className="ml-auto">
+              <AudioSwitch />
             </div>
-          )}
-          <button disabled={loading} className="btn w-full">
-            Send
-          </button>
-        </form>
-
-        <div className="w-full flex flex-row">
-          <div className="ml-auto">
-            <AudioSwitch />
           </div>
         </div>
-      </div>
-      <AudioPlayer audioFiles={audioClips} />
-    </Container>
+        <AudioPlayer audioFiles={audioClips} />
+      </Container>
+    </>
+
   );
 }

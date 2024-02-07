@@ -8,18 +8,26 @@
  * @param text {string} The text to retrieve the sentence from.
  * @returns
  */
-export function getCompleteSentence(text: string): {
+export function getCompleteSentence(text: string, delimiters: string[] = ['.', '?', '!', ':', '\n']): {
   sentence: string;
   remainingText: string;
   containsComplete: boolean;
 } {
-  const sentenceEndIndex = text.search(/[\.\?\!]/);
+  let sentenceEndIndex = -1;
+
+  for (let i = text.length - 1; i >= 0; i--) {
+    if (delimiters.includes(text[i])) {
+      sentenceEndIndex = i;
+      break;
+    }
+  }
+
   if (sentenceEndIndex === -1) {
     return { sentence: text, remainingText: '', containsComplete: false };
   }
-  const [sentence, remainingText] = [
-    text.slice(0, sentenceEndIndex + 1),
-    text.slice(sentenceEndIndex + 2)
-  ];
+
+  const sentence = text.slice(0, sentenceEndIndex + 1);
+  const remainingText = text.slice(sentenceEndIndex + 1);
+
   return { sentence, remainingText, containsComplete: true };
 }

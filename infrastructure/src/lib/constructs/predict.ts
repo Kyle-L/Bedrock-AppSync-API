@@ -83,7 +83,7 @@ export class PredictConstruct extends Construct {
         sourceMap: true
       },
       memorySize: 756,
-      timeout: cdk.Duration.seconds(30),
+      timeout: cdk.Duration.seconds(60),
       initialPolicy: [
         // Allow the lambda to call AppSync
         new iam.PolicyStatement({
