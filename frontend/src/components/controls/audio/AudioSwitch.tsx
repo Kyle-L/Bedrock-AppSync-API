@@ -6,7 +6,7 @@ export default function AudioSwitch() {
 
   return (
     <div className="flex items-center">
-      <label className="mr-2 text-sm text-gray-500">Generate audio</label>
+      <label className="mr-2 text-sm text-slate-500">Generate audio</label>
       <Switch
         checked={audio.generateAudio}
         onChange={audio.setGenerateAudio}

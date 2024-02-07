@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useBackground } from '../../providers/BackgroundProvider';
 import { useAuth } from '../../providers/AuthProvider';
+import Container from '../../components/layouts/Container';
 
 export default function Login() {
   const background = useBackground();
@@ -26,10 +27,10 @@ export default function Login() {
   };
 
   return (
-    <>
+    <Container>
       <div className="w-full mt-4 mb-8">
         <h1 className="text-2xl font-extrabold w-full">Login 🔐</h1>
-        <p className="text-gray-500">Please enter your email and password</p>
+        <p className="text-slate-500">Please enter your email and password</p>
       </div>
       <form className="w-full flex flex-col">
         {['Email', 'Password'].map((field, index) => (
@@ -49,21 +50,21 @@ export default function Login() {
       </form>
       {error && (
         <div className="bg-red-200 w-full rounded-xl p-2 my-2">
-          <p className="text-gray-500">{error}</p>
+          <p className="text-slate-500">{error}</p>
         </div>
       )}
       <div className="flex flex-row justify-center mt-10">
-        <span className="text-gray-500 mr-1">New user?</span>
+        <span className="text-slate-500 mr-1">New user?</span>
         <Link className="text-red-500" to="/auth/sign-up">
           Sign Up
         </Link>
       </div>
       <div className="flex flex-row justify-center mt-2">
-        <span className="text-gray-500 mr-1">Forgot your password?</span>
+        <span className="text-slate-500 mr-1">Forgot your password?</span>
         <Link className="text-red-500" to="/auth/request-reset">
           Reset Password
         </Link>
       </div>
-    </>
+    </Container>
   );
 }

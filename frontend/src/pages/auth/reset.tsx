@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useBackground } from '../../providers/BackgroundProvider';
 import { useAuth } from '../../providers/AuthProvider';
+import Container from '../../components/layouts/Container';
 
 export default function ResetPassword() {
   const background = useBackground();
@@ -37,10 +38,10 @@ export default function ResetPassword() {
   };
 
   return (
-    <>
+    <Container>
       <div className="w-full mt-4 mb-8">
         <h1 className="text-2xl font-extrabold w-full">Reset Password 🔐</h1>
-        <p className="text-gray-500">You got a code. Enter it (and your new password).</p>
+        <p className="text-slate-500">You got a code. Enter it (and your new password).</p>
       </div>
       <form className="w-full flex flex-col">
         {[
@@ -61,15 +62,15 @@ export default function ResetPassword() {
       </form>
       {error && (
         <div className="bg-red-200 w-full rounded-xl p-2 my-2">
-          <p className="text-gray-500">{error}</p>
+          <p className="text-slate-500">{error}</p>
         </div>
       )}
       <div className="flex flex-row justify-center mt-10">
-        <span className="text-gray-500 mr-1">New user?</span>
+        <span className="text-slate-500 mr-1">New user?</span>
         <Link className="text-red-500" to="/auth/sign-up">
           Sign Up
         </Link>
       </div>
-    </>
+    </Container>
   );
 }

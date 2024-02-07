@@ -1,5 +1,5 @@
 import { AppSyncResolverEvent } from 'aws-lambda';
-import { synthesizeSpeechAndUploadAudio } from 'lib/assets/utils/voice';
+import { synthesizeSpeechAndUploadAudio } from 'lib/utils/voice';
 
 // Environment variables
 const { S3_BUCKET = '', SPEECH_SECRET = '' } = process.env;

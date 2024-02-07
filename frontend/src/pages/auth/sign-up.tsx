@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../providers/AuthProvider';
 import { useBackground } from '../../providers/BackgroundProvider';
+import Container from '../../components/layouts/Container';
 
 export default function SignUp() {
   const background = useBackground();
@@ -52,12 +53,12 @@ export default function SignUp() {
   };
 
   return (
-    <>
+    <Container>
       <div className="w-full mt-4 mb-8">
         <h1 className="text-2xl font-extrabold w-full">
           {confirmSignUp ? 'Confirm 🔐' : 'Sign Up 🔐'}
         </h1>
-        <p className="text-gray-500">
+        <p className="text-slate-500">
           {confirmSignUp ? 'You got a code. Enter it.' : 'Please enter your email and password'}
         </p>
       </div>
@@ -107,16 +108,16 @@ export default function SignUp() {
         </button>
       </form>
       <div className="flex flex-row justify-center mt-10">
-        <span className="text-gray-500 mr-1">Already have an account?</span>
+        <span className="text-slate-500 mr-1">Already have an account?</span>
         <Link className="text-red-500" to="/auth/login">
           Sign In
         </Link>
       </div>
       {error && (
         <div className="bg-red-200 w-full rounded-xl p-2 my-2">
-          <p className="text-gray-500">{error}</p>
+          <p className="text-slate-500">{error}</p>
         </div>
       )}
-    </>
+    </Container>
   );
 }

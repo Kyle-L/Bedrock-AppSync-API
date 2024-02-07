@@ -10,6 +10,7 @@ import * as queries from '../graphql/queries';
 import { useBackground } from '../providers/BackgroundProvider';
 import useAlert from '../hooks/AlertHook';
 import { useAuth } from '../providers/AuthProvider';
+import Container from '../components/layouts/Container';
 
 const client = generateClient();
 
@@ -86,52 +87,69 @@ export default function Personas() {
 
   return (
     <>
-      {auth.groups.includes('admin') && (
-        <Link className="btn ml-auto" to="/personas/create">
-          Create Persona
-        </Link>
-      )}
+      <Container>
+        <div className="w-full">
+          <h1 className="text-2xl font-extrabold w-full">Meet the Personas 👥</h1>
+          <p className="text-slate-600 mt-2 border-l-2 border-slate-600 p-2 bg-slate-200 rounded">
+            "A persona in AI is a made-up character that represents a typical user, used to
+            understand and improve interactions and experiences with AI systems."
+          </p>
+          <p className="text-slate-500 mt-2">
+            Here, is a selection of personas that you can use to start a conversation. Click on a
+            persona to start a conversation with them. Each of them has their own unique
+            personality, knowledge, and interests.
+          </p>
+        </div>
+      </Container>
 
-      <div className="w-full mt-4 mb-8">
-        <h1 className="text-2xl font-extrabold w-full">Start a Conversation</h1>
-        <ul className="w-full">
-          <AnimatePresence>
-            {[...personas]
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map((persona, index) => {
-                return (
-                  <PersonaCard
-                    key={persona.personaId}
-                    persona={persona}
-                    onClickCallBack={() => createThread(persona.personaId!)}
-                    transition={{ delay: index * 0.1 }}
-                  />
-                );
-              })}
-          </AnimatePresence>
-        </ul>
-      </div>
+      <Container>
+        {auth.groups.includes('admin') && (
+          <Link className="ml-auto" to="/personas/create">
+            Create Persona
+          </Link>
+        )}
 
-      {threads.length > 0 && (
         <div className="w-full mt-4 mb-8">
-          <h1 className="text-2xl font-extrabold w-full">Open Conversations</h1>
+          <h1 className="text-2xl font-extrabold w-full">Start a Conversation</h1>
           <ul className="w-full">
             <AnimatePresence>
-              {[...threads].map((persona, index) => {
-                return (
-                  <ThreadCard
-                    key={persona.threadId}
-                    persona={persona.persona!}
-                    thread={persona}
-                    onClickCallBack={() => navigate(`/thread/${persona.threadId}`)}
-                    onDeleteCallBack={() => deleteThread(persona.threadId!)}
-                  />
-                );
-              })}
+              {[...personas]
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((persona, index) => {
+                  return (
+                    <PersonaCard
+                      key={persona.personaId}
+                      persona={persona}
+                      onClickCallBack={() => createThread(persona.personaId!)}
+                      transition={{ delay: index * 0.1 }}
+                    />
+                  );
+                })}
             </AnimatePresence>
           </ul>
         </div>
-      )}
+
+        {threads.length > 0 && (
+          <div className="w-full mt-4 mb-8">
+            <h1 className="text-2xl font-extrabold w-full">Open Conversations</h1>
+            <ul className="w-full">
+              <AnimatePresence>
+                {[...threads].map((persona, index) => {
+                  return (
+                    <ThreadCard
+                      key={persona.threadId}
+                      persona={persona.persona!}
+                      thread={persona}
+                      onClickCallBack={() => navigate(`/thread/${persona.threadId}`)}
+                      onDeleteCallBack={() => deleteThread(persona.threadId!)}
+                    />
+                  );
+                })}
+              </AnimatePresence>
+            </ul>
+          </div>
+        )}
+      </Container>
     </>
   );
 }

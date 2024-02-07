@@ -15,6 +15,7 @@ import { useAudio } from '../providers/AudioProvider';
 import { useAuth } from '../providers/AuthProvider';
 import { useBackground } from '../providers/BackgroundProvider';
 import { getAvatarURL } from '../utils/avatar';
+import Container from '../components/layouts/Container';
 
 const client = generateClient();
 
@@ -171,7 +172,7 @@ export default function ThreadPage() {
   if (!thread) return <div>Loading...</div>;
 
   return (
-    <>
+    <Container>
       <div className="w-full flex justify-center items-center lg:flex-row mb-6">
         <Logo
           title={`Meet ${thread.persona.name}`}
@@ -221,6 +222,6 @@ export default function ThreadPage() {
         </div>
       </div>
       <AudioPlayer audioFiles={audioClips} />
-    </>
+    </Container>
   );
 }

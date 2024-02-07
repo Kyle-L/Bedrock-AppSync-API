@@ -1,5 +1,5 @@
-import { AppSyncRequestIAM } from 'lib/assets/utils/appsync';
-import { MessageSystemStatus } from 'lib/assets/utils/types';
+import { AppSyncRequestIAM } from 'lib/utils/appsync';
+import { MessageSystemStatus } from 'lib/utils/types';
 
 const config = {
   url: process.env.GRAPHQL_URL || '',

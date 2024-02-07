@@ -7,6 +7,7 @@ import * as queries from '../../graphql/queries';
 import useAlert from '../../hooks/AlertHook';
 import { useBackground } from '../../providers/BackgroundProvider';
 import { gradientColorMap } from '../../components/gradient-dict';
+import Container from '../../components/layouts/Container';
 
 const client = generateClient();
 
@@ -154,139 +155,144 @@ export default function CreateEditDeletePersona() {
   }, [personaId]);
 
   return (
-    <div className="flex flex-col justify-center w-full">
-      {persona && (
-        <div className="flex flex-col justify-center w-full h-full">
-          <div className="w-full mt-4 mb-8">
-            <h1 className="text-2xl font-extrabold w-full">
-              {personaId ? 'Update' : 'Create'} Persona
-            </h1>
-            <p className="text-gray-500">Please enter your persona details</p>
-          </div>
-          <div className="flex flex-col justify-center w-full">
-            <div className="flex flex-col justify-center w-full">
-              <label className="text-slate-500">Name</label>
-              <input
-                className="w-full shadow-md rounded-xl p-2 my-2"
-                type="text"
-                value={persona.name}
-                onChange={(e) => setPersona({ ...persona, name: e.target.value })}
-              />
+    <Container>
+      <div className="flex flex-col justify-center w-full">
+        {persona && (
+          <div className="flex flex-col justify-center w-full h-full">
+            <div className="w-full mt-4 mb-8">
+              <h1 className="text-2xl font-extrabold w-full">
+                {personaId ? 'Update' : 'Create'} Persona
+              </h1>
+              <p className="text-slate-500">Please enter your persona details</p>
             </div>
             <div className="flex flex-col justify-center w-full">
-              <label className="text-slate-500">Knowledge Base ID</label>
-              <input
-                className="w-full shadow-md rounded-xl p-2 my-2"
-                type="text"
-                value={persona.knowledgeBaseId ?? ''}
-                onChange={(e) =>
-                  setPersona({ ...persona, knowledgeBaseId: e.target.value ?? null })
-                }
-              />
-            </div>
-            <div className="flex flex-col justify-center w-full">
-              <label className="text-slate-500">Subtitle</label>
-              <input
-                className="w-full shadow-md rounded-xl p-2 my-2"
-                type="text"
-                value={persona.subtitle ?? ''}
-                onChange={(e) => setPersona({ ...persona, subtitle: e.target.value })}
-              />
-            </div>
-            <div className="flex flex-col justify-center w-full">
-              <label className="text-slate-500">Avatar</label>
-              <input
-                className="w-full shadow-md rounded-xl p-2 my-2"
-                type="text"
-                value={persona.avatar ?? ''}
-                onChange={(e) => setPersona({ ...persona, avatar: e.target.value })}
-              />
-            </div>
-            <div className="flex flex-col justify-center w-full">
-              <label className="text-slate-500">Description</label>
-              <input
-                className="w-full shadow-md rounded-xl p-2 my-2"
-                type="text"
-                value={persona.description ?? ''}
-                onChange={(e) => setPersona({ ...persona, description: e.target.value })}
-              />
-            </div>
-            <div className="flex flex-col justify-center w-full">
-              <label className="text-slate-500">Voice ID</label>
-              <input
-                className="w-full shadow-md rounded-xl p-2 my-2"
-                type="text"
-                value={persona.voice?.id ?? ''}
-                onChange={(e) =>
-                  setPersona({ ...persona, voice: { ...persona.voice, id: e.target.value } })
-                }
-              />
-            </div>
-            <div className="flex flex-col justify-center w-full">
-              <label className="text-slate-500">Color</label>
-              <select
-                className="w-full shadow-md rounded-xl p-2 my-2"
-                value={persona.color ?? ''}
-                onChange={(e) => setPersona({ ...persona, color: e.target.value })}
-              >
-                {gradientColorMap &&
-                  Object.keys(gradientColorMap)
-                    .sort()
-                    .map((color) => (
-                      <option key={color} value={color}>
-                        {color.charAt(0).toUpperCase() + color.slice(1)}
-                      </option>
-                    ))}
-              </select>
-            </div>
-            <div className="flex flex-col justify-center w-full">
-              <label className="text-slate-500">Model</label>
-              <input
-                className="w-full shadow-md rounded-xl p-2 my-2"
-                type="text"
-                value={persona.model ?? ''}
-                onChange={(e) => setPersona({ ...persona, model: e.target.value })}
-              />
-            </div>
-            <div className="flex flex-col justify-center w-full">
-              <label className="text-slate-500">Prompt</label>
-              <textarea
-                className="w-full shadow-md rounded-xl p-2 my-2"
-                value={persona.prompt ?? ''}
-                rows={10}
-                onChange={(e) => setPersona({ ...persona, prompt: e.target.value })}
-              />
-            </div>
-          </div>
-          <div className="flex flex-row">
-            {personaId ? (
-              <>
-                <button
-                  className="text-red-600 hover:text-red-800 transition-colors"
-                  onClick={deletePersona}
+              <div className="flex flex-col justify-center w-full">
+                <label className="text-slate-500">Name</label>
+                <input
+                  className="w-full shadow-md rounded-xl p-2 my-2"
+                  type="text"
+                  value={persona.name}
+                  onChange={(e) => setPersona({ ...persona, name: e.target.value })}
+                />
+              </div>
+              <div className="flex flex-col justify-center w-full">
+                <label className="text-slate-500">Knowledge Base ID</label>
+                <input
+                  className="w-full shadow-md rounded-xl p-2 my-2"
+                  type="text"
+                  value={persona.knowledgeBaseId ?? ''}
+                  onChange={(e) =>
+                    setPersona({ ...persona, knowledgeBaseId: e.target.value ?? null })
+                  }
+                />
+              </div>
+              <div className="flex flex-col justify-center w-full">
+                <label className="text-slate-500">Subtitle</label>
+                <input
+                  className="w-full shadow-md rounded-xl p-2 my-2"
+                  type="text"
+                  value={persona.subtitle ?? ''}
+                  onChange={(e) => setPersona({ ...persona, subtitle: e.target.value })}
+                />
+              </div>
+              <div className="flex flex-col justify-center w-full">
+                <label className="text-slate-500">Avatar</label>
+                <input
+                  className="w-full shadow-md rounded-xl p-2 my-2"
+                  type="text"
+                  value={persona.avatar ?? ''}
+                  onChange={(e) => setPersona({ ...persona, avatar: e.target.value })}
+                />
+              </div>
+              <div className="flex flex-col justify-center w-full">
+                <label className="text-slate-500">Description</label>
+                <input
+                  className="w-full shadow-md rounded-xl p-2 my-2"
+                  type="text"
+                  value={persona.description ?? ''}
+                  onChange={(e) => setPersona({ ...persona, description: e.target.value })}
+                />
+              </div>
+              <div className="flex flex-col justify-center w-full">
+                <label className="text-slate-500">Voice ID</label>
+                <input
+                  className="w-full shadow-md rounded-xl p-2 my-2"
+                  type="text"
+                  value={persona.voice?.id ?? ''}
+                  onChange={(e) =>
+                    setPersona({ ...persona, voice: { ...persona.voice, id: e.target.value } })
+                  }
+                />
+              </div>
+              <div className="flex flex-col justify-center w-full">
+                <label className="text-slate-500">Color</label>
+                <select
+                  className="w-full shadow-md rounded-xl p-2 my-2"
+                  value={persona.color ?? ''}
+                  onChange={(e) => setPersona({ ...persona, color: e.target.value })}
                 >
-                  Delete
-                </button>
-                <div className="ml-auto flex flex-row space-x-4">
-                  <Link to="/personas" className="btn-secondary">
-                    Back
-                  </Link>
+                  {gradientColorMap &&
+                    Object.keys(gradientColorMap)
+                      .sort()
+                      .map((color) => (
+                        <option key={color} value={color}>
+                          {color.charAt(0).toUpperCase() + color.slice(1)}
+                        </option>
+                      ))}
+                </select>
+              </div>
+              <div className="flex flex-col justify-center w-full">
+                <label className="text-slate-500">Model</label>
+                <input
+                  className="w-full shadow-md rounded-xl p-2 my-2"
+                  type="text"
+                  value={persona.model ?? ''}
+                  onChange={(e) => setPersona({ ...persona, model: e.target.value })}
+                />
+              </div>
+              <div className="flex flex-col justify-center w-full">
+                <label className="text-slate-500">Prompt</label>
+                <textarea
+                  className="w-full shadow-md rounded-xl p-2 my-2"
+                  value={persona.prompt ?? ''}
+                  rows={10}
+                  onChange={(e) => setPersona({ ...persona, prompt: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="flex flex-row">
+              {personaId ? (
+                <>
                   <button
-                    className="btn"
-                    onClick={() => updatePersona(persona as UpdatePersonaInput)}
+                    className="text-red-600 hover:text-red-800 transition-colors"
+                    onClick={deletePersona}
                   >
-                    Update
+                    Delete
                   </button>
-                </div>
-              </>
-            ) : (
-              <button className="btn" onClick={() => createPersona(persona as CreatePersonaInput)}>
-                Create
-              </button>
-            )}
+                  <div className="ml-auto flex flex-row space-x-4">
+                    <Link to="/personas" className="btn-secondary">
+                      Back
+                    </Link>
+                    <button
+                      className="btn"
+                      onClick={() => updatePersona(persona as UpdatePersonaInput)}
+                    >
+                      Update
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <button
+                  className="btn"
+                  onClick={() => createPersona(persona as CreatePersonaInput)}
+                >
+                  Create
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </Container>
   );
 }

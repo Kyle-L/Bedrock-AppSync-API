@@ -1,12 +1,10 @@
 import { Context, SQSEvent } from 'aws-lambda';
-import { processAsynchronously } from 'lib/assets/utils/ai/bedrock-utils';
-import {
-  createTimeoutTask,
-  getCompleteSentence
-} from 'lib/assets/utils/functions';
-import { synthesizeSpeechAndUploadAudio } from 'lib/assets/utils/voice';
+import { processAsynchronously } from 'lib/utils/ai/bedrock-utils';
+import { synthesizeSpeechAndUploadAudio } from 'lib/utils/voice';
 import { EventResult, EventType, MessageSystemStatus } from '../../utils/types';
 import { sendChunk, updateMessageSystemStatus } from './queries';
+import { createTimeoutTask } from 'lib/utils/time/timeout-task';
+import { getCompleteSentence } from 'lib/utils/text/sentence-extractor';
 
 // Constants
 const EVENT_TIMEOUT_BUFFER = 5000; // 5 second

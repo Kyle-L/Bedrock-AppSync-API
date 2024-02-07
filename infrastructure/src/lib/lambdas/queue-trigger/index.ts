@@ -1,9 +1,8 @@
-import { DynamoDBClient, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
-import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import { UpdateItemCommand } from '@aws-sdk/client-dynamodb';
+import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import { AppSyncIdentityCognito, AppSyncResolverEvent } from 'aws-lambda';
-import * as AWSXRay from 'aws-xray-sdk';
-import { dynamodbClient, sqsClient } from 'lib/assets/utils/clients';
-import { MessageSystemStatus } from 'lib/assets/utils/types';
+import { dynamodbClient, sqsClient } from 'lib/utils/clients';
+import { MessageSystemStatus } from 'lib/utils/types';
 
 // Environment variables
 const { QUEUE_URL = '', TABLE_NAME = '' } = process.env;

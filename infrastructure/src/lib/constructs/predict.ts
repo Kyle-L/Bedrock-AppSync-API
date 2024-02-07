@@ -55,7 +55,7 @@ export class PredictConstruct extends Construct {
     // Queue Lambda
     this.queueLambda = new NodejsFunction(this, 'PredictAsyncQueueLambda', {
       runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
-      entry: path.join(__dirname, '../assets/lambdas/queue-trigger/index.ts'),
+      entry: path.join(__dirname, '../lambdas/queue-trigger/index.ts'),
       environment: {
         QUEUE_URL: this.queue.queueUrl,
         TABLE_NAME: table.tableName
@@ -71,7 +71,7 @@ export class PredictConstruct extends Construct {
 
     this.predictAsyncLambda = new NodejsFunction(this, 'PredictAsyncLambda', {
       runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
-      entry: path.join(__dirname, '../assets/lambdas/predict-async/index.ts'),
+      entry: path.join(__dirname, '../lambdas/predict-async/index.ts'),
       environment: {
         GRAPHQL_URL: api.graphqlUrl,
         SPEECH_SECRET: speechSecretArn || '',
@@ -97,7 +97,7 @@ export class PredictConstruct extends Construct {
     // Voice Lambda
     this.voiceLambda = new NodejsFunction(this, 'VoiceLambda', {
       runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
-      entry: path.join(__dirname, '../assets/lambdas/voice/index.ts'),
+      entry: path.join(__dirname, '../lambdas/voice/index.ts'),
       environment: {
         S3_BUCKET: bucket.bucketName,
         SPEECH_SECRET: speechSecret?.secretArn || ''
