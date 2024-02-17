@@ -1,6 +1,6 @@
+import { Message, Thread } from 'API';
 import { FetchUserAttributesOutput } from 'aws-amplify/auth';
-import { Message, Thread } from '../../API';
-import { getAvatarURL } from '../../utils/avatar';
+import { getAvatarURL } from 'utils/avatar';
 import ChatBubble from './ChatBubble';
 
 /**

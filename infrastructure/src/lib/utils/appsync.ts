@@ -3,6 +3,7 @@ import { httpsClient } from './clients';
 import { HttpRequest } from '@smithy/protocol-http';
 import { Sha256 } from '@aws-crypto/sha256-js';
 import { defaultProvider } from '@aws-sdk/credential-provider-node';
+import * as https from 'https';
 
 export interface RequestParams {
   config: {
@@ -46,12 +47,15 @@ export const AppSyncRequestIAM = async (params: RequestParams) => {
 
   const signedRequest = await signer.sign(requestToBeSigned);
 
-  return new Promise((resolve, _reject) => {
-    const httpRequest = httpsClient.request(
+  return new Promise((resolve, reject) => {
+    const httpRequest = https.request(
       { ...signedRequest, host: endpoint.hostname },
       (result) => {
         result.on('data', (data) => {
           resolve(JSON.parse(data.toString()));
+        });
+        result.on('error', (err) => {
+          reject(err);
         });
       }
     );

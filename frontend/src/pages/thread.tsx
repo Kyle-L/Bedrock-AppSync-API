@@ -89,9 +89,8 @@ export default function ThreadPage() {
 
             // Convert the response.chunk from base64 to an audio clip
             if (response.chunkType === 'audio') {
-              const clipURLs = response.chunk.split(',');
               console.log('Recieved audio chunk:', response.chunk);
-              setAudioClips(clipURLs);
+              setAudioClips((prevClips) => [...prevClips, response.chunk]);
             }
 
             // Error chunk

@@ -8,6 +8,7 @@ import {
 } from './queries';
 import { createTimeoutTask } from 'lib/utils/time/timeout-task';
 import { getCompleteSentence } from 'lib/utils/text/sentence-extractor';
+import { PromiseQueue } from 'lib/utils/structures/queue';
 
 // Constants
 const EVENT_TIMEOUT_BUFFER = 5000; // 5 second
@@ -61,100 +62,110 @@ async function processSingleEvent({
     .map((message) => {
       return `${message.sender}: ${message.message}`;
     })
-    .join('\n\n')
+    .join('\n')
     .trim();
 
   const fullQuery = `${formattedHistory}\nAssistant: `;
 
+  let res = { statusCode: 200, message: 'Success!' };
   let fullResponse = '';
-  const audioClips: string[] = [];
   let lastSentenceResponse = '';
+
+  // Queues
+  const audioPromiseQueue = new PromiseQueue();
 
   const timeoutTask = createTimeoutTask(eventTimeout);
 
-  const processingTask = new Promise(async (resolve) => {
-    console.log(`Processing prompt: ${fullQuery}`);
+  try {
+    const processingTask = new Promise<{ statusCode: number; message: string }>(
+      async (resolve) => {
+        console.log(`Processing prompt: ${fullQuery}`);
 
-    try {
-      await Promise.all([
-        // Adds the user's prompt to the thread's message history and updates the thread's status to PROCESSING.
         await createMessage(userId, threadId, MessageSystemStatus.PROCESSING, {
           sender: 'User',
           message: query
         }),
+          await processAsynchronously({
+            query,
+            fullQuery,
+            promptTemplate: persona.prompt,
+            model: persona.model,
+            knowledgeBaseId: persona.knowledgeBaseId,
+            callback: async (chunk) => {
+              try {
+                fullResponse += chunk;
+                lastSentenceResponse += chunk;
 
-        // Kicks off the asynchronous processing of the prompt.
-        await processAsynchronously({
-          query,
-          fullQuery,
-          promptTemplate: persona.prompt,
-          model: persona.model,
-          knowledgeBaseId: persona.knowledgeBaseId,
-          callback: async (chunk) => {
-            try {
-              fullResponse += chunk;
-              lastSentenceResponse += chunk;
+                const { sentence, remainingText, containsComplete } =
+                  getCompleteSentence(lastSentenceResponse);
 
-              const { sentence, remainingText, containsComplete } =
-                getCompleteSentence(lastSentenceResponse);
+                lastSentenceResponse = containsComplete
+                  ? remainingText
+                  : sentence;
 
-              console.log(
-                JSON.stringify({ sentence, remainingText, containsComplete })
-              );
-
-              lastSentenceResponse = containsComplete
-                ? remainingText
-                : sentence;
-
-              console.log(`Received Text Chunk: ${chunk}`);
-              await sendChunk({
-                userId,
-                threadId,
-                chunk: fullResponse,
-                chunkType: 'text'
-              });
-
-              if (responseOptions.includeAudio && containsComplete) {
-                console.log(`Received Audio Chunk: ${sentence}`);
-                const audio = await synthesizeSpeechAndUploadAudio({
-                  voice: persona.voice,
-                  audioText: sentence,
-                  bucket: S3_BUCKET,
-                  speechSecretArn: SPEECH_SECRET
-                });
-                audioClips.push(audio);
-
+                console.log(`Received Text Chunk: ${chunk}`);
                 await sendChunk({
                   userId,
                   threadId,
-                  chunk: audioClips.join(','),
-                  chunkType: 'audio'
+                  chunk: fullResponse,
+                  chunkType: 'text'
+                });
+
+                if (responseOptions.includeAudio && containsComplete) {
+                  console.log(`Received Audio Chunk: ${sentence}`);
+                  audioPromiseQueue.enqueue(
+                    new Promise(async (resolve) => {
+                      console.log(`Synthesizing audio for: ${sentence}`);
+                      const audio = await synthesizeSpeechAndUploadAudio({
+                        voice: persona.voice,
+                        audioText: sentence,
+                        bucket: S3_BUCKET,
+                        speechSecretArn: SPEECH_SECRET
+                      });
+                      console.log(`Audio synthesized for: ${sentence}`);
+                      resolve(audio);
+                    }),
+                    async (audio) => {
+                      console.log(`Sending audio chunk for: ${sentence}`);
+                      await sendChunk({
+                        userId,
+                        threadId,
+                        chunk: audio,
+                        chunkType: 'audio'
+                      });
+                    }
+                  );
+                }
+              } catch (err) {
+                console.error(
+                  'An error occurred while processing the chunk:',
+                  err
+                );
+                await sendChunk({
+                  userId,
+                  threadId,
+                  chunk: 'An error occurred while processing the prompt.',
+                  chunkType: 'error'
                 });
               }
-            } catch (err) {
-              console.error(
-                'An error occurred while processing the chunk:',
-                err
-              );
-              await sendChunk({
-                userId,
-                threadId,
-                chunk: 'An error occurred while processing the prompt.',
-                chunkType: 'error'
-              });
             }
-          }
-        })
-      ]);
-    } catch (err) {
-      console.error('An error occurred while processing the prompt:', err);
-      fullResponse = 'An error occurred while processing the prompt.';
-    }
+          });
 
-    resolve({ statusCode: 200, message: 'Success!' });
-  });
+        await audioPromiseQueue.awaitAll();
 
-  const res = await Promise.race([processingTask, timeoutTask]);
+        resolve({ statusCode: 200, message: 'Success!' });
+      }
+    );
+
+    res = await Promise.race([processingTask, timeoutTask]);
+  } catch (err) {
+    console.error('An error occurred while processing the prompt:', err);
+    fullResponse = 'An error occurred while processing the prompt.';
+    res = {
+      statusCode: 500,
+      message: 'An error occurred while processing the prompt.'
+    };
+  }
 
   await completePrediction(userId, threadId, {
     sender: 'Assistant',

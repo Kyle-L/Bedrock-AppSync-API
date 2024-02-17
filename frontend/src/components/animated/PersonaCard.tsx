@@ -1,11 +1,10 @@
-import { Persona, Thread } from '../../API';
-import { motion } from 'framer-motion';
-import { gradientColorMap } from '../gradient-dict';
-import { getAvatarURL } from '../../utils/avatar';
-
-import type { ComponentPropsWithoutRef } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../providers/AuthProvider';
+import { Persona } from "API";
+import { gradientColorMap } from "components/gradient-dict";
+import { motion } from "framer-motion";
+import { useAuth } from "providers/AuthProvider";
+import { ComponentPropsWithoutRef } from "react";
+import { Link } from "react-router-dom";
+import { getAvatarURL } from "utils/avatar";
 
 interface PersonaCardProps extends ComponentPropsWithoutRef<React.ElementType> {
   persona: Persona;

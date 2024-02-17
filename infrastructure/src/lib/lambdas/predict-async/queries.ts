@@ -12,10 +12,10 @@ const config = {
  * @param variables {object} - The GraphQL variables { [key: string]: string
  * @returns {Promise<any>}
  */
-const sendRequest = async (
+async function sendRequest(
   query: string,
   variables: { [key: string]: any }
-) => {
+): Promise<any> {
   if (!config.url) {
     throw new Error('GRAPHQL_URL is missing. Aborting operation.');
   }
@@ -24,7 +24,7 @@ const sendRequest = async (
     config,
     operation: { query, operationName: 'Mutation', variables }
   });
-};
+}
 
 export async function sendChunk({
   userId,
@@ -51,16 +51,14 @@ export async function sendChunk({
   })) as { errors?: any[]; data?: any };
 
   if (result.errors) {
-    console.error(
-      'Error occurred while sending message chunk:',
-      JSON.stringify(result.errors)
-    );
-  } else {
-    console.log(
-      'Successfully sent message chunk:',
-      JSON.stringify(result.data)
+    throw new Error(
+      `Error occurred while sending chunk: ${JSON.stringify(result.errors)}`
     );
   }
+
+  console.log('Sent chunk:', JSON.stringify(result.data));
+
+  return result.data;
 }
 
 /**

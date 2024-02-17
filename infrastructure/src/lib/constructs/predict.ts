@@ -6,8 +6,10 @@ import { Construct } from 'constructs';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as path from 'path';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as sns from 'aws-cdk-lib/aws-sns';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Tracing } from 'aws-cdk-lib/aws-lambda';
 
 interface PredictConstructProps extends cdk.StackProps {
@@ -21,6 +23,7 @@ export class PredictConstruct extends Construct {
   readonly voiceLambda: NodejsFunction;
   readonly predictAsyncLambda: NodejsFunction;
   readonly queue: sqs.Queue;
+  readonly deadLetterQueue: sqs.Queue;
   readonly queueLambda: NodejsFunction;
 
   constructor(scope: Construct, id: string, props: PredictConstructProps) {
@@ -29,7 +32,7 @@ export class PredictConstruct extends Construct {
     const { bucket, table, api, speechSecretArn } = props;
 
     // Deadletter queue - For keeping track of failed messages.
-    const deadLetterQueue = new sqs.Queue(this, 'DeadLetterQueue', {
+    this.deadLetterQueue = new sqs.Queue(this, 'DeadLetterQueue', {
       visibilityTimeout: cdk.Duration.seconds(300)
     });
 
@@ -37,7 +40,7 @@ export class PredictConstruct extends Construct {
     this.queue = new sqs.Queue(this, 'EventQueue', {
       visibilityTimeout: cdk.Duration.seconds(300),
       deadLetterQueue: {
-        queue: deadLetterQueue,
+        queue: this.deadLetterQueue,
         maxReceiveCount: 1 // After 1 failed attempt, send to deadletter queue
       }
     });

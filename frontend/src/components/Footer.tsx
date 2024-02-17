@@ -5,13 +5,8 @@ import { faGlobe } from '@fortawesome/free-solid-svg-icons';
 
 export function Footer() {
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        initial={{ opacity: 0, y: -100 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -100 }}
-        transition={{ duration: 0.25 }}
-        className="fixed bottom-4 left-0 h-16 px-4 sm:px-6 lg:px-8 flex flex-col space-y-2"
+      <div
+        className="absolute lg:fixed fixed lg:bottom-4 left-0 h-16 px-4 flex flex-col space-y-2"
       >
         <a
           href="https://github.com/Kyle-L/Bedrock-AppSync-API"
@@ -27,7 +22,6 @@ export function Footer() {
         >
           <FontAwesomeIcon icon={faGlobe} /> KyleLierer.com
         </a>
-      </motion.div>
-    </AnimatePresence>
+      </div>
   );
 }

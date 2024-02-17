@@ -1,8 +1,8 @@
-import { Persona, Thread } from '../../API';
+import { Persona, Thread } from 'API';
+import { gradientColorMap } from 'components/gradient-dict';
 import { motion } from 'framer-motion';
-import { gradientColorMap } from '../gradient-dict';
-import { getAvatarURL } from '../../utils/avatar';
-import type { ComponentPropsWithoutRef } from 'react';
+import { ComponentPropsWithoutRef } from 'react';
+import { getAvatarURL } from 'utils/avatar';
 
 interface ThreadCardProps extends ComponentPropsWithoutRef<React.ElementType> {
   persona: Persona;
