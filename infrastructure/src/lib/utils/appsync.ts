@@ -1,8 +1,8 @@
-import { SignatureV4 } from '@smithy/signature-v4';
-import { httpsClient } from './clients';
-import { HttpRequest } from '@smithy/protocol-http';
 import { Sha256 } from '@aws-crypto/sha256-js';
 import { defaultProvider } from '@aws-sdk/credential-provider-node';
+import { HttpRequest } from '@smithy/protocol-http';
+import { SignatureV4 } from '@smithy/signature-v4';
+import { httpsClient } from './clients';
 
 export interface RequestParams {
   config: {
@@ -46,12 +46,15 @@ export const AppSyncRequestIAM = async (params: RequestParams) => {
 
   const signedRequest = await signer.sign(requestToBeSigned);
 
-  return new Promise((resolve, _reject) => {
+  return new Promise((resolve, reject) => {
     const httpRequest = httpsClient.request(
       { ...signedRequest, host: endpoint.hostname },
       (result) => {
         result.on('data', (data) => {
           resolve(JSON.parse(data.toString()));
+        });
+        result.on('error', (err) => {
+          reject(err);
         });
       }
     );

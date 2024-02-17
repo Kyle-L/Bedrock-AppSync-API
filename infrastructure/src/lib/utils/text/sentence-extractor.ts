@@ -8,7 +8,10 @@
  * @param text {string} The text to retrieve the sentence from.
  * @returns
  */
-export function getCompleteSentence(text: string, delimiters: string[] = ['.', '?', '!', ':', '\n']): {
+export function getCompleteSentence(
+  text: string,
+  delimiters: string[] = ['.', '?', '!', ':', '\n']
+): {
   sentence: string;
   remainingText: string;
   containsComplete: boolean;

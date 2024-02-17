@@ -6,7 +6,7 @@ import { defaultTemplate } from './model-templates';
 import { PromptTemplate } from '@langchain/core/prompts';
 
 const runtime = new BedrockAgentRuntime({
-  region: 'us-east-1',
+  region: 'us-east-1'
 });
 
 /**
@@ -34,7 +34,7 @@ export async function processAsynchronously({
   }
 
   if (!model) {
-    model = 'anthropic.claude-v2:1'
+    model = 'anthropic.claude-v2:1';
   }
 
   // Default to Claude if no model is specified or if the string is not recognized
@@ -71,7 +71,7 @@ export async function processAsynchronously({
 
   console.log(`Formatted prompt: ${formattedPrompt}`);
 
-  const stream = chat.pipe(new StringOutputParser()).stream(formattedPrompt)
+  const stream = chat.pipe(new StringOutputParser()).stream(formattedPrompt);
 
   for await (const chunk of await stream) {
     await callback(chunk);
@@ -103,7 +103,7 @@ async function getContext(
   return (
     result.retrievalResults
       .map((result) => {
-        `Document: ${result.location?.s3Location?.uri}\n${result.content.text}`
+        `Document: ${result.location?.s3Location?.uri}\n${result.content.text}`;
       })
       .join('\n\n') || ''
   );

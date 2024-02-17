@@ -23,5 +23,5 @@ export {
   sqsClient,
   ssmClient,
   httpClient,
-  httpsClient,
+  httpsClient
 };
