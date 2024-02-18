@@ -3,9 +3,9 @@ import { useAudio } from '../../../providers/AudioProvider';
 
 /**
  * AudioPlayer Component
- * 
+ *
  * This component manages the playback of audio clips.
- * 
+ *
  * @param {Object} props - The props for the AudioPlayer component.
  * @param {string[]} props.audioClips - Array of URLs for audio clips.
  */

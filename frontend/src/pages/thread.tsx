@@ -80,18 +80,10 @@ export default function ThreadPage() {
 
           if (response) {
             if (response.chunkType === 'text') {
-              setLastMessage((lastMessage) => {
-                if (lastMessage) {
-                  return {
-                    ...lastMessage,
-                    message: lastMessage.message + response.chunk
-                  };
-                }
-                return {
-                  sender: 'Assistant',
-                  message: response.chunk,
-                  createdAt: new Date().toISOString()
-                };
+              setLastMessage({
+                sender: 'Assistant',
+                message: response.chunk,
+                createdAt: new Date().toISOString()
               });
             }
 
@@ -107,7 +99,7 @@ export default function ThreadPage() {
               setLoading(false);
             }
 
-            if (response.status === 'COMPLETE') {
+            if (response.chunkType === 'status' && response.status === 'COMPLETE') {
               setLoading(false);
             }
           }
@@ -194,8 +186,6 @@ export default function ThreadPage() {
       </div>
 
       <Container>
-
-
         <div className="w-full flex justify-center items-center lg:flex-row mb-6">
           <Logo
             title={`Meet ${thread.persona.name}`}
@@ -247,6 +237,5 @@ export default function ThreadPage() {
         <AudioPlayer audioClips={audioClips} />
       </Container>
     </>
-
   );
 }

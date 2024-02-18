@@ -52,13 +52,6 @@ input SystemSendMessageChunkInput {
   chunk: String!
 }
 
-input SystemCreateMessageInput {
-  userId: ID!
-  threadId: ID!
-  status: ThreadStatus!
-  message: MessageInput!
-}
-
 input CreateVoiceInput {
   threadId: ID!
   message: String!
@@ -176,10 +169,6 @@ type DeleteThreadPayload @aws_cognito_user_pools @aws_iam {
   thread: Thread
 }
 
-type SystemCreateMessagePayload @aws_cognito_user_pools @aws_iam {
-  message: Message
-}
-
 ############## QUERIES #####################
 
 type Query @aws_cognito_user_pools @aws_iam {
@@ -222,9 +211,6 @@ type Mutation {
   # System
   systemSendMessageChunk(input: SystemSendMessageChunkInput!): MessageChunk
     @aws_iam
-  systemCreateMessage(
-    input: SystemCreateMessageInput!
-  ): SystemCreateMessagePayload @aws_iam
 }
 
 ############## SUBSCRIPTIONS #####################

@@ -25,5 +25,6 @@ export enum MessageSystemStatus {
   NEW = 'NEW',
   PENDING = 'PENDING',
   PROCESSING = 'PROCESSING',
-  COMPLETE = 'COMPLETE'
+  COMPLETE = 'COMPLETE',
+  ERROR = 'ERROR'
 }

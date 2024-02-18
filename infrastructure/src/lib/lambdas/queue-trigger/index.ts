@@ -1,7 +1,7 @@
-import { UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import { AppSyncIdentityCognito, AppSyncResolverEvent } from 'aws-lambda';
-import { dynamodbClient, sqsClient } from 'lib/utils/clients';
+import { sqsClient } from 'lib/utils/clients';
+import { updateThreadStatus } from 'lib/utils/dynamodb';
 import { MessageSystemStatus } from 'lib/utils/types';
 
 // Environment variables
@@ -12,6 +12,8 @@ export async function handler(
     input: { prompt: string; threadId: string };
   }>
 ) {
+  console.debug('Received event:', JSON.stringify(event, null, 2));
+
   const {
     identity,
     prev,
@@ -43,20 +45,14 @@ export async function handler(
   threadId = threadId.split('#')[1];
 
   try {
-    // The command to set thread's status to PENDING to block other requests from processing.
-    const dynamoParams = {
-      TableName: TABLE_NAME,
-      Key: { pk: { S: `USER#${id}` }, sk: { S: `THREAD#${threadId}` } },
-      UpdateExpression: 'SET #status = :status',
-      ExpressionAttributeNames: { '#status': 'status' },
-      ExpressionAttributeValues: {
-        ':status': { S: MessageSystemStatus.PENDING }
-      }
-    };
-
     // Inserts the user's request into the queue, and peforms the DynamoDB update in parallel.
     await Promise.all([
-      dynamodbClient.send(new UpdateItemCommand(dynamoParams)),
+      updateThreadStatus({
+        id,
+        threadId,
+        status: MessageSystemStatus.PENDING,
+        tableName: TABLE_NAME
+      }),
       sqsClient.send(
         new SendMessageCommand({
           QueueUrl: QUEUE_URL,

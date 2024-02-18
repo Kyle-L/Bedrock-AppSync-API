@@ -195,14 +195,6 @@ export class BackendStack extends cdk.Stack {
       path.join(__dirname, '../resolvers/threads/thread-filter.js')
     );
 
-    // Messages
-
-    const systemCreateMessageFunction = createResolverFunction(
-      'systemCreateMessage',
-      conversationHistoryDataSource,
-      '../resolvers/messages/create-message.js'
-    );
-
     // Predict
 
     const predictAsyncFunction = createLambdaFunction(
@@ -270,11 +262,6 @@ export class BackendStack extends cdk.Stack {
       },
 
       // Messages
-      {
-        typeName: 'Mutation',
-        fieldName: 'systemCreateMessage',
-        pipelineConfig: [systemCreateMessageFunction]
-      },
       {
         typeName: 'Mutation',
         fieldName: 'createMessageAsync',
