@@ -28,7 +28,7 @@ export function request(ctx) {
         ':createdAt': { S: `${util.time.nowISO8601()}` },
         ':persona': { M: util.dynamodb.toMapValues(ctx.prev.result) },
         ':messages': { L: [] },
-        ':ttl': { N: `${util.time.nowEpoch() + 60 * 60 * 24 * 7}` } // 7 days
+        ':ttl': { N: `${util.time.nowEpochMilliSeconds() + 60 * 60 * 24 * 7}` } // 7 days
       }
     }
   };
