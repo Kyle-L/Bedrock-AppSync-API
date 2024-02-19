@@ -23,19 +23,19 @@ async function processAIResponse({
   persona: any;
   responseOptions: { includeAudio: boolean };
 }) {
-  let fullResponse = '';
+  let completeResponse = '';
   const audioClips: string[] = [];
   let lastSentenceResponse = '';
 
   await processAsynchronously({
     query,
-    fullQuery: completeQuery,
+    completeQuery,
     promptTemplate: persona.prompt,
     model: persona.model,
     knowledgeBaseId: persona.knowledgeBaseId,
     callback: async (chunk) => {
       try {
-        fullResponse += chunk;
+        completeResponse += chunk;
         lastSentenceResponse += chunk;
 
         const { sentence, remainingText, containsComplete } =
@@ -45,7 +45,7 @@ async function processAIResponse({
         await sendChunk({
           userId,
           threadId,
-          chunk: fullResponse,
+          chunk: completeResponse,
           chunkType: 'text'
         });
 
@@ -83,7 +83,7 @@ async function processAIResponse({
   });
 
   return {
-    fullResponse,
+    completeResponse,
     audioClips
   };
 }
@@ -109,17 +109,17 @@ export async function processSingleEvent({
     .map((message) => {
       return `${message.sender}: ${message.message}`;
     })
-    .join('\n')
+    .join('\n\n')
     .trim();
 
-  const completeQuery = `${formattedHistory}\nAssistant: `;
+  const completeQuery = `${formattedHistory}\nAssistant:`;
 
   // Tasks
   const timeoutTask = createTimeoutTask(eventTimeout);
   const processingTask = new Promise(async (resolve) => {
     console.log(`Processing prompt: ${completeQuery}`);
 
-    const [_, { fullResponse }] = await Promise.all([
+    const [_, { completeResponse, audioClips }] = await Promise.all([
       addMessage({
         id: userId,
         threadId,
@@ -143,7 +143,8 @@ export async function processSingleEvent({
       addMessage({
         id: userId,
         threadId,
-        message: fullResponse,
+        message: completeResponse,
+        audioClips,
         sender: 'Assistant',
         tableName: TABLE_NAME
       }),
@@ -161,7 +162,7 @@ export async function processSingleEvent({
       })
     ]);
 
-    resolve(fullResponse);
+    resolve(completeResponse);
   });
 
   const res = await Promise.race([processingTask, timeoutTask]);

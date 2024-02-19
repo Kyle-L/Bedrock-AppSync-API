@@ -9,7 +9,15 @@ import { useAudio } from '../../../providers/AudioProvider';
  * @param {Object} props - The props for the AudioPlayer component.
  * @param {string[]} props.audioClips - Array of URLs for audio clips.
  */
-const AudioPlayer = ({ audioClips }: { audioClips: string[] }) => {
+const AudioPlayer = ({
+  audioClips,
+  play,
+  onAudioEnd
+}: {
+  audioClips: string[];
+  play: boolean;
+  onAudioEnd?: () => void;
+}) => {
   // Custom hook to access audio context
   const audio = useAudio();
 
@@ -20,17 +28,17 @@ const AudioPlayer = ({ audioClips }: { audioClips: string[] }) => {
   const [audioIndex, setAudioIndex] = useState(0);
   const [audioPlaying, setAudioPlaying] = useState(false);
 
-  // Effect to update audio volume when it changes
+  // Effect to play audio when play prop changes
   useEffect(() => {
-    if (audioPlaying) {
-      audioFiles[audioIndex].volume = audio.audioVolume;
+    if (play) {
+      setAudioIndex(0);
     }
-  }, [audio.audioVolume, audioIndex, audioFiles, audioPlaying]);
+  }, [play]);
 
   // Effect to play the next audio clip
   useEffect(() => {
     const playNextAudioClip = async () => {
-      if (audioIndex < audioFiles.length && !audioPlaying) {
+      if (play && audioIndex < audioFiles.length && !audioPlaying) {
         setAudioPlaying(true);
         const audioElement = audioFiles[audioIndex];
 
@@ -48,8 +56,16 @@ const AudioPlayer = ({ audioClips }: { audioClips: string[] }) => {
           audioElement.removeEventListener('ended', onAudioEnded);
           setAudioIndex((prevIndex) => prevIndex + 1);
           setAudioPlaying(false);
+
           // Remove audio element from memory
           audioElement.remove();
+
+          // If there are no more audio clips, call onAudioEnd callback
+          if (audioIndex === audioFiles.length - 1) {
+            if (onAudioEnd) {
+              onAudioEnd();
+            }
+          }
         };
 
         // Listen for audio end event

@@ -18,7 +18,6 @@ interface PredictConstructProps extends cdk.StackProps {
 }
 
 export class PredictConstruct extends Construct {
-  readonly voiceLambda: NodejsFunction;
   readonly predictAsyncLambda: NodejsFunction;
   readonly queue: sqs.Queue;
   readonly queueLambda: NodejsFunction;
@@ -109,22 +108,6 @@ export class PredictConstruct extends Construct {
       tracing: Tracing.ACTIVE
     });
 
-    // Voice Lambda
-    this.voiceLambda = new NodejsFunction(this, 'Voice', {
-      runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
-      entry: path.join(__dirname, '../lambdas/voice/index.ts'),
-      environment: {
-        S3_BUCKET: bucket.bucketName,
-        SPEECH_SECRET: speechSecret?.secretArn || ''
-      },
-      bundling: {
-        minify: true,
-        sourceMap: true
-      },
-      timeout: cdk.Duration.seconds(30),
-      tracing: Tracing.ACTIVE
-    });
-
     // Add additional permissions to the predictAsyncLambda
     this.predictAsyncLambda.role?.addManagedPolicy(
       iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonBedrockFullAccess')
@@ -140,10 +123,8 @@ export class PredictConstruct extends Construct {
 
     // Grant read access to the speech secret for the predictAsyncLambda and voiceLambda
     speechSecret?.grantRead(this.predictAsyncLambda);
-    speechSecret?.grantRead(this.voiceLambda);
 
     // Grant read/write access to the S3 bucket for the voiceLambda and predictAsyncLambda
-    bucket.grantReadWrite(this.voiceLambda, 'audio/*');
     bucket.grantReadWrite(this.predictAsyncLambda, 'audio/*');
 
     // Trigger the predictAsyncLambda when a message is sent to the SQS queue

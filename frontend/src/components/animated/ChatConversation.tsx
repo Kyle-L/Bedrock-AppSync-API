@@ -24,7 +24,6 @@ export default function ChatConversation({
       <div className="flex flex-col space-y-4">
         {[...conversationHistory, lastMessage!].filter(Boolean).map((chat, index) => (
           <ChatBubble
-            id={chat.sender === 'Assistant' ? thread.threadId : undefined}
             picture={getAvatarURL({
               avatar: chat.sender === 'Assistant' ? thread.persona.avatar : undefined,
               name:
@@ -32,7 +31,8 @@ export default function ChatConversation({
             })}
             key={index}
             name={chat.sender === 'Assistant' ? thread.persona.name : userAttributes?.name ?? 'N/A'}
-            text={chat.message}
+            message={chat.message}
+            audioClips={chat.audioClips ?? []}
             timestamp={chat.createdAt}
             isAnimated={index === conversationHistory.length}
           />

@@ -44,6 +44,7 @@ export type Message = {
   __typename: 'Message';
   sender: string;
   message: string;
+  audioClips?: Array<string> | null;
   createdAt: string;
 };
 
@@ -63,16 +64,6 @@ export type CreateMessageInput = {
 export type CreateMessagePayload = {
   __typename: 'CreateMessagePayload';
   message?: Message | null;
-};
-
-export type CreateVoiceInput = {
-  threadId: string;
-  message: string;
-};
-
-export type CreateVoicePayload = {
-  __typename: 'CreateVoicePayload';
-  result?: string | null;
 };
 
 export type CreatePersonaInput = {
@@ -149,23 +140,6 @@ export type MessageChunk = {
   chunk: string;
 };
 
-export type SystemCreateMessageInput = {
-  userId: string;
-  threadId: string;
-  status: ThreadStatus;
-  message: MessageInput;
-};
-
-export type MessageInput = {
-  sender: string;
-  message: string;
-};
-
-export type SystemCreateMessagePayload = {
-  __typename: 'SystemCreateMessagePayload';
-  message?: Message | null;
-};
-
 export type GetPersonaInput = {
   personaId: string;
 };
@@ -206,19 +180,9 @@ export type CreateMessageAsyncMutation = {
       __typename: 'Message';
       sender: string;
       message: string;
+      audioClips?: Array<string> | null;
       createdAt: string;
     } | null;
-  } | null;
-};
-
-export type CreateVoiceMutationVariables = {
-  input: CreateVoiceInput;
-};
-
-export type CreateVoiceMutation = {
-  createVoice?: {
-    __typename: 'CreateVoicePayload';
-    result?: string | null;
   } | null;
 };
 
@@ -320,22 +284,6 @@ export type SystemSendMessageChunkMutation = {
   } | null;
 };
 
-export type SystemCreateMessageMutationVariables = {
-  input: SystemCreateMessageInput;
-};
-
-export type SystemCreateMessageMutation = {
-  systemCreateMessage?: {
-    __typename: 'SystemCreateMessagePayload';
-    message?: {
-      __typename: 'Message';
-      sender: string;
-      message: string;
-      createdAt: string;
-    } | null;
-  } | null;
-};
-
 export type GetPersonaQueryVariables = {
   input: GetPersonaInput;
 };
@@ -405,6 +353,7 @@ export type GetThreadQuery = {
       __typename: 'Message';
       sender: string;
       message: string;
+      audioClips?: Array<string> | null;
       createdAt: string;
     }> | null;
     status: ThreadStatus;
@@ -435,6 +384,7 @@ export type GetAllThreadsQuery = {
       __typename: 'Message';
       sender: string;
       message: string;
+      audioClips?: Array<string> | null;
       createdAt: string;
     }> | null;
     status: ThreadStatus;

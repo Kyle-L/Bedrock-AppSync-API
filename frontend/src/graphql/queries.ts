@@ -65,6 +65,7 @@ export const getThread = /* GraphQL */ `query GetThread($input: GetThreadInput!)
     messages {
       sender
       message
+      audioClips
       createdAt
       __typename
     }
@@ -93,6 +94,7 @@ export const getAllThreads = /* GraphQL */ `query GetAllThreads {
     messages {
       sender
       message
+      audioClips
       createdAt
       __typename
     }

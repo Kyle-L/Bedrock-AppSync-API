@@ -48,7 +48,7 @@ export async function sendChunk({
   userId: string;
   threadId: string;
   status?: MessageSystemStatus;
-  chunkType?: 'text' | 'audio' | 'image' | 'error'| 'status'
+  chunkType?: 'text' | 'audio' | 'image' | 'error' | 'status';
   chunk?: string;
 }) {
   status = status || MessageSystemStatus.PROCESSING;

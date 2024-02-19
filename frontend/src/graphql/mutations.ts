@@ -27,6 +27,7 @@ export const createMessageAsync =
     message {
       sender
       message
+      audioClips
       createdAt
       __typename
     }
@@ -37,13 +38,6 @@ export const createMessageAsync =
     APITypes.CreateMessageAsyncMutationVariables,
     APITypes.CreateMessageAsyncMutation
   >;
-export const createVoice = /* GraphQL */ `mutation CreateVoice($input: CreateVoiceInput!) {
-  createVoice(input: $input) {
-    result
-    __typename
-  }
-}
-` as GeneratedMutation<APITypes.CreateVoiceMutationVariables, APITypes.CreateVoiceMutation>;
 export const createPersona = /* GraphQL */ `mutation CreatePersona($input: CreatePersonaInput!) {
   createPersona(input: $input) {
     persona {
@@ -125,20 +119,4 @@ export const systemSendMessageChunk =
 ` as GeneratedMutation<
     APITypes.SystemSendMessageChunkMutationVariables,
     APITypes.SystemSendMessageChunkMutation
-  >;
-export const systemCreateMessage =
-  /* GraphQL */ `mutation SystemCreateMessage($input: SystemCreateMessageInput!) {
-  systemCreateMessage(input: $input) {
-    message {
-      sender
-      message
-      createdAt
-      __typename
-    }
-    __typename
-  }
-}
-` as GeneratedMutation<
-    APITypes.SystemCreateMessageMutationVariables,
-    APITypes.SystemCreateMessageMutation
   >;

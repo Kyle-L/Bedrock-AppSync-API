@@ -32,12 +32,14 @@ export async function addMessage({
   id,
   threadId,
   message,
+  audioClips,
   sender,
   tableName
 }: {
   id: string;
   threadId: string;
   message: string;
+  audioClips?: string[];
   sender: string;
   tableName: string;
 }) {
@@ -57,6 +59,9 @@ export async function addMessage({
               M: {
                 sender: { S: sender },
                 message: { S: message },
+                audioClips: {
+                  L: (audioClips || []).map((clip) => ({ S: clip }))
+                },
                 createdAt: { S: new Date().toISOString() }
               }
             }

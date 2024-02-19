@@ -81,10 +81,6 @@ export class BackendStack extends cdk.Stack {
       'PredictAsyncDataSource',
       predictConstruct.queueLambda
     );
-    const getVoiceDataSource = apiConstruct.appsync.addLambdaDataSource(
-      'GetVoiceDataSource',
-      predictConstruct.voiceLambda
-    );
 
     // DynamoDB Data Sources
     const conversationHistoryDataSource =
@@ -202,13 +198,6 @@ export class BackendStack extends cdk.Stack {
       predictAsyncDataSource
     );
 
-    // Voice
-
-    const getVoiceFunction = createLambdaFunction(
-      'getVoice',
-      getVoiceDataSource
-    );
-
     /*================================= Resolvers =================================*/
 
     const resolverConfigs = [
@@ -266,13 +255,6 @@ export class BackendStack extends cdk.Stack {
         typeName: 'Mutation',
         fieldName: 'createMessageAsync',
         pipelineConfig: [getThreadFunction, predictAsyncFunction]
-      },
-
-      // Voice
-      {
-        typeName: 'Mutation',
-        fieldName: 'createVoice',
-        pipelineConfig: [getThreadFunction, getVoiceFunction]
       },
 
       // System

@@ -16,14 +16,14 @@ const runtime = new BedrockAgentRuntime({
  */
 export async function processAsynchronously({
   query,
-  fullQuery,
+  completeQuery,
   promptTemplate,
   model,
   knowledgeBaseId,
   callback
 }: {
   query: string;
-  fullQuery: string;
+  completeQuery: string;
   promptTemplate?: string;
   model?: string;
   knowledgeBaseId?: string;
@@ -65,7 +65,7 @@ export async function processAsynchronously({
     ? PromptTemplate.fromTemplate(promptTemplate)
     : defaultTemplate;
   const formattedPrompt = await template.format({
-    query: fullQuery,
+    query: completeQuery,
     search_results: documentContext
   });
 
