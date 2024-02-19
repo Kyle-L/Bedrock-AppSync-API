@@ -35,7 +35,7 @@
     "bedrock-agents-cdk": "^0.0.9",
     "constructs": "^10.3.0",
     "dotenv": "^16.4.4",
-    "esbuild": "^0.20.0",
+    "esbuild": "^0.20.1",
     "langchain": "^0.1.20",
     "source-map-support": "^0.5.21"
   },
