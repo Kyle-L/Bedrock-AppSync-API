@@ -8,7 +8,6 @@ import { URL } from 'url';
 // Static variables
 const AUDIO_FORMAT = 'mp3';
 const AUDIO_NAME_TEMPLATE = `%s.${AUDIO_FORMAT}`;
-const AUDIO_UPLOAD_DIR = 'audio';
 
 /**
  * Retrieves a secret from AWS Secrets Manager and casts it to the specified type.
@@ -118,16 +117,18 @@ export async function synthesizeSpeechAndUploadAudio({
   audioText,
   speechSecretArn,
   voice,
+  keyPrefix,
   bucket
 }: {
   audioText: string;
   speechSecretArn: string;
   voice: { id: string };
+  keyPrefix: string;
   bucket: string;
 }): Promise<string> {
   const audioFileName = AUDIO_NAME_TEMPLATE.replace(
     '%s',
-    `${generateRandomId()}.${AUDIO_FORMAT}`
+    `${keyPrefix}/${generateRandomId()}`
   );
 
   const result = await synthesizeSpeechAudio({
@@ -138,7 +139,7 @@ export async function synthesizeSpeechAndUploadAudio({
 
   const uploadCommand = new PutObjectCommand({
     Bucket: bucket,
-    Key: `${AUDIO_UPLOAD_DIR}/${audioFileName}`,
+    Key: audioFileName,
     Body: result
   });
 
@@ -146,11 +147,11 @@ export async function synthesizeSpeechAndUploadAudio({
 
   const getObjectCommand = new GetObjectCommand({
     Bucket: bucket,
-    Key: `${AUDIO_UPLOAD_DIR}/${audioFileName}`
+    Key: audioFileName
   });
 
   const signedUrl = await getSignedUrl(s3Client, getObjectCommand, {
-    expiresIn: 3600
+    expiresIn: 60 * 60 * 24 * 7 // 7 days
   });
 
   return signedUrl;

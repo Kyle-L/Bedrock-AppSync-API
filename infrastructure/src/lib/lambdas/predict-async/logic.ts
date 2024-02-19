@@ -57,6 +57,7 @@ async function processAIResponse({
             const audio = await synthesizeSpeechAndUploadAudio({
               voice: persona.voice,
               audioText: sentence,
+              keyPrefix: `audio/${userId}/${threadId}/`,
               bucket: S3_BUCKET,
               speechSecretArn: SPEECH_SECRET
             });

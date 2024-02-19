@@ -37,6 +37,7 @@ export class DataStoreConstruct extends Construct {
         name: 'sk',
         type: dynamodb.AttributeType.STRING
       },
+      timeToLiveAttribute: 'ttl',
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST
     });
 
@@ -72,7 +73,7 @@ export class DataStoreConstruct extends Construct {
       lifecycleRules: [
         {
           prefix: 'audio/',
-          expiration: cdk.Duration.days(1)
+          expiration: cdk.Duration.days(7)
         }
       ]
     });
