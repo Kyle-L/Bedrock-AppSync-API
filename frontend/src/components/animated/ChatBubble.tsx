@@ -110,13 +110,7 @@ export default function ChatBubble({
         <img src={picture} className="rounded-full mr-4 w-10 h-10 shrink-0" />
         <div className="overflow-auto flex flex-col w-full justify-center">
           <p className="mt-[6pt] font-bold">{name}</p>
-          {isAnimated ? (
-            <Typewriter
-              text={text}
-            />
-          ) : (
-            <Markdown>{text}</Markdown>
-          )}
+          {isAnimated ? <Typewriter text={text} /> : <Markdown>{text}</Markdown>}
         </div>
       </motion.div>
       {timestamp && (

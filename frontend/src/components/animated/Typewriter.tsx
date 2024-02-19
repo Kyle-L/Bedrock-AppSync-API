@@ -29,7 +29,7 @@ export default function Typewriter({
     regularDeviation: 20,
     punctuationDeviation: 150,
     ...delay
-  }
+  };
 
   useEffect(() => {
     if (currentIndex < target.length) {
@@ -38,7 +38,8 @@ export default function Typewriter({
 
       let currentDelay;
       if (['.', ',', ';', ':', '!', '?'].includes(prevChar)) {
-        currentDelay = characterDelay.punctuation + Math.random() * characterDelay.punctuationDeviation;
+        currentDelay =
+          characterDelay.punctuation + Math.random() * characterDelay.punctuationDeviation;
       } else if (prevChar === ' ') {
         currentDelay = 0;
       } else {
