@@ -3,12 +3,12 @@ import { dynamodbClient } from './clients';
 import { MessageSystemStatus } from './types';
 
 export async function updateThreadStatus({
-  id,
+  userId,
   threadId,
   status,
   tableName
 }: {
-  id: string;
+  userId: string;
   threadId: string;
   status: MessageSystemStatus;
   tableName: string;
@@ -16,7 +16,7 @@ export async function updateThreadStatus({
   return await dynamodbClient.send(
     new UpdateItemCommand({
       TableName: tableName,
-      Key: { pk: { S: `USER#${id}` }, sk: { S: `THREAD#${threadId}` } },
+      Key: { pk: { S: `USER#${userId}` }, sk: { S: `THREAD#${threadId}` } },
       UpdateExpression: 'SET #status = :status',
       ExpressionAttributeNames: {
         '#status': 'status'

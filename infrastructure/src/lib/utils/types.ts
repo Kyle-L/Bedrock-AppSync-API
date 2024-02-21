@@ -1,16 +1,18 @@
+export interface Persona {
+  voice: { id: string };
+  voiceStyle: string;
+  model: string;
+  knowledgeBaseId: string;
+  prompt: string;
+}
+
 export interface EventType {
   userId: string;
   threadId: string;
   history: { sender: string; message: string }[];
   query: string;
   eventTimeout: number;
-  persona: {
-    voice: { id: string };
-    voiceStyle: string;
-    model: string;
-    knowledgeBaseId: string;
-    prompt: string;
-  };
+  persona: Persona;
   responseOptions: {
     includeAudio: boolean;
   };

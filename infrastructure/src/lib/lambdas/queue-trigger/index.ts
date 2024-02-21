@@ -48,7 +48,7 @@ export async function handler(
     // Inserts the user's request into the queue, and peforms the DynamoDB update in parallel.
     await Promise.all([
       updateThreadStatus({
-        id,
+        userId: id,
         threadId,
         status: MessageSystemStatus.PENDING,
         tableName: TABLE_NAME

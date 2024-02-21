@@ -14,11 +14,11 @@ export async function handler({ Records }: SQSEvent, _context: Context) {
 
   return Promise.all(
     Records.map(async ({ body }) => {
-      const { id, threadId } = JSON.parse(body);
+      const event = JSON.parse(body);
 
       return updateThreadStatus({
-        id,
-        threadId,
+        userId: event.identity.sub,
+        threadId: event.arguments.input.threadId,
         status: MessageSystemStatus.ERROR,
         tableName: TABLE_NAME
       });

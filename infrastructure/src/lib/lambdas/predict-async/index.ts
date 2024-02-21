@@ -9,8 +9,8 @@ const EVENT_TIMEOUT_BUFFER = 5000; // 5 second
  * @param event SQS event containing the batch of events to process.
  * @returns The results of the events.
  */
-export async function handler(event: SQSEvent, context: Context) {
-  if (!event.Records || event.Records.length === 0) {
+export async function handler({ Records }: SQSEvent, context: Context) {
+  if (!Records || Records.length === 0) {
     throw new Error('No records found in the event. Aborting operation.');
   }
 
@@ -18,21 +18,21 @@ export async function handler(event: SQSEvent, context: Context) {
   // we can ensure that we don't exceed the timeout for the lambda.
   const eventTimeout =
     (context.getRemainingTimeInMillis() - EVENT_TIMEOUT_BUFFER) /
-    event.Records.length;
+    Records.length;
 
-  const processingTasks = event.Records.map(async (record) => {
-    const eventData = JSON.parse(record.body);
+  const processingTasks = Records.map(async (record) => {
+    const event = JSON.parse(record.body);
 
-    console.log(`Received Event: ${JSON.stringify(eventData)}`);
+    console.log(`Received Event: ${JSON.stringify(event)}`);
     return processSingleEvent({
-      userId: eventData.identity.sub,
-      threadId: eventData.arguments.input.threadId,
-      history: eventData.prev.result.messages || [],
-      query: eventData.arguments.input.prompt,
+      userId: event.identity.sub,
+      threadId: event.arguments.input.threadId,
+      history: event.prev.result.messages || [],
+      query: event.arguments.input.prompt,
       eventTimeout: eventTimeout,
-      persona: eventData.prev.result.persona,
+      persona: event.prev.result.persona,
       responseOptions: {
-        includeAudio: eventData.arguments.input.includeAudio
+        includeAudio: event.arguments.input.includeAudio
       }
     });
   });
