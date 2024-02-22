@@ -1,0 +1,101 @@
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ['main']
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+# Allow one concurrent deployment
+concurrency:
+  group: 'infrastructure'
+  cancel-in-progress: true
+
+jobs:
+  # Single deploy job since we're just deploying
+  deploy-infrastructure:
+    name: Deploy Infrastructure
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./infrastructure
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: ./infrastructure/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-east-1
+
+      - name: Deploy
+        env:
+          FRONTEND_ACM_CERTIFICATE_ARN : ${{ vars.FRONTEND_ACM_CERTIFICATE_ARN }}
+          FRONTEND_DOMAIN : ${{ vars.FRONTEND_DOMAIN }}
+          BACKEND_API_ACM_CERTIFICATE_ARN : ${{ vars.BACKEND_API_ACM_CERTIFICATE_ARN }}
+          BACKEND_API_DOMAIN : ${{ vars.BACKEND_API_DOMAIN }}
+          PINECONE_CONNECTION_STRING : ${{ vars.PINECONE_CONNECTION_STRING }}
+          PINECONE_SECRET_ARN : ${{ vars.PINECONE_SECRET_ARN }}
+          SPEECH_SECRET_ARN: ${{ vars.SPEECH_SECRET_ARN }}
+        run: npm run deploy
+
+  deploy-frontend:
+    name: Deploy Frontend
+    needs: [deploy-infrastructure]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: ./frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        env:
+          VITE_API_URL : ${{ vars.VITE_API_URL }}
+          VITE_COGNITO_USER_POOL_CLIENT_ID : ${{ vars.VITE_COGNITO_USER_POOL_CLIENT_ID }}
+          VITE_COGNITO_USER_POOL_ID : ${{ vars.VITE_COGNITO_USER_POOL_ID }}
+        run: npm run build
+
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-east-1
+
+      - name: Deploy to S3
+        run: |
+          # Upload to S3
+          aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/ --delete
+          
+          # Invalidate CloudFront cache
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+

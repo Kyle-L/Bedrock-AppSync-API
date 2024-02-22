@@ -1,0 +1,18 @@
+*.js
+!jest.config.js
+*.d.ts
+node_modules
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+
+# Type files
+!src/lib/types/**/*.d.ts
+
+# CDK Resolvers
+!src/lib/resolvers/**/*.js
+
+# Environmental variables
+*.env*
+!.env.example

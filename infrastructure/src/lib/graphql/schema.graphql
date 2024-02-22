@@ -1,0 +1,211 @@
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+############## ENUMS #####################
+
+enum ThreadStatus {
+  NEW
+  PENDING
+  PROCESSING
+  COMPLETE
+}
+
+############## INPUTS #####################
+
+input GetPersonaInput {
+  personaId: ID!
+}
+
+input GetThreadInput {
+  threadId: ID!
+}
+
+input DeleteThreadInput {
+  threadId: ID!
+}
+
+input CreateThreadInput {
+  personaId: ID!
+}
+
+input MessageInput {
+  sender: String!
+  message: String!
+}
+
+input CreateMessageInput {
+  threadId: ID!
+  prompt: ID!
+
+  includeAudio: Boolean
+}
+
+input SystemSendMessageChunkInput {
+  userId: ID!
+  threadId: ID!
+  status: ThreadStatus!
+
+  chunkType: String!
+  chunk: String!
+}
+
+input VoiceInput {
+  id: String!
+}
+
+input CreatePersonaInput {
+  name: String!
+  avatar: String
+  prompt: String
+  subtitle: String
+  description: String
+  color: String
+  model: String
+  knowledgeBaseId: String
+  voice: VoiceInput
+}
+
+input UpdatePersonaInput {
+  personaId: ID!
+
+  name: String!
+  avatar: String
+  prompt: String
+  subtitle: String
+  description: String
+  color: String
+  model: String
+  knowledgeBaseId: String
+  voice: VoiceInput
+}
+
+input DeletePersonaInput {
+  personaId: ID!
+}
+
+input RecieveMessageChunkAsyncInput {
+  threadId: ID!
+}
+
+############## TYPES #####################
+
+type Voice @aws_cognito_user_pools @aws_iam {
+  id: String!
+}
+
+type Persona @aws_cognito_user_pools @aws_iam {
+  personaId: ID!
+
+  name: String! # The name of the persona
+  avatar: String # The URL of the persona's avatar image
+  prompt: String # The system prompt that the persona uses.
+  subtitle: String # A subtitle for the persona, displayed in the UI
+  description: String # A description of the persona
+  color: String # The color of the persona's background and related UI elements
+  model: String # The name of the model that the persona uses
+  knowledgeBaseId: String # The ID of the knowledge base that the persona can use
+  voice: Voice # The voice that the persona uses
+}
+
+type MessageChunk @aws_cognito_user_pools @aws_iam {
+  userId: ID!
+  threadId: ID!
+  status: ThreadStatus!
+
+  chunkType: String!
+  chunk: String!
+}
+
+type Message @aws_cognito_user_pools @aws_iam {
+  sender: String!
+  message: String!
+  audioClips: [String!]
+  createdAt: String!
+}
+
+type Thread @aws_cognito_user_pools @aws_iam {
+  threadId: ID!
+  userId: ID!
+  persona: Persona!
+  messages: [Message!]
+  status: ThreadStatus!
+  createdAt: String!
+}
+
+############## PAYLOADS #####################
+
+type CreateThreadPayload @aws_cognito_user_pools @aws_iam {
+  thread: Thread
+}
+
+type CreateMessagePayload @aws_cognito_user_pools @aws_iam {
+  message: Message
+}
+
+type CreatePersonaPayload @aws_cognito_user_pools @aws_iam {
+  persona: Persona
+}
+
+type UpdatePersonaPayload @aws_cognito_user_pools @aws_iam {
+  persona: Persona
+}
+
+type DeletePersonaPayload @aws_cognito_user_pools @aws_iam {
+  persona: Persona
+}
+
+type DeleteThreadPayload @aws_cognito_user_pools @aws_iam {
+  thread: Thread
+}
+
+############## QUERIES #####################
+
+type Query @aws_cognito_user_pools @aws_iam {
+  getPersona(input: GetPersonaInput!): Persona
+  getAllPersonas: [Persona!]
+
+  getThread(input: GetThreadInput!): Thread
+  getAllThreads: [Thread!]
+}
+
+############## MUTATIONS #####################
+
+type Mutation {
+  # Creation
+  createThread(input: CreateThreadInput!): CreateThreadPayload
+    @aws_cognito_user_pools
+    @aws_iam
+  createMessageAsync(input: CreateMessageInput!): CreateMessagePayload
+    @aws_cognito_user_pools
+  createPersona(input: CreatePersonaInput!): CreatePersonaPayload
+    @aws_cognito_user_pools(cognito_groups: ["admin"])
+    @aws_iam
+
+  # Update
+  updatePersona(input: UpdatePersonaInput!): UpdatePersonaPayload
+    @aws_cognito_user_pools(cognito_groups: ["admin"])
+    @aws_iam
+
+  # Deletion
+  deleteThread(input: DeleteThreadInput!): DeleteThreadPayload
+    @aws_cognito_user_pools
+    @aws_iam
+  deletePersona(input: DeletePersonaInput!): DeletePersonaPayload
+    @aws_cognito_user_pools(cognito_groups: ["admin"])
+    @aws_iam
+
+  # System
+  systemSendMessageChunk(input: SystemSendMessageChunkInput!): MessageChunk
+    @aws_iam
+}
+
+############## SUBSCRIPTIONS #####################
+
+type Subscription {
+  recieveMessageChunkAsync(input: RecieveMessageChunkAsyncInput!): MessageChunk
+    @aws_subscribe(mutations: ["systemSendMessageChunk"])
+    @aws_cognito_user_pools
+}

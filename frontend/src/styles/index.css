@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display;
+  }
+}
+
+.btn {
+  @apply bg-red-500 text-white font-bold rounded-xl p-2 my-2 hover:bg-red-800 transition-colors duration-300 shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-300;
+}
+
+.btn-secondary {
+  @apply bg-gray-500 text-white font-bold rounded-xl p-2 my-2 hover:bg-gray-800 transition-colors duration-300 shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-300;
+}
