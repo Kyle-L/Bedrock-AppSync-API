@@ -17,7 +17,7 @@
   "dependencies": {
     "@aws-crypto/sha256-js": "^5.2.0",
     "@aws-sdk/client-bedrock-runtime": "^3.515.0",
-    "@aws-sdk/client-dynamodb": "^3.518.0",
+    "@aws-sdk/client-dynamodb": "^3.521.0",
     "@aws-sdk/client-s3": "^3.515.0",
     "@aws-sdk/client-secrets-manager": "^3.515.0",
     "@aws-sdk/client-sqs": "^3.515.0",
