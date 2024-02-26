@@ -21,7 +21,7 @@
     "@aws-sdk/client-s3": "^3.515.0",
     "@aws-sdk/client-secrets-manager": "^3.515.0",
     "@aws-sdk/client-sqs": "^3.515.0",
-    "@aws-sdk/credential-provider-node": "^3.515.0",
+    "@aws-sdk/credential-provider-node": "^3.521.0",
     "@aws-sdk/s3-request-presigner": "^3.515.0",
     "@aws-sdk/util-dynamodb": "^3.518.0",
     "@langchain/community": "^0.0.30",
