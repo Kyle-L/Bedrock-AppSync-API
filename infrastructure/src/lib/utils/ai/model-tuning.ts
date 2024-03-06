@@ -65,5 +65,15 @@ export const MODEL_TUNINGS: ModelTunings<string> = {
     bindings: {
       stop: ['\nUser:', '\nAssistant:']
     }
+  },
+  'anthropic.claude-3-sonnet-20240229-v1:0': {
+    params: {
+      model: 'anthropic.claude-instant-v1',
+      maxTokens: 1000,
+      temperature: 0.7
+    },
+    bindings: {
+      stop: ['\nUser:', '\nAssistant:']
+    }
   }
 };

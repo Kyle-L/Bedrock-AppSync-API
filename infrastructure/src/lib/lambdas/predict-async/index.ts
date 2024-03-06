@@ -20,7 +20,7 @@ export async function handler({ Records }: SQSEvent, context: Context) {
     (context.getRemainingTimeInMillis() - EVENT_TIMEOUT_BUFFER) /
     Records.length;
 
-  const processingTasks = Records.map(async (record) => {
+  const processingTasks = Records.map(async (record: { body: string }) => {
     const event = JSON.parse(record.body);
 
     console.log(`Received Event: ${JSON.stringify(event)}`);
