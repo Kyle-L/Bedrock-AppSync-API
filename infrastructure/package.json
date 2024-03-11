@@ -27,7 +27,7 @@
     "@langchain/community": "^0.0.34",
     "@langchain/core": "^0.1.41",
     "@smithy/protocol-http": "^3.2.1",
-    "@smithy/signature-v4": "^2.1.3",
+    "@smithy/signature-v4": "^2.1.4",
     "@types/aws-lambda": "^8.10.136",
     "aws-cdk-lib": "2.131.0",
     "aws-lambda": "^1.0.7",
