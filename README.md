@@ -9,6 +9,7 @@
 
 # Table of Content <!-- omit in toc -->
 - [Overview](#overview)
+  - [Demo](#demo)
   - [Architecture](#architecture)
   - [Terminology](#terminology)
   - [Tools Used](#tools-used)
@@ -146,7 +147,12 @@ npm install -g aws-cdk
 cdk bootstrap
 ```
 
-7. Congrats! You are now ready to deploy the infrastructure. See (Backend)[#backend] and (Frontend)[#frontend] for more information on deploying the frontend and the backend of the project.
+7. (Optional) If you would like to speed up some of the steps, a `setup.sh` script is provided to help you set up the infrastructure. This will install all node depedencies and copy the `.env.example` to `.env` for you. You will still need to update the `.env` file with your appropriate values.
+```bash
+./setup.sh
+```
+
+8. Congrats! You are now ready to deploy the infrastructure. See (Backend)[#backend] and (Frontend)[#frontend] for more information on deploying the frontend and the backend of the project.
 
 ## Bedrock Setup
 > If you are not familiar with AWS Bedrock, AWS Bedrock is an API that grants access to GenAI models like Anthropics Claude 2 or Jurassic-1. It is used in this project to provide the GenAI capabilities of the chatbot.
@@ -238,19 +244,22 @@ cd Bedrock-AppSync-API/infrastructure
 npm install
 ```
 
-3. Update the `config.ts` file with your appropriate values. For this section of the deployment process, you can just focus on the `backend` section of the `config.ts` file. The `config.ts` file is located in the `infrastructure` directory. The following are the variables that you will need to update:
+3. Copy `.env.example` to `.env` and update the values with your appropriate values. The following are the variables that you will need to update:
 
 | Variable | Description | Optional/Required |
 | --- | --- | --- |
-| `config.backend.customDomain.acmCertificateArn` | The Amazon Resource Name (ARN) of the AWS Certificate Manager (ACM) certificate for the backend's custom domain. | Optional |
-| `config.backend.customDomain.domain` | The custom domain name for the backend. | Optional |
+| `FRONTEND_ACM_CERTIFICATE_ARN` | The Amazon Resource Name (ARN) of the AWS Certificate Manager (ACM) certificate for the backend's custom domain. | Optional |
+| `FRONTEND_DOMAIN` | The custom domain name for the backend. | Optional |
+| `BACKEND_API_ACM_CERTIFICATE_ARN` | The Amazon Resource Name (ARN) of the AWS Certificate Manager (ACM) certificate for the backend's custom domain. | Optional |
+| `BACKEND_API_DOMAIN` | The custom domain name for the backend. | Optional |
 | `config.backend.pinecone.connectionString` | The connection string for the Pinecone service. | Optional |
-| `config.backend.pinecone.secretArn` | The ARN of the AWS Secrets Manager secret that stores the Pinecone credentials. | Optional |
-| `config.backend.speechSecretArn` | The ARN of the AWS Secrets Manager secret that stores the Azure Text-to-Speech credentials. | Optional |
+| `PINECONE_CONNECTION_STRING` | The connection string for the Pinecone service. | Optional |
+| `PINECONE_SECRET_ARN` | The Amazon Resource Name (ARN) of the AWS Secrets Manager secret for PineCone. | Optional |
+| `SPEECH_SECRET_ARN` | The Amazon Resource Name (ARN) of the AWS Secrets Manager secret for ElevenLabs. | Optional |
 
 - *Note: While you can deploy everything at once, it is highly encouraged to update `customDomain`, `pinecone`, and `speechSecretArn` after the initial deployment of the backend infrastructure. This is to minimize deployment time should issues arise with the deployment.*
 
-4. Deploy the backend infrastructure.
+1. Deploy the backend infrastructure.
 ```bash
 cdk deploy GenAI/Backend
 ```
@@ -273,12 +282,13 @@ cd Bedrock-AppSync-API/infrastructure
 npm install
 ```
 
-3. Update the `config.ts` file with your appropriate values. For this section of the deployment process, you can just focus on the `frontend` section of the `config.ts` file. The `config.ts` file is located in the `infrastructure` directory. The following are the variables that you will need to update:
+3. Copy `.env.example` to `.env` and update the values with your appropriate values. The following are the variables that you will need to update:
 
 | Variable | Description | Optional/Required |
 | --- | --- | --- |
-| `config.frontend.customDomain.acmCertificateArn` | The Amazon Resource Name (ARN) of the AWS Certificate Manager (ACM) certificate for the frontend's custom domain. | Optional |
-| `config.frontend.customDomain.domain` | The custom domain name for the frontend. | Optional |
+| `VITE_COGNITO_USER_POOL_ID` | The user pool ID of the Cognito user pool. | Required |
+| `VITE_COGNITO_USER_POOL_CLIENT_ID` | The user pool client ID of the Cognito user pool. | Required |
+| `VITE_API_URL` | The URL of the AppSync API. | Required |
 
 4. Deploy the frontend infrastructure.
 ```bash
