@@ -161,7 +161,8 @@ cdk bootstrap
 1. Go to the AWS Bedrock console at [https://console.aws.amazon.com/bedrock/](https://console.aws.amazon.com/bedrock/).
 
 2. Go to "Model Access" and request access to the model that you would like to use.
-   - The default models used in this project are `Anthropics Claude 2.1` and `Anthropics Claude 1 Instant`.
+   - The default models used in this project are `Anthropics Claude 1 Instant`, `Anthropics Claude 2.1`, and `Anthropics Claude 3 Sonnet`.
+   - If you would like to use a different model, you can request access to it by clicking on "Request Access" and update the model tuning file to include the new model here: [infrastructure/src/lib/utils/ai/model-tuning.ts)](./infrastructure/src/lib/utils/ai/model-tuning.ts).
 
 3. Wait and check your email for the approval of your request. Should take only a few minutes, but I have had a few take several hours. Once approved, you are ready to deploy the infrastructure.
 
