@@ -25,7 +25,7 @@
     "@aws-sdk/s3-request-presigner": "^3.525.0",
     "@aws-sdk/util-dynamodb": "^3.525.0",
     "@langchain/community": "^0.0.36",
-    "@langchain/core": "^0.1.41",
+    "@langchain/core": "^0.1.48",
     "@smithy/protocol-http": "^3.2.1",
     "@smithy/signature-v4": "^2.1.4",
     "@types/aws-lambda": "^8.10.136",
