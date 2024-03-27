@@ -21,11 +21,9 @@ const AudioPlayer = ({
   // Custom hook to access audio context
   const audio = useAudio();
 
-  // Create audio elements for each clip
-  const audioFiles = audioClips.map((clip) => new Audio(clip));
-
   // State variables to manage playback
   const [audioIndex, setAudioIndex] = useState(0);
+  const [audioFiles, setAudioElement] = useState<HTMLAudioElement[]>([]);
   const [audioPlaying, setAudioPlaying] = useState(false);
 
   // Effect to play audio when play prop changes
@@ -34,6 +32,16 @@ const AudioPlayer = ({
       setAudioIndex(0);
     }
   }, [play]);
+
+  useEffect(() => {
+    if (audioClips.length != audioFiles.length) {
+      if (audioClips.length < audioFiles.length) {
+        setAudioIndex(0);
+      }
+
+      setAudioElement(audioClips.map((clip) => new Audio(clip)));
+    }
+  }, [audioClips, audioFiles]);
 
   // Effect to play the next audio clip
   useEffect(() => {

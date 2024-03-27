@@ -39,7 +39,7 @@ Amplify.configure({
   API: {
     GraphQL: {
       endpoint: import.meta.env.VITE_API_URL,
-      defaultAuthMode: 'userPool',
+      defaultAuthMode: 'userPool'
     }
   }
 });
