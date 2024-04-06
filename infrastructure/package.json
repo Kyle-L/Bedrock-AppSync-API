@@ -31,7 +31,7 @@
     "@types/aws-lambda": "^8.10.136",
     "aws-cdk-lib": "2.131.0",
     "aws-lambda": "^1.0.7",
-    "aws-xray-sdk": "^3.5.4",
+    "aws-xray-sdk": "^3.6.0",
     "bedrock-agents-cdk": "^0.0.9",
     "constructs": "^10.3.0",
     "dotenv": "^16.4.5",
