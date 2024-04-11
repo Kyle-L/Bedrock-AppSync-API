@@ -11,6 +11,7 @@ enum ThreadStatus {
   PENDING
   PROCESSING
   COMPLETE
+  ERROR
 }
 
 ############## INPUTS #####################
