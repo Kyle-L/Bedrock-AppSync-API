@@ -98,20 +98,30 @@ export class PredictConstruct extends Construct {
       },
       memorySize: 756,
       timeout: cdk.Duration.seconds(60),
+      role: new iam.Role(this, 'PredictAsyncRole', {
+        assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+        managedPolicies: [
+          iam.ManagedPolicy.fromAwsManagedPolicyName(
+            'service-role/AWSLambdaBasicExecutionRole'
+          )
+        ]
+      }),
       initialPolicy: [
         // Allow the lambda to call AppSync
         new iam.PolicyStatement({
           resources: [`${api.arn}/*`],
           actions: ['appsync:GraphQL']
-        })
+        }),
+
+        // Allow the lambda to use Bedrock:InvokeModel
+        // so we can call the model endpoint.
+        new iam.PolicyStatement({
+          resources: ['*'],
+          actions: ['bedrock:InvokeModel']
+        }),
       ],
       tracing: Tracing.ACTIVE
     });
-
-    // Add additional permissions to the predictAsyncLambda
-    this.predictAsyncLambda.role?.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonBedrockFullAccess')
-    );
 
     // Add SQS permission to the queue lambda
     this.queue.grantSendMessages(this.queueLambda);
