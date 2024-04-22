@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@aws-appsync/utils": "^1.7.0",
-    "@swc/core": "^1.4.13",
+    "@swc/core": "^1.4.16",
     "@swc/helpers": "^0.5.8",
     "@types/node": "^20.12.7",
     "@typescript-eslint/eslint-plugin": "^7.1.1",
