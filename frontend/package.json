@@ -22,13 +22,13 @@
     "aws-amplify": "^6.0.28",
     "framer-motion": "^11.0.28",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react-dom": "^18.3.1",
     "react-markdown": "^9.0.1",
     "react-router-dom": "^6.22.3"
   },
   "devDependencies": {
     "@types/react": "^18.2.75",
-    "@types/react-dom": "^18.2.24",
+    "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.6.0",
     "@typescript-eslint/parser": "^7.6.0",
     "@vitejs/plugin-react-swc": "^3.6.0",
