@@ -18,7 +18,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@headlessui/react": "^1.7.18",
+    "@headlessui/react": "^2.0.4",
     "aws-amplify": "^6.0.28",
     "framer-motion": "^11.0.28",
     "react": "^18.2.0",
