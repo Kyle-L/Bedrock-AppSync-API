@@ -19,6 +19,8 @@ import { BackgroundProvider } from './providers/BackgroundProvider';
 import { Protected } from './providers/Protected';
 import './styles/index.css';
 import { AudioProvider } from './providers/AudioProvider';
+import ConfirmAccount from './pages/auth/confirm';
+import Settings from './pages/auth/settings';
 
 Amplify.configure({
   Auth: {
@@ -49,7 +51,9 @@ const AuthRoutes = [
   { path: 'sign-up', element: <SignUp /> },
   { path: 'login', element: <Login /> },
   { path: 'request-reset', element: <RequestResetPassword /> },
-  { path: 'reset', element: <ResetPassword /> }
+  { path: 'reset', element: <ResetPassword /> },
+  { path: 'confirm', element: <ConfirmAccount /> },
+  { path: 'settings', element: <Settings /> }
 ];
 
 // Main App Routes

@@ -10,7 +10,7 @@ export default function Container({
   [key: string]: any;
 }) {
   return (
-    <div className="bg-slate-100 w-full rounded-lg p-4 lg:p-12 my-2">
+    <div className="bg-slate-50 w-full rounded-lg p-4 lg:p-12 my-2">
       <motion.div
         className="flex flex-col items-center justify-center"
         initial={{ opacity: 0, x: -100 }}
