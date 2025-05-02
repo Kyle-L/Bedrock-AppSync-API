@@ -1,7 +1,7 @@
-import { Persona, Thread } from '../../API';
 import { motion } from 'framer-motion';
-import { gradientColorMap } from '../gradient-dict';
+import { Persona } from '../../API';
 import { getAvatarURL } from '../../utils/avatar';
+import { gradientColorMap } from '../gradient-dict';
 
 import type { ComponentPropsWithoutRef } from 'react';
 import { Link } from 'react-router-dom';
@@ -23,7 +23,7 @@ export default function PersonaCard({ persona, onClickCallBack, ...props }: Pers
       {...props}
       className={[
         'flex items-center w-full',
-        `bg-gradient-to-br ${gradientColorMap[persona.color as keyof typeof gradientColorMap]}`,
+        `bg-linear-to-br ${gradientColorMap[persona.color as keyof typeof gradientColorMap]}`,
         'text-white font-bold rounded-xl p-2 my-2',
         'filter hover:brightness-110 transition-filter'
       ].join(' ')}

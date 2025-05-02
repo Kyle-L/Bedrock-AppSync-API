@@ -14,15 +14,16 @@ export default function Login() {
   const auth = useAuth();
   const navigate = useNavigate();
 
-  const signIn = async (event: any) => {
+  const signIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
       await auth.signIn(input);
       navigate('/');
-    } catch (err: any) {
-      setError(err.message);
-      console.error('err: ', err);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message ?? 'Something went wrong!');
+      }
     }
   };
 
@@ -32,7 +33,7 @@ export default function Login() {
         <h1 className="text-2xl font-extrabold w-full">Login 🔐</h1>
         <p className="text-slate-500">Please enter your email and password</p>
       </div>
-      <form className="w-full flex flex-col">
+      <form className="w-full flex flex-col" onSubmit={signIn}>
         {['Email', 'Password'].map((field, index) => (
           <input
             key={index}
@@ -44,7 +45,7 @@ export default function Login() {
             }
           />
         ))}
-        <button className="btn" onClick={signIn}>
+        <button className="btn" type="submit">
           Login
         </button>
       </form>

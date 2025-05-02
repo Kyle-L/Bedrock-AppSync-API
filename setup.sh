@@ -12,6 +12,12 @@ if ! [ -x "$(command -v npm)" ]; then
   exit 1
 fi
 
+# Check if pnpm is installed
+if ! [ -x "$(command -v pnpm)" ]; then
+  echo -e "${RED}Error: pnpm is not installed.${NC}" >&2
+  exit 1
+fi
+
 # Check if git is installed
 if ! [ -x "$(command -v git)" ]; then
   echo -e "${RED}Error: git is not installed.${NC}" >&2
@@ -25,7 +31,7 @@ TOP_LEVEL=$(git rev-parse --show-toplevel)
 
 # Install infrastructure dependencies
 echo -e "${BLUE}Installing infrastructure dependencies...${NC}"
-cd $TOP_LEVEL/infrastructure && npm install
+cd $TOP_LEVEL/infrastructure && pnpm-lock install
 echo -e "${GREEN}Finished setting the infrastructure dependencies.${NC}"
 
 # Copy .env.example to .env
@@ -35,7 +41,7 @@ echo -e "${GREEN}Finished copying .env.example to .env.${NC}"
 
 # Install frontend dependencies
 echo -e "${BLUE}Installing frontend dependencies...${NC}"
-cd $TOP_LEVEL/frontend && npm install
+cd $TOP_LEVEL/frontend && pnpm-lock install
 echo -e "${GREEN}Finished setting the frontend dependencies.${NC}"
 
 # Copy .env.example to .env

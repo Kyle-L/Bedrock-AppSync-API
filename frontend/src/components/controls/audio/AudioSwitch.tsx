@@ -11,7 +11,7 @@ export default function AudioSwitch() {
         checked={audio.generateAudio}
         onChange={audio.setGenerateAudio}
         className={`${audio.generateAudio ? 'bg-red-500' : 'bg-slate-500'}
-          shadow-md relative inline-flex h-[18px] w-[36px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white/75`}
+          shadow-md relative inline-flex h-[18px] w-[36px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden focus-visible:ring-2  focus-visible:ring-white/75`}
       >
         <span className="sr-only">Use setting</span>
         <span

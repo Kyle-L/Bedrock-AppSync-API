@@ -1,13 +1,13 @@
 import { generateClient } from 'aws-amplify/api';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { CreatePersonaInput, Persona, UpdatePersonaInput } from '../../API';
+import { CreatePersonaInput, UpdatePersonaInput } from '../../API';
+import { gradientColorMap } from '../../components/gradient-dict';
+import Container from '../../components/layouts/Container';
 import * as mutations from '../../graphql/mutations';
 import * as queries from '../../graphql/queries';
 import useAlert from '../../hooks/AlertHook';
 import { useBackground } from '../../providers/BackgroundProvider';
-import { gradientColorMap } from '../../components/gradient-dict';
-import Container from '../../components/layouts/Container';
 
 const client = generateClient();
 
@@ -60,8 +60,10 @@ export default function CreateEditDeletePersona() {
 
       addAlert('Persona created!', 'success');
       navigate(`/personas/update/${result.data.createPersona.persona?.personaId}`);
-    } catch (err: any) {
-      addAlert(err?.message ?? 'Something went wrong!', 'error');
+    } catch (err) {
+      if (err instanceof Error) {
+        addAlert(err.message ?? 'Something went wrong!', 'error');
+      }
     }
   };
 
@@ -72,7 +74,7 @@ export default function CreateEditDeletePersona() {
    */
   const updatePersona = async (persona: UpdatePersonaInput) => {
     try {
-      const result = await client.graphql({
+      await client.graphql({
         query: mutations.updatePersona,
         variables: {
           input: persona
@@ -80,8 +82,10 @@ export default function CreateEditDeletePersona() {
       });
 
       addAlert('Persona updated!', 'success');
-    } catch (err: any) {
-      addAlert(err?.message ?? 'Something went wrong!', 'error');
+    } catch (err) {
+      if (err instanceof Error) {
+        addAlert(err.message ?? 'Something went wrong!', 'error');
+      }
     }
   };
 
@@ -107,8 +111,10 @@ export default function CreateEditDeletePersona() {
 
       addAlert('Persona deleted!', 'success');
       navigate(`/personas`);
-    } catch (err: any) {
-      addAlert(err?.message ?? 'Something went wrong!', 'error');
+    } catch (err) {
+      if (err instanceof Error) {
+        addAlert(err.message ?? 'Something went wrong!', 'error');
+      }
     }
   };
 

@@ -1,13 +1,12 @@
+import {
+  faCheckCircle,
+  faExclamationCircle,
+  faExclamationTriangle,
+  faInfoCircle,
+  faTimes
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Alert } from '../../providers/AlertProvider';
-import {
-  faTimes,
-  faCheckCircle,
-  faExclamation,
-  faInfoCircle,
-  faExclamationCircle,
-  faExclamationTriangle
-} from '@fortawesome/free-solid-svg-icons';
 
 interface AlertProps {
   alert: Alert;
@@ -45,7 +44,7 @@ export function AlertComponent({ alert, unmountSelf }: AlertProps) {
         <div className="ml-3">
           <p className="leading-5 font-medium">{alert.message}</p>
         </div>
-        <button onClick={unmountSelf} className="mx-2 focus:outline-none">
+        <button onClick={unmountSelf} className="mx-2 focus:outline-hidden">
           <FontAwesomeIcon icon={faTimes} />
         </button>
       </div>

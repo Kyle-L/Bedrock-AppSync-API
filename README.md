@@ -133,12 +133,12 @@ cd Bedrock-AppSync-API/infrastructure
 
 4. Install the dependencies.
 ```bash
-npm install
+pnpm install
 ```
 
 5. Install AWS CDK
 ```bash
-npm install -g aws-cdk
+pnpm install -g aws-cdk
 ```
 
 6. Bootstrap the AWS CDK environment.
@@ -241,7 +241,7 @@ cd Bedrock-AppSync-API/infrastructure
 
 2. Install the dependencies.
 ```bash
-npm install
+pnpm install
 ```
 
 3. Copy `.env.example` to `.env` and update the values with your appropriate values. The following are the variables that you will need to update:
@@ -279,7 +279,7 @@ cd Bedrock-AppSync-API/infrastructure
 
 2. Install the dependencies.
 ```bash
-npm install
+pnpm install
 ```
 
 3. Copy `.env.example` to `.env` and update the values with your appropriate values. The following are the variables that you will need to update:
@@ -306,12 +306,12 @@ cd Bedrock-AppSync-API/frontend
 
 2. Install the dependencies.
 ```bash
-npm install
+pnpm install
 ```
 
 3. Build the Vite App
 ```
-npm run build
+pnpm run build
 ```
 
 5. Deploy the Vite App to S3

@@ -14,15 +14,16 @@ export default function RequestResetPassword() {
   const auth = useAuth();
   const navigate = useNavigate();
 
-  const requestReset = async (event: any) => {
+  const requestReset = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
       await auth.resetPassword(requestInput);
       navigate(`/auth/reset?username=${requestInput.username}`);
-    } catch (err: any) {
-      setError(err.message);
-      console.error(JSON.stringify(err));
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message ?? 'Something went wrong!');
+      }
     }
   };
 
@@ -32,14 +33,14 @@ export default function RequestResetPassword() {
         <h1 className="text-2xl font-extrabold w-full">Request Password Reset 🔐</h1>
         <p className="text-slate-500">Please enter your email</p>
       </div>
-      <form className="w-full flex flex-col">
+      <form className="w-full flex flex-col" onSubmit={requestReset}>
         <input
           className="w-full shadow-md rounded-xl p-2 my-2"
           type={'text'}
           placeholder={'Email'}
           onChange={(e) => setRequestInput({ ...requestInput, username: e.target.value })}
         />
-        <button className="btn" onClick={requestReset}>
+        <button className="btn" type="submit">
           Request Reset
         </button>
       </form>

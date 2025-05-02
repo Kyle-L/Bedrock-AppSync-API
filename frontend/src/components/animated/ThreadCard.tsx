@@ -26,7 +26,7 @@ export default function ThreadCard({
       {...props}
       className={[
         'flex items-center w-full',
-        `bg-gradient-to-br ${gradientColorMap[persona.color as keyof typeof gradientColorMap]}`,
+        `bg-linear-to-br ${gradientColorMap[persona.color as keyof typeof gradientColorMap]}`,
         'text-white font-bold rounded-xl p-2 my-2',
         'filter hover:brightness-110 transition-filter'
       ].join(' ')}

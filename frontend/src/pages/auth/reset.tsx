@@ -25,15 +25,16 @@ export default function ResetPassword() {
     }
   }, []);
 
-  const resetPassword = async (event: any) => {
+  const resetPassword = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
       await auth.confirmResetPassword(resetInput);
       navigate(`/auth/login`);
-    } catch (err: any) {
-      setError(err.message);
-      console.error(JSON.stringify(err));
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message ?? 'Something went wrong!');
+      }
     }
   };
 
@@ -43,7 +44,7 @@ export default function ResetPassword() {
         <h1 className="text-2xl font-extrabold w-full">Reset Password 🔐</h1>
         <p className="text-slate-500">You got a code. Enter it (and your new password).</p>
       </div>
-      <form className="w-full flex flex-col">
+      <form className="w-full flex flex-col" onSubmit={resetPassword}>
         {[
           { field: 'Confirmation Code', key: 'confirmationCode' },
           { field: 'New Password', key: 'newPassword' }
@@ -56,7 +57,7 @@ export default function ResetPassword() {
             onChange={(e) => setResetInput({ ...resetInput, [field.key]: e.target.value })}
           />
         ))}
-        <button className="btn" onClick={resetPassword}>
+        <button className="btn" type="submit">
           Login
         </button>
       </form>

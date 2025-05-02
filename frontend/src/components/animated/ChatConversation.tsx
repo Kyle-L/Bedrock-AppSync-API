@@ -30,7 +30,9 @@ export default function ChatConversation({
                 (chat.sender === 'Assistant' ? thread.persona.name : userAttributes?.name) ?? 'N/A'
             })}
             key={index}
-            name={chat.sender === 'Assistant' ? thread.persona.name : userAttributes?.name ?? 'N/A'}
+            name={
+              chat.sender === 'Assistant' ? thread.persona.name : (userAttributes?.name ?? 'N/A')
+            }
             message={chat.message}
             audioClips={chat.audioClips ?? []}
             timestamp={chat.createdAt}

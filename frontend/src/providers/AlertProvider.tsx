@@ -15,10 +15,10 @@ interface AlertContextProps {
 export const AlertContext = React.createContext<AlertContextProps>({
   alerts: [],
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   addAlert: (message: string, type: Alert['type']) => {},
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   removeAlert: (id: string) => {}
 });
 

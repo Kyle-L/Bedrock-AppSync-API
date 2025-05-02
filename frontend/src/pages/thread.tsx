@@ -57,8 +57,10 @@ export default function ThreadPage() {
         }
       });
       setThread(data.getThread as Thread);
-    } catch (err: any) {
-      addAlert(err?.message ?? 'Something went wrong!', 'error');
+    } catch (err) {
+      if (err instanceof Error) {
+        addAlert(err.message ?? 'Something went wrong!', 'error');
+      }
     }
   };
 
@@ -168,8 +170,10 @@ export default function ThreadPage() {
           }
         }
       })
-      .catch((err: any) => {
-        addAlert(err?.message ?? 'Something went wrong!', 'error');
+      .catch((err) => {
+        if (err instanceof Error) {
+          addAlert(err.message ?? 'Something went wrong!', 'error');
+        }
       });
   };
 

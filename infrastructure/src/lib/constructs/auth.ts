@@ -17,17 +17,6 @@ export class AuthConstruct extends Construct {
   constructor(scope: Construct, id: string, props: CognitoConstructProps) {
     super(scope, id);
 
-    // Pre-signup Lambda
-    this.presignupLambda = new NodejsFunction(this, 'PreSignupLambda', {
-      runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
-      entry: path.join(__dirname, '../lambdas/pre-signup/index.ts'),
-      bundling: {
-        minify: true,
-        sourceMap: true
-      },
-      timeout: cdk.Duration.seconds(30)
-    });
-
     // A Cognito User Pool
     this.userPool = new cognito.UserPool(this, 'UserPool', {
       selfSignUpEnabled: true,
@@ -42,9 +31,6 @@ export class AuthConstruct extends Construct {
           required: true,
           mutable: true
         }
-      },
-      lambdaTriggers: {
-        preSignUp: this.presignupLambda
       }
     });
 

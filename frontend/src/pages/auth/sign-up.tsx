@@ -23,20 +23,21 @@ export default function SignUp() {
   const auth = useAuth();
   const navigate = useNavigate();
 
-  const signIn = async (event: { preventDefault: () => void }) => {
+  const signIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
       await auth.signUp(signUpInput);
       setConfirmSignUp(true);
       setConfirmSignUpInput({ ...confirmSignUpInput, username: signUpInput.username });
-    } catch (err: any) {
-      setError(err.message);
-      console.error('err: ', err);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message ?? 'Something went wrong!');
+      }
     }
   };
 
-  const confirm = async (event: { preventDefault: () => void }) => {
+  const confirm = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
@@ -46,9 +47,10 @@ export default function SignUp() {
         password: signUpInput.password
       });
       navigate('/');
-    } catch (err: any) {
-      setError(err.message);
-      console.error('err: ', err);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message ?? 'Something went wrong!');
+      }
     }
   };
 
@@ -62,7 +64,10 @@ export default function SignUp() {
           {confirmSignUp ? 'You got a code. Enter it.' : 'Please enter your email and password'}
         </p>
       </div>
-      <form className="w-full flex flex-col items-center justify-center">
+      <form
+        className="w-full flex flex-col items-center justify-center"
+        onSubmit={confirmSignUp ? confirm : signIn}
+      >
         {confirmSignUp ? (
           <input
             className="w-full shadow-md rounded-xl p-2 my-2"
@@ -103,7 +108,7 @@ export default function SignUp() {
             />
           </>
         )}
-        <button className="btn" onClick={confirmSignUp ? confirm : signIn}>
+        <button className="btn" type="submit">
           {confirmSignUp ? 'Confirm' : 'Sign Up'}
         </button>
       </form>

@@ -30,21 +30,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: 'npm'
-          cache-dependency-path: ./infrastructure/package-lock.json
-
-      - name: Install dependencies
-        run: npm install
-
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: us-east-1
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: ./infrastructure/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Deploy
         env:
@@ -55,11 +59,10 @@ jobs:
           PINECONE_CONNECTION_STRING : ${{ vars.PINECONE_CONNECTION_STRING }}
           PINECONE_SECRET_ARN : ${{ vars.PINECONE_SECRET_ARN }}
           SPEECH_SECRET_ARN: ${{ vars.SPEECH_SECRET_ARN }}
-        run: npm run deploy
+        run: pnpm run deploy
 
   deploy-frontend:
     name: Deploy Frontend
-    needs: [deploy-infrastructure]
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -68,28 +71,32 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Assume AWS Role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-east-1
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: 'npm'
-          cache-dependency-path: ./frontend/package-lock.json
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: ./frontend/pnpm-lock.yaml
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Build
         env:
           VITE_API_URL : ${{ vars.VITE_API_URL }}
           VITE_COGNITO_USER_POOL_CLIENT_ID : ${{ vars.VITE_COGNITO_USER_POOL_CLIENT_ID }}
           VITE_COGNITO_USER_POOL_ID : ${{ vars.VITE_COGNITO_USER_POOL_ID }}
-        run: npm run build
-
-      - name: Assume AWS Role
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: us-east-1
+        run: pnpm run build
 
       - name: Deploy to S3
         run: |

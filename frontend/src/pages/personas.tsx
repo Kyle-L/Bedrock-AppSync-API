@@ -90,7 +90,7 @@ export default function Personas() {
       <Container>
         <div className="w-full">
           <h1 className="text-2xl font-extrabold w-full">Meet the Personas 👥</h1>
-          <p className="text-slate-600 mt-2 border-l-2 border-slate-600 p-2 bg-slate-200 rounded">
+          <p className="text-slate-600 mt-2 border-l-2 border-slate-600 p-2 bg-slate-200 rounded-sm">
             "A persona in AI is a made-up character that represents a typical user, used to
             understand and improve interactions and experiences with AI systems."
           </p>
@@ -134,7 +134,7 @@ export default function Personas() {
             <h1 className="text-2xl font-extrabold w-full">Open Conversations</h1>
             <ul className="w-full">
               <AnimatePresence>
-                {[...threads].map((persona, index) => {
+                {[...threads].map((persona) => {
                   return (
                     <ThreadCard
                       key={persona.threadId}

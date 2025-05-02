@@ -38,7 +38,7 @@ export default function Background() {
           onAnimationEnd={() => {
             setBackgrounds((backgrounds) => backgrounds.filter((_, i) => i !== index));
           }}
-          className={`fixed inset-0 bg-gradient-to-br ${background} -z-10`}
+          className={`fixed inset-0 bg-linear-to-br ${background} -z-10`}
         />
       ))}
     </AnimatePresence>
