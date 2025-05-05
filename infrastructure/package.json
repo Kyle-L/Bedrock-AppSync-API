@@ -18,7 +18,7 @@
     "@aws-crypto/sha256-js": "^5.2.0",
     "@aws-sdk/client-bedrock-runtime": "^3.799.0",
     "@aws-sdk/client-dynamodb": "^3.799.0",
-    "@aws-sdk/client-s3": "^3.800.0",
+    "@aws-sdk/client-s3": "^3.802.0",
     "@aws-sdk/client-secrets-manager": "^3.799.0",
     "@aws-sdk/client-sqs": "^3.799.0",
     "@aws-sdk/credential-provider-node": "^3.799.0",
