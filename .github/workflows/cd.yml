@@ -28,7 +28,7 @@ jobs:
         working-directory: ./infrastructure
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v4
@@ -69,7 +69,7 @@ jobs:
         working-directory: ./frontend
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v4
