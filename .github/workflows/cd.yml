@@ -28,7 +28,7 @@ jobs:
         working-directory: ./infrastructure
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v5
@@ -41,7 +41,7 @@ jobs:
           version: 10
 
       - name: Set up Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: 'pnpm'
@@ -69,7 +69,7 @@ jobs:
         working-directory: ./frontend
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Assume AWS Role
         uses: aws-actions/configure-aws-credentials@v5
@@ -82,7 +82,7 @@ jobs:
           version: 10
 
       - name: Set up Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: 'pnpm'
